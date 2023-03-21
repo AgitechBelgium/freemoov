@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+	<data>
+		<record id="view_project_task_moov_reparation_resource" model="ir.ui.view">
+            <field name="name">project.task.reparation.number</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_form2" />
+            <field name="arch" type="xml">
+	            <xpath expr="//div[hasclass('oe_title')]//h1" position="before">
+		            <h2><field name="reparation_number" readonly="1" force_save="1"/></h2>
+	            </xpath>
+            </field>
+		</record>
+	</data>
+</odoo>
