@@ -10,6 +10,7 @@
     'data': [
         'data/sequence.xml',
         'views/task.xml',
+        'views/sms_views.xml',
     ],
     'license': 'LGPL-3',
     'demo': [
