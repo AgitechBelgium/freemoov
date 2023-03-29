@@ -4,7 +4,7 @@ from odoo import models, api, fields, _
 class ProjectTask(models.Model):
 	_inherit = 'project.task'
 
-	reparation_number = fields.Char(string="Reparation Number")
+	reparation_number = fields.Char(string="Reparation number or reference")
 
 	@api.model_create_multi
 	def create(self, vals_list):
