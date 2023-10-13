@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+ust_common_features.access_all_in_one_slider,access_all_in_one_slider,ust_common_features.model_all_in_one_slider,,1,1,1,1
+ust_common_features.access_ust_product_tab,access_ust_product_tab,ust_common_features.model_ust_product_tab,,1,1,1,1
+ust_common_features.access_ust_product_tab_line,access_ust_product_tab_line,ust_common_features.model_ust_product_tab_line,,1,1,1,1
+ust_common_features.access_ust_product_brand,access_ust_product_brand,ust_common_features.model_ust_product_brand,,1,1,1,1
+ust_common_features.access_ust_product_tabs,access_ust_product_tabs,ust_common_features.model_ust_product_tabs,,1,1,1,1
+ust_common_features.access_ust_product_tab_configure,access_ust_product_tab_configure,ust_common_features.model_ust_product_tab_configure,,1,1,1,1
+ust_common_features.access_ust_product_label,access_ust_product_label,ust_common_features.model_ust_product_label,,1,1,1,1

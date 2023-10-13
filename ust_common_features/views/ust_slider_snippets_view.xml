@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- All In One Slider Start-->
+
+    <record id="ust_all_in_one_slider_tree" model="ir.ui.view">
+        <field name="name">all_in.one.slider.tree</field>
+        <field name="model">all_in.one.slider</field>
+        <field name="arch" type="xml">
+            <tree string="All In One Slider">
+                <field name="name"/>
+                <field name="slider_type"/>
+            </tree>
+        </field>
+    </record>
+    <record id="ust_all_in_one_slider_form" model="ir.ui.view">
+        <field name="name">all_in.one.slider.form</field>
+        <field name="model">all_in.one.slider</field>
+        <field name="arch" type="xml">
+            <form string="All In One Slider">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="slider_name"/>
+                            <field name="slider_type"/>
+                            <field name="style_type"/>
+                        </group>
+                        <group>
+                            <field name="sub_title"/>
+                            <field name="item_each_slide" attrs="{'invisible': [('style_type','=', 'grid')]}"/>
+                            <field name="slider_auto_slide" attrs="{'invisible': [('style_type','=', 'grid')]}"/>
+                            <field name="speed_of_slider" attrs="{'invisible': [('style_type','=', 'grid')]}"/>
+                        </group>
+                    </group>
+                    <group string="Select Brands" attrs="{'invisible': [('slider_type','!=', 'brand')]}">
+                        <field name="brand_ids" widget="many2many_tags"/>
+                    </group>
+                    <group string="Select Blogs" attrs="{'invisible': [('slider_type','!=', 'blog')]}">
+                        <field name="blog_ids" widget="many2many_tags"/>
+                    </group>
+                    <group string="Select Categories" attrs="{'invisible': [('slider_type','!=', 'category')]}">
+                        <field name="category_ids" widget="many2many_tags"/>
+                    </group>
+                    <notebook attrs="{'invisible': [('slider_type','!=', 'product')]}">
+                        <page name="Tabs" string="Tabs and Products">
+                            <field name="tabs_line_ids" widget="one2many_list">
+                                <tree string="Tabs">
+                                    <field name="tab_id"/>
+                                    <field name="product_ids"/>
+                                </tree>
+                                <form string="Offers">
+                                    <group>
+                                        <field name="tab_id"/>
+                                        <field name="product_ids" widget="many2many_tags"/>
+                                        <field name="sub_title_line"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                    </notebook>
+
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_ust_all_in_one_slider" model="ir.actions.act_window">
+        <field name="name">All In One Slider</field>
+        <field name="res_model">all_in.one.slider</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <!-- All In One Slider End-->
+
+
+</odoo>

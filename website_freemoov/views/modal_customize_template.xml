@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<odoo>
+
+    <template name="Theme Customize Options Modal" id="theme_customize_header" inherit_id="website.snippet_options">    
+        <xpath expr="//we-select[@data-variable='header-template']" position="inside">
+            <we-button title="Header Freemoov"
+                       data-name="header_freemoov_opt"
+                       data-customize-website-views="website_freemoov.header_freemoov"
+                       data-customize-website-variable="'header-1'"
+                       data-img="/website_freemoov/static/description/header_footer/header-1.png"/>
+
+        </xpath>
+
+        <xpath expr="//we-select[@data-variable='footer-template']" position="inside">
+            <we-button title="Freemoov Footer"
+                       data-name="footer_opt"
+                       data-customize-website-views="website_freemoov.footer"
+                       data-customize-website-variable="'devlyn-footer'"
+                       data-img="/website_freemoov/static/description/footer-1.png"/>
+        </xpath>
+    </template>
+</odoo>

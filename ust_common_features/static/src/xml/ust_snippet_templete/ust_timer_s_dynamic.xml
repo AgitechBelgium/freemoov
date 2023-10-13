@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates id="ust_timer_dynamic_snippet_temp" xml:space="preserve">
+    <!-- timer snippet start-->
+    <t t-name="ust_common_features.ust_timer_dynamic_snippet">
+        <div class="o_technical_modal modal" role="dialog" id="ust_timer_main">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Timer</h4>
+                        <button type="button" class="close" data-bs-dismiss="modal">
+                            <i class="fa fa-times" />
+                        </button>
+                    </div>
+                    <div class="modal-body" style="overflow: visible !important;">
+                        <div class="form-group align-items-center row">
+                            <label class="col-sm-3 control-label m-0">Select Date : </label>
+                            <div class="col-sm-9">
+                                <div class="input-group date" data-target-input="nearest" id="timersdatepicker">
+                                    <input type="text" name="ust_timer_pickers" id="ust_timer_pickers" class="form-control datetimepicker-input" data-target="#timersdatepicker"/>
+                                    <div class="input-group-append" data-toggle="datetimepicker" data-target="#timersdatepicker">
+                                        <div class="input-group-text h-100"><i class="fa fa-calendar"></i></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary ust-save-timer" data-bs-dismiss="modal">Save</button>
+                        <button type="button" class="btn btn-secondary btn_close" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+    <!-- timer snippet end-->
+</templates>

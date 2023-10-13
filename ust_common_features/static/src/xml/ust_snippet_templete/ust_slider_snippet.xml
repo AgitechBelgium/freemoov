@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+
+
+    <!-- All in one Slider Popup Start -->
+    <t t-name="ust_common_features.ust_dynamic_popup_all_in_one_temp">
+        <div role="dialog" t-attf-class="modal #{technical ? ' o_technical_modal' : ''}#{fullscreen ? ' o_modal_full': ''}" tabindex="-1">
+            <div class="modal-dialog">
+                <div id="ust_cat_slider_popup" class="modal-content">
+                    <header class="modal-header">
+                        <h4 class="modal-title">Dynamic All In One Sliderrrrrr</h4>
+                        <button class="close" data-bs-dismiss="modal" type="button">x</button>
+                    </header>
+                    <main class="modal-body">
+                        <form class="form-horizontal" role="form">
+                            <div class="row">
+                                <label class="col-sm-3 control-label" for="popup_all_in_one_filter">Select Slider</label>
+                                <div class="form-group col-sm-9">
+                                    <select class="form-control" id="popup_all_in_one_filter" name="popup_all_in_one_filter"></select>
+                                </div>
+                            </div>
+                        </form>
+                    </main>
+                    <footer class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="ust_all_in_one_add_s">Add</button>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </t>
+    <!-- All in one Slider Popup End -->
+
+    <!-- Product Banner Popup Start -->
+    <t t-name="ust_common_features.ust_dynamic_prod_banner_temp">
+        <div aria-labelledby="myModalLabel" aria-hidden="true" t-attf-class="modal #{technical ? ' o_technical_modal' : ''}#{fullscreen ? ' o_modal_full': ''}" contenteditable="False" role="dialog" style="z-index:1050">
+            <div class="modal-dialog">
+                <div id="ust_cat_slider_popup" class="modal-content">
+                    <header class="modal-header">
+                        <h4 class="modal-title">Full Product Banner Slider</h4>
+                        <button class="close" data-bs-dismiss="modal" type="button">x</button>
+                    </header>
+                    <main class="modal-body">
+                        <form class="form-horizontal" role="form">
+                            <div class="row">
+                                <label class="col-sm-3 control-label" for="popup_prod_banner_filter">Select Product</label>
+                                <div class="form-group col-sm-9">
+                                    <select class="form-control" id="popup_prod_banner_filter" name="popup_prod_banner_filter"></select>
+                                </div>
+                            </div>
+                        </form>
+                    </main>
+                    
+                    <footer class="modal-footer">
+                        <button class="btn btn-primary" data-bs-dismiss="modal" id="ust_prod_banner_s">Add</button>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </t>
+    <!-- Product Banner Popup End -->
+
+</templates>
