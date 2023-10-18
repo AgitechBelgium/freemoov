@@ -115,7 +115,9 @@
                                 <div class="icon pb40">
                                     <img src="/website_freemoov/static/src/img/footer-icon.png" class="img img-fluid"/>
                                 </div>
-                                <h2 class="modal-title pb40 text-center text-md-start" id="subcategoryModalTitle"></h2>
+                                <h2 class="modal-title pb40 text-center text-md-start" id="subcategoryModalTitle">
+                                    <a class="nav_link"></a>
+                                </h2>
                                 <div class="buttons pb32 text-center d-block d-md-none">
                                     <a href="/shop" class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">voir tout</a>
                                 </div>

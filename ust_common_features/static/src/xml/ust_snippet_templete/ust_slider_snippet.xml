@@ -8,7 +8,7 @@
             <div class="modal-dialog">
                 <div id="ust_cat_slider_popup" class="modal-content">
                     <header class="modal-header">
-                        <h4 class="modal-title">Dynamic All In One Sliderrrrrr</h4>
+                        <h4 class="modal-title">Dynamic All In One Slider</h4>
                         <button class="close" data-bs-dismiss="modal" type="button">x</button>
                     </header>
                     <main class="modal-body">

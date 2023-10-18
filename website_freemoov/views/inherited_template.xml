@@ -959,7 +959,7 @@
     </template>
     <template id="menu_catego_recursive" >
         <li class="nav-item">
-            <a class="nav-link category-link" t-attf-data-category-id="#{catego.id}" t-attf-data-category-name="#{catego.name}">
+            <a class="nav-link category-link" t-att-href="'/shop/category/%s' % slug(catego)" t-attf-data-category-id="#{catego.id}" t-attf-data-category-name="#{catego.name}">
                 <span t-esc="catego.name"/>
             </a>
         </li>
@@ -980,7 +980,7 @@
                 <t t-foreach="subcategories_ids" t-as="subcategory">
                     <ul class="list-unstyled">
                         <li class="nav-item">
-                            <a class="nav-link fw-bold p-0">
+                            <a class="nav-link fw-bold p-0" t-att-href="'/shop/category/%s' % slug(subcategory)">
                                 <t t-esc="subcategory.name"/><br/>
                             </a>
                         </li>

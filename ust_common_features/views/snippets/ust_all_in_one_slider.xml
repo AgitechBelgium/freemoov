@@ -425,7 +425,7 @@
 	                </a>
 	                <div class="card-body">
 	                    <div class="card-details">
-	                        <a class="mb16 d-block category" t-attf-href="/blog/#{slug(record.blog_id)}" t-esc="record.name"/>
+	                        <a class="mb16 d-block category" t-attf-href="/blog/#{slug(record.blog_id)}" t-esc="record.blog_id.name"/>
 	                        <a t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)"><h4 class=" s_blog_posts_post_title mb8" t-esc="record.name"/></a>
 	                        <div t-if="is_sample" class="h5 o_ribbon_right bg-primary text-uppercase">Sample</div>
 	                        <div class="s_blog_posts_post_subtitle" t-esc="record.subtitle"/>

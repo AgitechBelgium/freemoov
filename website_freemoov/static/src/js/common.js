@@ -51,9 +51,9 @@ odoo.define('website_freemoov.category_script', function (require) {
             ajax.jsonRpc('/fetch_subcategories', 'call', {category_id: categoryId})
                 .then(function (data) {
                     // Populate the subcategory modal with data
-                    console.log('>>>>>>>>>categoryId>>>>>>>>>>',data['sub_catg'])
-                    $("#subcategoryModalTitle").text(categoryName);
-                    
+                    console.log('>>>>>>>>>categoryId>>>>>>>>>>',data['sub_catg'])                    // $("#subcategoryModalTitle").text(categoryName);
+                    var category_html = "<a class='nav_link text-white' href='/shop/category/" + data['category'] + "'>" + categoryName + "</a>"  
+                    $("#subcategoryModalTitle").find('a').html(category_html);
                     $("#subcategoryModalBody").html(data['sub_catg']);
                             
                     $("#top-menu-collapse-sub-category").modal("show");
