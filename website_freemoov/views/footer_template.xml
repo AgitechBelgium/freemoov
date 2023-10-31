@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="footer" name="Footer one" inherit_id="website.layout" active="False">
+        <xpath expr="//div[@id='footer']" position="replace">
+        	<div id="footer" class="oe_structure oe_structure_solo footer" t-ignore="true" t-if="not no_footer">
+        		<section class="s_text_block pt64">
+        			<div class="container">
+        				<div class="row">
+        					<div class="col-xl-4 col-lg-5 col-md-8 pt16 pb16 footer-data order-1">
+        						<div class="box d-flex">
+        							<div class="icon">
+        								<img src="/website_freemoov/static/src/img/footer-icon.png" class="img"/>
+        							</div>
+        							<div class="content ms-lg-5 ms-md-2">
+        								<h6 class="fw-bold">Bienvenue chez Freemoov. L'expert en trottinette électrique qui a pour objectif de chouchouter ses clients !</h6>
+        								<ul class="list-inline mt-2">
+		                                    <li class="list-inline-item"><a href="#">vente</a></li>
+		                                    <li class="list-inline-item"><a href="#">réparation</a></li>
+		                                    <li class="list-inline-item"><a href="#">conseil</a></li>
+		                                    <li class="list-inline-item"><a href="#">écoute</a></li>
+		                                    <li class="list-inline-item"><a href="#">essai</a></li>
+		                                </ul>
+		                                
+        							</div>
+        						</div>
+        					</div>
+        					<div class="col-lg-2 col-md-4 pt16 pb16 order-3 order-lg-2 footer-data offset-xl-1">
+        						<div class="box">
+        							<h6 class="title">Besoins d'aide ?</h6>
+        							<ul class="list-unstyled data">
+	                                    <li><a href="#">Guides et conseils</a></li>
+	                                    <li><a href="#">Nous contacter</a></li>
+	                                    <li><a href="#">Paiement</a></li>
+	                                    <li><a href="#">Livraison</a></li>
+	                                    <li><a href="#">Retour</a></li>
+	                                    <li><a href="#">Garantie et service après-vente</a></li>
+	                                </ul>
+        						</div>
+        					</div>
+        					<div class="col-lg-2 col-md-4 pt16 pb16 order-4 order-md-3 footer-data">
+        						<div class="box">
+        							<h6 class="title">A propos de Freemoov</h6>
+        							<ul class="list-unstyled data">
+	                                    <li><a href="#">Découvrez-nous</a></li>
+	                                    <li><a href="#">Magasin</a></li>
+	                                    <li><a href="#">Mentions légales</a></li>
+	                                    <li><a href="#">Conditions générales</a></li>
+	                                    <li><a href="#">Retour</a></li>
+	                                    <li><a href="#">Politique en matière de cookies</a></li>
+	                                </ul>
+        						</div>
+        					</div>
+        					<div class="col-lg-3 col-md-4 pt16 pb16 order-2 order-md-4 footer-data">
+        						<div class="box">
+        							<h6 class="title d-md-block d-none">Rentrons en contact !</h6>
+        							<div class="d-flex">
+        								<div class="me-3">
+        									<img src="/website_freemoov/static/src/img/Group.png" class="img"/>
+        								</div>
+        								<div>
+	        								<h6 class="mb4">+32 081 65 91 66</h6>
+	        								<p class="subtitle mb-0">10h à 18h Mardi, Mercredi, Vendredi et Samedi</p>
+        								</div>
+        							</div>
+        						</div>
+        					</div>
+        					<div class="col-lg-5 order-md-2 order-last col-md-4 order-lg-last offset-lg-1 ps-lg-4 footer-data pt16 pb16">
+        						<div class="d-flex d-md-block justify-content-between">
+	                                <h6 class="title">On reste connecté ?</h6>
+	                                <div data-snippet="s_share" class="s_share" data-name="Share">
+	                                    <a href="https://www.facebook.com/odoo/" target="_blank" class="s_share_facebook ">
+	                                        <i class="fa fa-facebook rounded"/>
+	                                    </a>
+	                                    <a href="https://www.instagram.com" target="_blank" class="s_share_instagram ">
+	                                        <i class="fa fa-instagram rounded"/>
+	                                    </a>
+	                                    <a href="/website/social/youtube" class="s_share_youtube" target="_blank">
+	                                    	<i class="fa fa-youtube-play rounded"/>
+	                                	</a>
+	                        		</div>
+	                        	</div>
+                        	</div>
+                        	<div class="col-lg-2 col-md-6 pt16 pb16 top footer-data offset-lg-3 ps-lg-4 order-last">
+		                   		<div class="images">
+		                   			<p class="subtitle text-start">Achat 100% sécurisé</p>
+		                   			<img src="/website_freemoov/static/src/img/Frame.png" class="img"/>
+		                   		</div>
+		                   	</div>
+        				</div>
+        			</div>
+        		</section>
+        	</div>
+    	</xpath>
+
+    	<xpath expr="//div[hasclass('o_footer_copyright')]/div[hasclass('container')]" position="attributes">
+            <attribute name="t-if">False</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('o_footer_copyright')]" position="attributes">
+             <attribute name="class" add="footer_copyright overflow-hidden" separator=" "/>
+        </xpath>
+        <xpath expr="//div[hasclass('o_footer_copyright')]/div[hasclass('container')]" position="after">
+            <div class="container">
+                <div class="row">
+                   	<div class="col-lg-8 pt16 pb16 footer-data">
+                   		<div class="description text-lg-end text-md-center">
+                   			<p class="subtitle">© 2023 Copyright Freemoov. Tous droits réservés.</p>
+                   		</div>
+                   	</div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

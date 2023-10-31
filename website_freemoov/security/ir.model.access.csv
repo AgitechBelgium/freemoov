@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+website_freemoov.access_bettery_details,access_bettery_details,website_freemoov.model_bettery_details,base.group_user,1,1,1,1
+website_freemoov.access_engine_details,access_engine_details,website_freemoov.model_engine_details,base.group_user,1,1,1,1
+website_freemoov.access_model_details,access_model_details,website_freemoov.model_model_details,base.group_user,1,1,1,1
+website_freemoov.access_waterproofing_details,access_waterproofing_details,website_freemoov.model_waterproofing_details,base.group_user,1,1,1,1
+website_freemoov.access_frame_details,access_frame_details,website_freemoov.model_frame_details,base.group_user,1,1,1,1
+website_freemoov.access_undercarriage_details,access_undercarriage_details,website_freemoov.model_undercarriage_details,base.group_user,1,1,1,1
+website_freemoov.access_braking_details,access_braking_details,website_freemoov.model_braking_details,base.group_user,1,1,1,1
+website_freemoov.access_lighting_details,access_lighting_details,website_freemoov.model_lighting_details,base.group_user,1,1,1,1
+website_freemoov.access_option_details,access_option_details,website_freemoov.model_option_details,base.group_user,1,1,1,1

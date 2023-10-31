@@ -1,0 +1,1006 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+	<template id="inherit_header_cart_link" inherit_id="website_sale.header_cart_link" name="Inherit Header Cart Link">
+        <xpath expr="//li/a/i" position="replace">
+            <img t-if="_icon" class="img img-fluid" src="/website_freemoov/static/src/img/shopping-cart.png"/>
+        </xpath>
+    </template>
+
+    <template id="inherit_user_dropdown" inherit_id="portal.user_dropdown" name="Inherit User Dropdown">
+        <xpath expr="//li/a/i" position="replace">
+            <img t-if="_icon" t-attf-class="img img-fluid #{_icon_class}" src="/website_freemoov/static/src/img/user.png"/>
+        </xpath>
+    </template>
+
+    <template id="inherit_header_wishlist_link" inherit_id="website_sale_wishlist.header_wishlist_link" name="Inherit Header Wishlist Link">
+        <xpath expr="//li/a/i" position="replace">
+            <img t-if="_icon" class="img img-fluid" src="/website_freemoov/static/src/img/wishlist.png"/>
+        </xpath>
+    </template>
+
+    <template id="inherit_dynamic_filter_template_blog_post_card" name="Inherit Card layout" inherit_id="website_blog.dynamic_filter_template_blog_post_card">
+        <xpath expr="//div[hasclass('s_blog_posts_post')]" position="replace">
+            <div t-foreach="records" t-as="data" class="s_blog_posts_post w-100">
+                <t t-set="record" t-value="data['_record']"/>
+                <div class="card">
+                    <a class="s_blog_posts_post_cover" t-att-href="data['call_to_action_url']">
+                        <t t-call="website.record_cover">
+                            <t t-set="_record" t-value="record"/>
+                            <t t-set="_resize_height" t-value="256"/>
+                            <t t-set="_resize_width" t-value="256"/>
+                            <t t-set="additionnal_classes" t-value="'thumb'"/>
+                        </t>
+                    </a>
+                    <div class="card-body">
+                        <div class="card-details">
+                            <a class="mb16 d-block category" t-attf-href="/blog/#{slug(record.blog_id)}" t-field="record.blog_id"/>
+                            <a t-att-href="data['call_to_action_url']"><h4 class=" s_blog_posts_post_title mb8" t-field="record.name"/></a>
+                            <div t-if="is_sample" class="h5 o_ribbon_right bg-primary text-uppercase">Sample</div>
+                            <div class="s_blog_posts_post_subtitle" t-field="record.subtitle"/>
+                        </div>
+                        <div class="text-end mt8">
+                            <a t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)}" class="btn"><i class="fa fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="inherit_pager" inherit_id="website_sale.products" name="Inherit Pager">
+        <xpath expr="//div[hasclass('oe_website_sale')]" position="before">
+            <t t-if="category">
+               <section class="shop_banner pt40 pb40 bg-white">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <ol class="breadcrumb ps-0">
+                                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                    <li class="breadcrumb-item"><a href="/shop">Shop</a></li>
+                                    <li class="breadcrumb-item active"><t t-esc="category.name"/></li>
+                                </ol>
+                            </div>
+                        </div>
+                       <div class="row align-items-end">
+                            <div class="col-lg-7">
+                                <div class="title mb16">
+                                    <h3 class="fw-bold text-uppercase"><t t-esc="category.name"/></h3>
+                                    <p>Découvrez notre sélection de trottinettes électriques confortable ! Chacune de ces beautés à deux roues est conçue pour rendre votre trajet aussi doux qu'une brise d'été.</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-5 text-end d-none d-lg-block">
+                                <t t-call="website_sale.sort"/>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </t>
+            <t t-else="">
+                <section class="shop_banner pt40 pb40 bg-white">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-12">
+                                <ol class="breadcrumb ps-0">
+                                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                                    <li class="breadcrumb-item active"><span>Shop</span></li>
+                                </ol>
+                            </div>
+                        </div>
+                        <div class="row align-items-end">
+                            <div class="col-lg-7">
+                                <div class="title mb16">
+                                    <h3 class="fw-bold text-uppercase">SHOP</h3>
+                                    <p>Découvrez notre sélection de trottinettes électriques confortable ! Chacune de ces beautés à deux roues est conçue pour rendre votre trajet aussi doux qu'une brise d'été.</p>
+                                </div>
+                            </div>
+                            <div class="col-lg-5 text-end d-none d-lg-block">                                
+                                <t t-call="website_sale.sort"/>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </t>
+        </xpath>
+        <xpath expr="//div[hasclass('o_wsale_products_page')]" position="after">
+            <section class="faqs pt64 pb32">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <section class="col-md-5 faq-box">
+                            <div class="s_faq_collapse o_colored_level s_faq_collapse_light" data-snippet="s_faq_collapse" data-name="Accordion" style="background-image: none;">
+                                <div class="container">
+                                    <div id="myCollapse1663304805366" class="accordion" role="tablist">
+                                        <div class="card" data-name="Item">
+                                            <a href="#" role="tab" data-bs-toggle="collapse" aria-expanded="false" class="card-header s_faq_collapse_right_icon collapsed" data-bs-target="#myCollapseTab1663304805367">Pourquoi choisir une trottinette électrique confortable ?</a>
+                                            <div class="collapse" data-bs-parent="#myCollapse1663304805366" role="tabpanel" id="myCollapseTab1663304805367" style="">
+                                                <div class="card-body">
+                                                    <p class="card-text o_default_snippet_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card" data-name="Item">
+                                            <a href="#" role="tab" data-bs-toggle="collapse" aria-expanded="false" class="card-header o_default_snippet_text s_faq_collapse_right_icon collapsed" data-bs-target="#myCollapseTab1663304805366">Pourquoi choisir une trottinette électrique confortable ?</a>
+                                            <div class="collapse" data-bs-parent="#myCollapse1663304805366" role="tabpanel" id="myCollapseTab1663304805366" style="">
+                                                <div class="card-body">
+                                                    <p class="card-text o_default_snippet_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card" data-name="Item">
+                                            <a href="#" role="tab" data-bs-toggle="collapse" aria-expanded="false" class="card-header s_faq_collapse_right_icon collapsed" data-bs-target="#myCollapseTab1663304805368">Pourquoi choisir une trottinette électrique confortable ?</a>
+                                            <div class="collapse" data-bs-parent="#myCollapse1663304805366" role="tabpanel" id="myCollapseTab1663304805368" style="">
+                                                <div class="card-body">
+                                                    <p class="card-text o_default_snippet_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <div class="col-md-5 d-none d-md-block">
+                            <div class="faq-img d-flex h-100">
+                                <img class="img-fluid" src="/website_freemoov/static/src/img/faq.png" alt="photo"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="experts pt32 pb64">
+                <div class="container px-xl-0">
+                    <section class="description px-xl-3 pt32 pb32">
+                        <div class="row justify-content-around">
+                            <div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+                                <div class="experts-box d-flex d-md-block text-center">
+                                    <img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group1.png" alt="photo"/>
+                                    <p class="mb-0 text-white mt16">Le <b>spécialiste</b> en  trottinette électrique</p>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+                                <div class="experts-box d-flex d-md-block text-center">
+                                    <img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group2.png" alt="photo"/>
+                                    <p class="mb-0 text-white mt16">Expert en <b>satisfaction client</b></p>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+                                <div class="experts-box d-flex d-md-block text-center">
+                                    <img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group3.png" alt="photo"/>
+                                    <p class="mb-0 text-white mt16"><b>Services après-vente</b>par nos spécialistes</p>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+                                <div class="experts-box d-flex d-md-block text-center">
+                                    <img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group4.png" alt="photo"/>
+                                    <p class="mb-0 text-white mt16"><b>À votre écoute</b>en magasin spécialisé</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </xpath>
+
+        <xpath expr="//div[hasclass('products_header')]" position="replace">
+            <div class="products_header btn-toolbar flex-nowrap align-items-baseline mb-3">
+                <t t-if="is_view_active('website_sale.add_grid_or_list_option')" t-call="website_sale.add_grid_or_list_option">
+                    <t t-set="_classes" t-valuef="d-flex me-3"/>
+                </t>
+                <button t-if="is_view_active('website_sale.sort') or opt_wsale_categories or opt_wsale_attributes or opt_wsale_attributes_top"
+                        t-attf-class="btn btn-{{navClass}} position-relative me-3 w-100 {{not opt_wsale_attributes_top and 'd-lg-none'}}"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#o_wsale_offcanvas">
+                    <i class="fa fa-sliders me-3"/><span class="fw-bold">Tous les filtres</span>
+                    <span t-if="isFilteringByPrice or attrib_set" t-attf-class="position-absolute top-0 start-100 translate-middle badge border border-{{navClass}} rounded-circle bg-danger p-1"><span class="visually-hidden">filters active</span></span>
+                </button>
+                <div class="d-flex">
+                    <t t-esc="len(products)"/><p class="ps-1 mb-0">produits trouvés</p>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="inherit_cart_button" inherit_id="website_sale.products_add_to_cart" name="Inherit Cart Button">
+        <xpath expr="//t//a[hasclass('a-submit')]" position="replace">
+            <a t-if="product._website_show_quick_add()" href="#" role="button" class="btn btn-primary a-submit" aria-label="Shopping cart" title="Shopping cart">
+                <img class="img img-fluid" src="/website_freemoov/static/src/img/Vector.png" alt="Hero Img"/>
+            </a>
+        </xpath>
+    </template>
+
+    <template id="inherit_buttons" inherit_id="website_sale.products_item" name="Inherit Buttons">
+        <xpath expr="//form//div[hasclass('o_wsale_product_information')]" position="inside">
+            <div class="compare-button">
+                 <t t-set="categories" t-value="product.valid_product_template_attribute_line_ids._prepare_categories_for_display()"/>
+                <t t-set="product_variant_id" t-value="product._get_first_possible_variant_id()"/>
+                <button t-if="product_variant_id and categories" type="button" role="button" class="d-block d-md-none btn o_add_compare" title="Compare" aria-label="Compare" t-att-data-product-product-id="product_variant_id" data-action="o_comparelist">Comparez<img class="img img-fluid ms-2" src="/website_freemoov/static/src/img/plus-circle.png" alt="Hero Img"/></button>
+            </div>
+        </xpath>
+        <xpath expr="//form//div[hasclass('o_wsale_product_information_text')]" position="replace">
+             <div class="o_wsale_product_information_text flex-grow-1">
+                <div class="product_info">
+                    <t t-if="product.prod_label_id">
+                        <t t-call="ust_common_features.ust_product_label_temp"/>
+                    </t>
+                    <p class="brand" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
+                    <h6 class="o_wsale_products_item_title mb-2">
+                        <a class="text-primary text-decoration-none" itemprop="name" t-att-href="product_href" t-att-content="product.name" t-esc="product.name" />
+                        <a t-if="not product.website_published" role="button" t-att-href="product_href" class="btn btn-sm btn-danger" title="This product is unpublished.">
+                            Unpublished
+                        </a>
+                    </h6>
+                </div>
+                <div class="product_variant">
+                    <t t-set="attribute_exclusions" t-value="product._get_attribute_exclusions(parent_combination, parent_name)"/>
+                    <ul t-attf-class="list-unstyled js_add_cart_variants mb-0 #{ul_class}" t-att-data-attribute_exclusions="json.dumps(attribute_exclusions)">
+                        <t t-foreach="product.valid_product_template_attribute_line_ids" t-as="ptal">
+                            <li t-att-data-attribute_id="ptal.attribute_id.id"
+                                t-att-data-attribute_name="ptal.attribute_id.name"
+                                t-att-data-attribute_display_type="ptal.attribute_id.display_type"
+                                t-attf-class="variant_attribute d-flex justify-content-between align-items-end #{'d-none' if len(ptal.product_template_value_ids._only_active()) == 1 and not ptal.product_template_value_ids._only_active()[0].is_custom else ''}">
+
+                                <t t-set="single" t-value="len(ptal.product_template_value_ids._only_active()) == 1"/>
+                                <t t-set="single_and_custom" t-value="single and ptal.product_template_value_ids._only_active()[0].is_custom" />
+                                <p t-field="ptal.attribute_id.name" class="attribute_name"/>
+
+                                <t t-if="ptal.attribute_id.display_type == 'select'">
+                                    <select
+                                        t-att-data-attribute_id="ptal.attribute_id.id"
+                                        t-attf-class="form-select css_attribute_select o_wsale_product_attribute js_variant_change #{ptal.attribute_id.create_variant} #{'d-none' if single_and_custom else ''}"
+                                        t-att-name="'ptal-%s' % ptal.id">
+                                        <t t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav">
+                                            <option t-att-value="ptav.id"
+                                                t-att-data-value_id="ptav.id"
+                                                t-att-data-value_name="ptav.name"
+                                                t-att-data-attribute_name="ptav.attribute_id.name"
+                                                t-att-data-is_custom="ptav.is_custom"
+                                                t-att-data-is_single="single"
+                                                t-att-data-is_single_and_custom="single_and_custom">
+                                                <span t-field="ptav.name"/>
+                                                <t t-call="sale.badge_extra_price"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                </t>
+
+                                <t t-if="ptal.attribute_id.display_type == 'radio'">
+                                    <ul t-att-data-attribute_id="ptal.attribute_id.id" t-attf-class="list-inline list-unstyled o_wsale_product_attribute #{'d-none' if single_and_custom else ''}">
+                                        <t t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav">
+                                            <li class="list-inline-item mb-3 js_attribute_value" style="margin: 0;">
+                                                <label class="col-form-label">
+                                                    <div class="form-check">
+                                                        <input type="radio"
+                                                            t-attf-class="form-check-input js_variant_change #{ptal.attribute_id.create_variant}"
+                                                            t-att-name="'ptal-%s' % ptal.id"
+                                                            t-att-value="ptav.id"
+                                                            t-att-data-value_id="ptav.id"
+                                                            t-att-data-value_name="ptav.name"
+                                                            t-att-data-attribute_name="ptav.attribute_id.name"
+                                                            t-att-data-is_custom="ptav.is_custom"
+                                                            t-att-data-is_single="single"
+                                                            t-att-data-is_single_and_custom="single_and_custom" />
+                                                        <div class="radio_input_value form-check-label">
+                                                            <span t-field="ptav.name"/>
+                                                            <t t-call="sale.badge_extra_price"/>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </t>
+
+                                <t t-if="ptal.attribute_id.display_type == 'pills'">
+                                    <ul t-att-data-attribute_id="ptal.attribute_id.id"
+                                        t-attf-class="btn-group-toggle list-inline list-unstyled o_wsale_product_attribute #{'d-none' if single_and_custom else ''}"
+                                        data-bs-toggle="buttons">
+                                        <t t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav">
+                                            <li class="o_variant_pills btn btn-primary mb-1 list-inline-item js_attribute_value">
+                                                <input type="radio"
+                                                    t-attf-class="js_variant_change #{ptal.attribute_id.create_variant}"
+                                                    t-att-name="'ptal-%s' % ptal.id"
+                                                    t-att-value="ptav.id"
+                                                    t-att-data-value_id="ptav.id"
+                                                    t-att-id="ptav.id"
+                                                    t-att-data-value_name="ptav.name"
+                                                    t-att-data-attribute_name="ptav.attribute_id.name"
+                                                    t-att-data-is_custom="ptav.is_custom"
+                                                    t-att-data-is_single_and_custom="single_and_custom"
+                                                    t-att-autocomplete="off"/>
+                                                <label class="radio_input_value o_variant_pills_input_value"
+                                                       t-att-for="ptav.id">
+                                                    <span t-field="ptav.name"/>
+                                                    <t t-call="sale.badge_extra_price"/>
+                                                </label>
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </t>
+
+                                <t t-if="ptal.attribute_id.display_type == 'color'">
+                                    <ul t-att-data-attribute_id="ptal.attribute_id.id" t-attf-class="list-inline o_wsale_product_attribute #{'d-none' if single_and_custom else ''}">
+                                        <li t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav" class="list-inline-item me-1">
+                                            <label t-attf-style="background-color:#{ptav.html_color or ptav.product_attribute_value_id.name if not ptav.is_custom else ''}"
+                                                t-attf-class="css_attribute_color #{'custom_value' if ptav.is_custom else ''} #{'transparent' if (not ptav.is_custom and not ptav.html_color) else ''}">
+                                                <input type="radio"
+                                                    t-attf-class="js_variant_change  #{ptal.attribute_id.create_variant}"
+                                                    t-att-name="'ptal-%s' % ptal.id"
+                                                    t-att-value="ptav.id"
+                                                    t-att-title="ptav.name"
+                                                    t-att-data-value_id="ptav.id"
+                                                    t-att-data-value_name="ptav.name"
+                                                    t-att-data-attribute_name="ptav.attribute_id.name"
+                                                    t-att-data-is_custom="ptav.is_custom"
+                                                    t-att-data-is_single="single"
+                                                    t-att-data-is_single_and_custom="single_and_custom"/>
+                                            </label>
+                                        </li>
+                                    </ul>
+                                </t>
+                            </li>
+                        </t>
+                    </ul>
+                </div>
+            </div>
+        </xpath>
+        <xpath expr="//form//div[hasclass('product_price')]" position="replace">
+        </xpath>
+        <xpath expr="//span[contains(@t-attf-class, 'o_ribbon')]" position="replace">
+        </xpath>
+        <xpath expr="//form//div[hasclass('o_wsale_product_sub')]" position="replace">
+            <div class="o_wsale_product_sub d-flex align-items-end pb-1">
+                <t t-set="template_price_vals" t-value="get_product_prices(product)"/>
+                <div class="o_wsale_product_btn"/>
+                <div class="product_sub_detail align-items-center">
+                    <p class="label"><span t-attf-class="o_ribbon #{bg_class}" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/><span t-out="td_product['ribbon']['html'] or ''"/></p>
+                    <p class="variant" t-if="len(product.valid_product_template_attribute_line_ids) != 0"><t t-esc="len(product.valid_product_template_attribute_line_ids)"/> variantes</p>
+                    <div class="product_price" itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer">
+                        <t t-if="'base_price' in template_price_vals">
+                            <del t-attf-class="text-muted me-1 h6 mb-0" style="white-space: nowrap;">
+                                <em class="small" t-esc="template_price_vals['base_price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}" />
+                            </del>
+                        </t>
+                        <t t-if="len(product.attribute_line_ids)>0">
+                            <span>à partir de</span>
+                        </t>
+                        <span class="h6 mb-0" t-if="template_price_vals['price_reduce'] or not website.prevent_zero_price_sale" t-esc="template_price_vals['price_reduce']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+                        <span class="h6 mb-0" t-else="" t-field="website.prevent_zero_price_sale_text"/>
+                        <span itemprop="price" style="display:none;" t-esc="template_price_vals['price_reduce']" />
+                        <span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name" />
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+    <template id="inherit_wishlist_button" inherit_id="website_sale_wishlist.add_to_wishlist" name="Inherit Wishlist Button">
+        <xpath expr="//t//button" position="replace">
+            <button t-if="product_variant_id" type="button" role="button" class="btn btn-outline-primary bg-white o_add_wishlist" t-att-disabled='in_wish or None' title="Add to Wishlist" t-att-data-product-template-id="product.id" t-att-data-product-product-id="product_variant_id" data-action="o_wishlist"><img class="img img-fluid" src="/website_freemoov/static/src/img/wishlist-2.png" alt="Hero Img"/></button>
+        </xpath>
+    </template>
+
+
+    <template id="inherit_compare_button" inherit_id="website_sale_comparison.add_to_compare" name="Inherit Compare Button">
+        <xpath expr="//t//button[hasclass('o_add_compare')]" position="replace">
+            <button t-if="product_variant_id and categories" type="button" role="button" class="d-md-inline-block btn o_add_compare p-0" title="Compare" aria-label="Compare" t-att-data-product-product-id="product_variant_id" data-action="o_comparelist">Comparez<img class="img img-fluid ms-2" src="/website_freemoov/static/src/img/plus-circle.png" alt="Hero Img"/></button>
+        </xpath>
+    </template>
+
+    <template id="product_details_inherited" inherit_id="website_sale.product" name="Product Details">
+        <xpath expr="//section[@id='product_detail']" position="after">
+            <section class="properties mt32 mb40 oe_structure oe_empty">
+                <div class="container">
+                    <div class="bg-color">
+                        <div class="row">
+                            <div class="col-lg-6 pt16 pb16 order-2 order-md-1">
+                                <div class="data">
+                                    <p>La trottinette électrique Navee S65 est un vrai tapis volant ! Ces suspensions à torsion et ces pneus tubeless en 10 pouces lui procurent un confort irréprochable. Tous les défauts (ou presque) des routes urbaines sont absorbées vous garantissant un réel plaisir de conduire.</p>
+                                </div>
+                                <section class="s_faq_collapse o_colored_level" data-snippet="s_faq_collapse" data-name="Accordion" style="background-image: none;">
+                                    <div class="container">
+                                        <div id="myCollapse" class="accordion" role="tablist">
+                                            <div class="card bg-white" data-name="Item">
+                                                <a href="#" role="tab" data-bs-toggle="modal" aria-expanded="false" class="card-header py-3 collapsed s_faq_collapse_right_icon" data-bs-target="#descriptionmodel">Description</a>
+                                            </div>
+                                            <div class="modal modal-fullscreen fade" id="descriptionmodel" tabindex="-1" aria-labelledby="descriptionmodelLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header border-bottom-0 mx-auto">
+                                                            <h3 class="modal-title text-uppercase fw-bold" id="descriptionmodelLabel">Description</h3>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="row">
+                                                                <div class="col-lg-12">
+                                                                    <p class="card-text pro-desc o_default_snippet_text"><t t-esc="product.pro_description"/></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <t t-if="len(product.attribute_line_ids) &gt; 5">
+                                                <div class="card bg-white" data-name="Item">
+                                                    <a type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" aria-expanded="false" class="py-3 btn collapsed card-header s_faq_collapse_right_icon text-start">Spécifications techniques</a>
+                                                </div>
+                                                <div class="modal modal-fullscreen fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header border-bottom-0 mx-auto">
+                                                                <h3 class="modal-title text-uppercase fw-bold" id="exampleModalLabel">Specifications Techniques</h3>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                <div class="row justify-content-between">
+                                                                    <t t-if="product.attribute_line_ids">
+                                                                        <div class="col-md-12 pt16 pb16 col-12 px-3 me-lg-3 column">
+                                                                            <table>
+                                                                                <t t-foreach="product.attribute_line_ids" t-as="bettery_line">
+                                                                                    <div class="row">
+                                                                                        <p class="col px-0 mb-0 py-2"><t t-esc="bettery_line.attribute_id.name or ''"/></p>
+                                                                                        <t t-foreach="bettery_line.value_ids" t-as="value">
+                                                                                            <p class="col-2 px-0 mb-0 py-2 text-end"><t t-esc="value.name or ''"/></p>
+                                                                                        </t>
+                                                                                    </div>
+                                                                                </t>
+                                                                            </table>
+                                                                        </div>
+                                                                    </t>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                            <t t-if="len(product.attribute_line_ids) &lt; 5">
+                                                <div class="card bg-white" data-name="Item">
+                                                    <a href="#" role="tab" data-bs-toggle="collapse" aria-expanded="false" class="collapsed card-header s_faq_collapse_right_icon o_default_snippet_text" data-bs-target="#myCollapseTab44542_2">Spécifications techniques</a>
+                                                    <div class="collapse" data-bs-parent="#myCollapse" role="tabpanel" id="myCollapseTab44542_2">
+                                                        <div class="card-body specification-box">
+                                                            <p>La trottinette électrique Navee S65 est un vrai tapis volant ! Ces suspensions à torsion et ces pneus tubeless en 10 pouces lui procurent un confort irréprochable. Tous les défauts (ou presque) des routes urbaines sont absorbées vous garantissant un réel plaisir de conduire.</p>
+                                                            <t t-if="product.attribute_line_ids">
+                                                                <div class="col-md-12 pt16 pb16 col-12 px-3 me-lg-3 column">
+                                                                    <table>
+                                                                        <t t-foreach="product.attribute_line_ids" t-as="bettery_line">
+                                                                            <div class="row attribute-row">
+                                                                                <p class="col px-0 mb-0 py-2"><t t-esc="bettery_line.attribute_id.name or ''"/></p>
+                                                                                <t t-foreach="bettery_line.value_ids" t-as="value">
+                                                                                    <p class="col-2 px-0 mb-0 py-2 text-center"><t t-esc="value.name or ''"/></p>
+                                                                                </t>
+                                                                            </div>
+                                                                        </t>
+                                                                    </table>
+                                                                </div>
+                                                            </t>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                            <div class="card bg-white" data-name="Item">
+                                                <a href="#" role="tab" data-bs-toggle="modal" aria-expanded="false" class="collapsed card-header py-3 o_default_snippet_text s_faq_collapse_right_icon" data-bs-target="#livraisonmodel">Livraison &amp; retour</a>
+                                            </div>
+                                            <div class="modal modal-fullscreen fade" id="livraisonmodel" tabindex="-1" aria-labelledby="livraisonmodelLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header border-bottom-0 mx-auto">
+                                                            <h3 class="modal-title text-uppercase fw-bold" id="livraisonmodelLabel">Livraison &amp; retour</h3>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p class="card-text o_default_snippet_text pro-desc"><t t-esc="product.delivery_return or ''"/></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="card bg-white" data-name="Item">
+                                                <a href="#" role="tab" data-bs-toggle="modal" aria-expanded="false" class="collapsed card-header py-3 o_default_snippet_text s_faq_collapse_right_icon" data-bs-target="#garantiemodel">Garantie &amp; Assistance</a>
+                                            </div>
+                                            <div class="modal modal-fullscreen fade" id="garantiemodel" tabindex="-1" aria-labelledby="garantiemodelLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header border-bottom-0 mx-auto">
+                                                            <h3 class="modal-title text-uppercase fw-bold" id="garantiemodelLabel">Garantie &amp; Assistance</h3>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <p class="card-text o_default_snippet_text pro-desc"><t t-esc="product.warranty_support or ''"/></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                            <div class="col-lg-6 pt16 pb16 order-1 order-md-2">
+                                <div class="d-flex justify-content-around align-items-center mb24">
+                                    <div class="propertie-box text-center">
+                                        <img class="img-fluid" src="/website_freemoov/static/src/img/Layer_1.png" alt="photo"/>
+                                        <p class="name mb-0">Puissance</p>
+                                        <p class="fw-bold">3500W</p>
+                                    </div>
+                                    <div class="propertie-box text-center">
+                                        <img class="img-fluid" src="/website_freemoov/static/src/img/Layer_2.png" alt="photo"/>
+                                        <p class="name mb-0">Autonomie</p>
+                                        <p class="fw-bold">60 Km*</p>
+                                    </div>
+                                    <div class="propertie-box text-center">
+                                        <img class="img-fluid" src="/website_freemoov/static/src/img/Layer_3.png" alt="photo"/>
+                                        <p class="name mb-0">Charge</p>
+                                        <p class="fw-bold">12 h</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex justify-content-around align-items-center">
+                                    <div class="propertie-box text-center">
+                                        <img class="img-fluid" src="/website_freemoov/static/src/img/Layer_4.png" alt="photo"/>
+                                        <p class="name mb-0">Voltage</p>
+                                        <p class="fw-bold">126V</p>
+                                    </div>
+                                    <div class="propertie-box text-center">
+                                        <img class="img-fluid" src="/website_freemoov/static/src/img/Layer_5.png" alt="photo"/>
+                                        <p class="name mb-0">Poids</p>
+                                        <p class="fw-bold">35,7 Kg</p>
+                                    </div>
+                                    <div class="propertie-box text-center">
+                                        <img class="img-fluid" src="/website_freemoov/static/src/img/Layer_6.png" alt="photo"/>
+                                        <p class="name mb-0">Pente</p>
+                                        <p class="fw-bold">35%</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="oe_structure oe_empty"></div>
+            <t t-if="product.accessory_product_ids">
+                <section class="accessoires-products accessoires-products-mobile pt32 pb32 oe_structure oe_empty">
+                    <div class="container">
+                        <div class="row align-items-center pb16">
+                            <div class="col-lg-6 col-8">
+                                <h5 class="fw-bold text-uppercase mb-0">Accessoires compatibles</h5>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="owl-carousel accessory_product owl-theme">
+                                <t t-foreach="product.accessory_product_ids" t-as="accessory_product">
+                                    <section class="accessory-detail bg-white">
+                                        <div class="pro-img text-center">
+                                            <span t-field="accessory_product.image_128" t-options="{'widget': 'image', 'qweb_img_responsive': False, 'class': 'rounded mx-auto'}" />
+                                        </div>
+                                        <div class="pro-detail">
+                                            <p class="brand mb-0" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
+                                            <p class="mb-0 py-2 title"><t t-esc="accessory_product.name or ''"/></p>
+                                            <t t-if="is_view_active('website_sale.product_comment')">
+                                                <a href="#o_product_page_reviews" class="o_product_page_reviews_link text-decoration-none">
+                                                    <t t-call="portal_rating.rating_widget_stars_static">
+                                                        <t t-set="rating_avg" t-value="product.rating_avg"/>
+                                                        <t t-set="trans_text_plural">%s reviews</t>
+                                                        <t t-set="trans_text_singular">%s review</t>
+                                                        <t t-set="rating_count" t-value="(trans_text_plural if product.rating_count > 1 else trans_text_singular) % product.rating_count"/>
+                                                    </t>
+                                                </a>
+                                            </t>
+                                            <div class="d-flex justify-content-between align-items-center mt16">
+                                                <span t-esc="combination_info['price']" style="white-space: nowrap;" t-options="{'widget': 'monetary','display_currency': website.currency_id}"/>
+                                                <input class="js_quantity" name="product_id" t-att-data-product-id="product.id" type="hidden" />
+                                                <a t-if="product._website_show_quick_add()"
+                                                   role="button" class="btn btn-link js_add_suggested_products bg-primary">
+                                                    <img class="img img-fluid" src="/website_freemoov/static/src/img/Vector.png" alt="Hero Img"/>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </t>
+            <div class="oe_structure oe_empty"></div>
+            <section class="gallery pt64 pb64 oe_structure oe_empty">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <h5 class="fw-bold text-uppercase mb-0">Galerie d’images</h5>
+                        </div>
+                        <div class="col-lg-6">
+                            <p class="text-end mb-0">voir tout</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 pt16 pb16">
+                            <div class="gallery-img">
+                                <img class="img img-fluid photo" src="/website_freemoov/static/src/img/banner 5.png" alt="photo"/>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-6 pt16 pb16">
+                            <div class="gallery-img">
+                                <img class="img img-fluid photo" src="/website_freemoov/static/src/img/banner 1.png" alt="photo"/>
+                            </div>
+                            <div class="gallery-img pt16">
+                                <img class="img img-fluid photo" src="/website_freemoov/static/src/img/banner 2.png" alt="photo"/>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-6 pt16 pb16">
+                            <div class="gallery-img">
+                                <img class="img img-fluid photo" src="/website_freemoov/static/src/img/banner 3.png" alt="photo"/>
+                            </div>
+                            <div class="gallery-img pt16">
+                                <img class="img img-fluid photo" src="/website_freemoov/static/src/img/banner 4.png" alt="photo"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="oe_structure oe_empty"></div>
+            <section class="safety pt64 pb64 oe_structure oe_empty">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-6 pt16 pb16">
+                            <div class="information h-100">
+                                <div class="row">
+                                    <div class="col-6 detail">
+                                        <h5 class="fw-bold text-uppercase text-white">Pensez à votre sécurité</h5>
+                                        <a class="icon"><img class="img" src="/website_freemoov/static/src/img/arrow-left.png" alt="photo"/></a>
+                                    </div>
+                                    <div class="col-6">
+                                        <img class="img img-fluid photo" src="/website_freemoov/static/src/img/img1.png" alt="photo"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 pt16 pb16">
+                            <div class="information h-100 two">
+                                <div class="row">
+                                    <div class="col-6 detail">
+                                        <h5 class="fw-bold text-uppercase text-white">Découvrez nos accessoires</h5>
+                                        <a class="icon"><img class="img" src="/website_freemoov/static/src/img/arrow-left.png" alt="photo"/></a>
+                                    </div>
+                                    <div class="col-6">
+                                        <img class="img img-fluid photo" src="/website_freemoov/static/src/img/img2.png" alt="photo"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>      
+            </section>
+            <div class="oe_structure oe_empty"></div>
+
+            <section class="client-opinion pt32 pb32 oe_structure oe_empty">
+                <div class="container">
+                    <div class="row align-items-center">
+                        <div class="col-lg-12 col-6">
+                            <h5 class="text-uppercase fw-bold">Avis clients</h5>
+                        </div>
+                        <div class="col-lg-6 pb16">
+                            <div class="d-lg-flex align-items-center">
+                                <div class="rating mb-3 mb-lg-0">
+                                    <t t-if="is_view_active('website_sale.product_comment')">
+                                        <a href="#o_product_page_reviews" class="o_product_page_reviews_link text-decoration-none">
+                                            <t t-call="portal_rating.rating_widget_stars_static">
+                                                <t t-set="rating_avg" t-value="product.rating_avg"/>
+                                                <t t-set="trans_text_plural">%s reviews</t>
+                                                <t t-set="trans_text_singular">%s review</t>
+                                                <t t-set="rating_count" t-value="(trans_text_plural if product.rating_count > 1 else trans_text_singular) % product.rating_count"/>
+                                            </t>
+                                        </a>
+                                    </t>
+                                </div>
+                                <div class="s_btn text-lg-center ms-lg-4">
+                                    <a class="btn btn-primary rounded-pill text-white fw-bold" href="/">Laisser votre avis</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="owl-carousel client owl-theme pt16 pb16">
+                            <div class="review-box">
+                                <div class="detail d-flex mb-2">
+                                    <div>
+                                        <a class="btn btn-primary text-white fw-bold" href="/">M</a>
+                                    </div>
+                                    <div class="ms-3 d-flex w-100 justify-content-between">
+                                        <div>
+                                            <p class="mb-0 fw-bold">Marine</p>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </div>
+                                        <div class="time">
+                                            <span>1 Month ago</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="title fw-bold mb-1">Titre de l’avis</p>
+                                <p>J'adore cette trottinette ! Elle est super confortable, rapide et puissante. Parfait pour le centre ville ! Je vous recommande sans hésitation.</p>
+                                <div class="d-flex align-items-center">
+                                    <img class="img-fluid img" src="/website_freemoov/static/src/img/play-circle.png" alt="play"/>
+                                    <span class="ms-2">Achat vérifié</span>
+                                </div>
+                            </div>
+                            <div class="review-box">
+                                <div class="detail d-flex mb-2">
+                                    <div>
+                                        <a class="btn btn-primary text-white fw-bold" href="/">M</a>
+                                    </div>
+                                    <div class="ms-3 d-flex w-100 justify-content-between">
+                                        <div>
+                                            <p class="mb-0 fw-bold">Marine</p>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </div>
+                                        <div class="time">
+                                            <span>1 Month ago</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="title fw-bold mb-1">Titre de l’avis</p>
+                                <p>J'adore cette trottinette ! Elle est super confortable, rapide et puissante. Parfait pour le centre ville ! Je vous recommande sans hésitation.</p>
+                                <div class="d-flex align-items-center">
+                                    <img class="img-fluid img" src="/website_freemoov/static/src/img/play-circle.png" alt="play"/>
+                                    <span class="ms-2">Achat vérifié</span>
+                                </div>
+                            </div>
+                            <div class="review-box">
+                                <div class="detail d-flex mb-2">
+                                    <div>
+                                        <a class="btn btn-primary text-white fw-bold" href="/">M</a>
+                                    </div>
+                                    <div class="ms-3 d-flex w-100 justify-content-between">
+                                        <div>
+                                            <p class="mb-0 fw-bold">Marine</p>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </div>
+                                        <div class="time">
+                                            <span>1 Month ago</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="title fw-bold mb-1">Titre de l’avis</p>
+                                <p>J'adore cette trottinette ! Elle est super confortable, rapide et puissante. Parfait pour le centre ville ! Je vous recommande sans hésitation.</p>
+                                <div class="d-flex align-items-center">
+                                    <img class="img-fluid img" src="/website_freemoov/static/src/img/play-circle.png" alt="play"/>
+                                    <span class="ms-2">Achat vérifié</span>
+                                </div>
+                            </div>
+                            <div class="review-box">
+                                <div class="detail d-flex mb-2">
+                                    <div>
+                                        <a class="btn btn-primary text-white fw-bold" href="/">M</a>
+                                    </div>
+                                    <div class="ms-3 d-flex w-100 justify-content-between">
+                                        <div>
+                                            <p class="mb-0 fw-bold">Marine</p>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </div>
+                                        <div class="time">
+                                            <span>1 Month ago</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="title fw-bold mb-1">Titre de l’avis</p>
+                                <p>J'adore cette trottinette ! Elle est super confortable, rapide et puissante. Parfait pour le centre ville ! Je vous recommande sans hésitation.</p>
+                                <div class="d-flex align-items-center">
+                                    <img class="img-fluid img" src="/website_freemoov/static/src/img/play-circle.png" alt="play"/>
+                                    <span class="ms-2">Achat vérifié</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <div class="oe_structure oe_empty"></div>
+
+            <section class="experts pt32 pb64 oe_structure oe_empty">
+                <div class="container px-xl-0">
+                    <section class="description px-xl-3 pt32 pb32">
+                        <div class="row justify-content-around">
+                            <div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+                                <div class="experts-box d-flex d-md-block text-center">
+                                    <img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group1.png" alt="photo"/>
+                                    <p class="mb-0 text-white mt16">Le <b>spécialiste</b> en  trottinette électrique</p>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+                                <div class="experts-box d-flex d-md-block text-center">
+                                    <img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group2.png" alt="photo"/>
+                                    <p class="mb-0 text-white mt16">Expert en <b>satisfaction client</b></p>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+                                <div class="experts-box d-flex d-md-block text-center">
+                                    <img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group3.png" alt="photo"/>
+                                    <p class="mb-0 text-white mt16"><b>Services après-vente</b>par nos spécialistes</p>
+                                </div>
+                            </div>
+                            <div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+                                <div class="experts-box d-flex d-md-block text-center">
+                                    <img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group4.png" alt="photo"/>
+                                    <p class="mb-0 text-white mt16"><b>À votre écoute</b>en magasin spécialisé</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </section>
+            <div class="oe_structure oe_empty"></div>
+
+        </xpath>
+        <xpath expr="//section//div[hasclass('col-lg-6', 'd-flex', 'align-items-center')]" position="replace">
+            <div class="col-lg-6 d-flex order-2 top-line">
+                <div>
+                    <p class="brand mb-0" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
+                </div>
+                <div class="review-line">
+                    <t t-if="is_view_active('website_sale.product_comment')">
+                        <a href="#o_product_page_reviews" class="o_product_page_reviews_link text-decoration-none">
+                            <t t-call="portal_rating.rating_widget_stars_static">
+                                <t t-set="rating_avg" t-value="product.rating_avg"/>
+                                <t t-set="trans_text_plural">%s reviews</t>
+                                <t t-set="trans_text_singular">%s review</t>
+                                <t t-set="rating_count" t-value="(trans_text_plural if product.rating_count > 1 else trans_text_singular) % product.rating_count"/>
+                            </t>
+                        </a>
+                    </t>
+                </div>
+            </div>
+        </xpath>
+        <xpath expr="//div//h1" position="after">
+            <div class="product_tags_block">
+                <t t-foreach="product.product_tag_ids" t-as="product_tag">
+                    <span t-attf-class="product_tag_span o_colorlist_item_color_{{ product_tag.color }}" t-att-data-color="product_tag.color" class="tag" t-esc="product_tag.name"></span>
+                </t>
+            </div>
+        </xpath>
+        <xpath expr="//t[@t-call='website_sale.shop_product_images']" position="after">
+            <div class="carousel_product_num"></div>
+            <div class="download_product_img">
+                <a class="download_img" href="#" >
+                    <i class="fa fa-thin fa-download"></i>
+                </a>
+            </div>
+        </xpath>
+        <xpath expr="//t[@t-call='website_sale.product_price']" position="replace">
+        </xpath>
+        <xpath expr="//t[@t-placeholder='select']" position="after">
+            <t t-call="website_sale.product_price"/>
+
+            <p class="label mb-1" t-if="product.is_available_trial">
+                <t t-set="bg_color" t-value="product.website_ribbon_id['bg_color'] or ''"/>
+                <t t-set="text_color" t-value="product.website_ribbon_id['text_color']"/>
+                <t t-set="bg_class" t-value="product.website_ribbon_id['html_class']"/>
+                <span t-attf-class="o_ribbon #{bg_class}" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/><span t-out="product.website_ribbon_id['html'] or ''"/>
+            </p>
+        </xpath>
+        <xpath expr="//div[@id='product_option_block']" position="after">
+            <div class="compare-box text-center">
+                <p class="my-3"><span class="border-bottom border-dark">Voir la disponibilité en magasin</span></p>
+                <t t-set="categories" t-value="product.valid_product_template_attribute_line_ids._prepare_categories_for_display()"/>
+                <t t-set="product_variant_id" t-value="product._get_first_possible_variant_id()"/>
+                <button t-if="product_variant_id and categories" type="button" role="button" class="d-md-inline-block btn o_add_compare p-0 order-2" title="Compare" aria-label="Compare" t-att-data-product-product-id="product_variant_id" data-action="o_comparelist">Comparez<img class="img img-fluid ms-2" src="/website_freemoov/static/src/img/plus-circle.png" alt="Hero Img"/></button>
+            </div>
+        </xpath>
+        <xpath expr="//div[@id='add_to_cart_wrap']" position="before">
+            <ul t-if="product.is_available_trial" class="text custom_product_list mb32">
+                <li class="mb-1">
+                    <img class="img img-fluid me-2" src="/website_freemoov/static/src/img/truck.png" alt="Hero Img"/>
+                    <span>Délai de 1 à 5 jours ouvrés</span>
+                </li>
+                <li class="mb-0">
+                    <img class="img img-fluid me-2" src="/website_freemoov/static/src/img/right.png" alt="Hero Img"/>
+                    <span>Services premium Freemoov compris</span>
+                </li>
+            </ul>
+        </xpath>
+        <xpath expr="//div[@id='o_product_terms_and_share']" position="after">
+            <div class="custom-text">
+                <div class="payment-method text-center text-md-start">
+                    <p>Moyen de paiement sécurisé</p>
+                    <img src="/website_freemoov/static/src/img/Frame.png" class="img"/>
+                </div>
+                <div class="advantages">
+                    <h5 class="text-uppercase fw-bold mb-3">Vos avantages Freemoov</h5>
+                    <ul class="text">
+                        <li class="mb-2">
+                            <img class="img img-fluid me-2" src="/website_freemoov/static/src/img/right.png" alt="Hero Img"/>
+                            <span>Expert en réparation de trottinette électrique</span>
+                        </li>
+                        <li class="mb-2">
+                            <img class="img img-fluid me-2" src="/website_freemoov/static/src/img/right.png" alt="Hero Img"/>
+                            <span>Visite show-room et essai avant achat</span>
+                        </li>
+                        <li class="mb-2">
+                            <img class="img img-fluid me-2" src="/website_freemoov/static/src/img/right.png" alt="Hero Img"/>
+                            <span>Magasin physique à votre écoute</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="wishlist_inherited" inherit_id="website_sale_wishlist.product_add_to_wishlist" name="Wishlist Inherit">
+        <xpath expr="//button[hasclass('o_add_wishlist_dyn')]" position="replace">
+            <button t-if="product_variant" type="button" role="button" class="btn btn-link px-0 pe-3 o_add_wishlist_dyn" t-att-disabled='in_wish or None' t-att-data-product-template-id="product.id" t-att-data-product-product-id="product_variant.id" data-action="o_wishlist" title="Add to wishlist"><i class="fa fa-heart-o me-2" role="img" aria-label="Add to wishlist"/></button>
+        </xpath>
+    </template>
+
+    <template id="custom_text_inherited" inherit_id="website_sale.product_custom_text" name="Custom Text Inherit">
+        <xpath expr="//p[hasclass('text-muted', 'mb-0')]" position="replace">
+           
+        </xpath>
+    </template>
+
+    <template id="share_icon_inherited" inherit_id="website_sale.product_share_buttons" name="Share Icon Inherit">
+        <xpath expr="//div[hasclass('h4')]" position="replace">
+        </xpath>
+    </template>
+
+    <template id="alternative_product_inherited" inherit_id="website_sale.dynamic_filter_template_product_product_borderless_1" name="Alternative Products Inherit">
+        <xpath expr="//div[hasclass('card-title')]" position="before">
+            <p class="brand" t-if="record.brand_id"><t t-esc="record.brand_id.name"/></p>
+        </xpath>
+        <xpath expr="//div[hasclass('mt-2')]" position="inside">
+            <a class="icon"><img class="img" src="/website_freemoov/static/src/img/arrow-left.png" alt="photo"/></a>
+        </xpath>
+    </template>
+    <template id="menu_catego_recursive" >
+        <li class="nav-item">
+            <a class="nav-link category-link" t-att-href="'/shop/category/%s' % slug(catego)" t-attf-data-category-id="#{catego.id}" t-attf-data-category-name="#{catego.name}">
+                <span t-esc="catego.name"/>
+            </a>
+        </li>
+    </template> 
+    <template id="menu_sub_catego_recursive" >
+        <li class="nav-item">
+            <ul class="ps-3 list-unstyled">
+                <t t-foreach="subcategories" t-as="subcategory">
+                    <t t-raw="subcategory.name"/>
+                </t>
+            </ul>
+        </li>
+    </template>
+    <template id="subcategory_template" name="Subcategory Template">
+        <div class="d-lg-flex cat-brand">
+            <div class="category-box col-lg-3">
+                <p class="text-center text-lg-start">Catégories</p>
+                <t t-foreach="subcategories_ids" t-as="subcategory">
+                    <ul class="list-unstyled">
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold p-0" t-att-href="'/shop/category/%s' % slug(subcategory)">
+                                <t t-esc="subcategory.name"/><br/>
+                            </a>
+                        </li>
+                    </ul>
+                </t>
+            </div>
+            <div class="brand-box col-lg-3  mt-4 mt-lg-0">
+                <p class="text-center text-lg-start">Marques</p>
+                <t t-foreach="subcategories_ids" t-as="subcategory">
+                    <t t-foreach="subcategory.brand_ids" t-as="brand_id">
+                        <ul class="list-unstyled">
+                            <li class="nav-item">
+                                <a class="nav-link fw-bold p-0">
+                                    <t t-esc="brand_id.name"/><br/>
+                                </a>
+                            </li>
+                        </ul>
+                    </t>
+                </t>
+            </div>
+        </div>
+    </template>        
+</odoo>

@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="ust_all_in_one_slider"
+		name="All In One Slider">
+		<section id="ust_all_in_one_configure" class="ust_all_in_one_configure_slider ust_all_in_one_slider pt32 pb32 oe_structure oe_empty" contentEditable="false" data-all_slider_s_id="">
+			<div class="container">
+				<div class="all-slider-header-title text-center">
+					<h3 class="filter">All In One Slider</h3>
+				</div>
+			</div>
+		</section>
+	</template>
+
+    <template id="ust_allin_one_slider_configure_option" inherit_id="website.snippet_options">
+		<xpath expr="//div" position="after">
+			<div data-js="ust_all_in_one_slider_configure"
+				data-selector=".ust_all_in_one_configure_slider">
+				<li>
+					<a class="ust_all_in_one_configure_slider">Select Slider</a>
+				</li>
+			</div>
+		</xpath>
+	</template>
+
+    <template id="ust_all_one_temp" name="All In One Slider">
+		<div class="container">
+			<div class="row">
+				<div class="col-12">
+					<div class="all-slider-header-title">
+						<!-- <h3 class="filter" t-if="not ust_s_main">All In One Slider</h3>
+						<span class="d-flex align-items-center justify-content-between filter" t-if="ust_s_main.slider_name">
+							<h5 class="" t-esc="ust_s_main.slider_name" />
+							<a t-if="ust_s_main.slider_type == 'blog'" href="/blog">voir tout</a>
+						</span> -->
+						<p class="filter mb32" t-if="ust_s_main.sub_title">
+							<t t-esc="ust_s_main.sub_title" />
+						</p>
+						<t t-if="ust_s_main.slider_type == 'category'">
+							<div class="cat-title mx-auto">
+								<span class="d-flex align-items-center justify-content-between filter" t-if="ust_s_main.slider_name">
+									<h5 class="" t-esc="ust_s_main.slider_name" />
+								</span>
+							</div>
+						</t>
+						<t t-else="">
+							<span class="d-flex align-items-center justify-content-between filter" t-if="ust_s_main.slider_name">
+								<h5 class="" t-esc="ust_s_main.slider_name" />
+								<a class="other-title" t-if="ust_s_main.slider_type == 'blog'" href="/blog">voir tout</a>
+							</span>
+						</t>
+					</div>
+				</div>
+			</div>
+		</div>
+		<t t-if="ust_s_main">
+			<div class="container">
+				<div t-attf-class="all_slider w-100 #{'s_tabs_main' if ust_s_main.slider_type == 'product' else ''}">
+					<t t-if="ust_s_main.slider_type == 'product'">
+		            	<div class="s_tabs_nav mb-3">
+		               	 	<ul class="nav nav-pills justify-content-center" role="tablist">
+		                        <t t-foreach="ust_s_main.tabs_line_ids" t-as="tab_d">
+		                        	<t t-if="len(ust_s_main.tabs_line_ids) &gt; 1">
+										<t t-if="tab_d.id == ust_s_main.tabs_line_ids[0].id">
+											<li class="nav-item">
+												<a class="nav-link o_default_snippet_text active" t-att-id="'nav_tabs_link_' + str(tab_d.tab_id.id) + '_' + str(ust_s_main.id)" data-bs-toggle="tab" 
+												t-att-href="'#nav_tabs_content_' + str(tab_d.tab_id.id) + '_' + str(ust_s_main.id)" role="tab" 
+												t-attf-aria-controls="nav_tabs_content_#{str(tab_d.tab_id.id) + '_' + str(ust_s_main.id)}" t-att-aria-selected="true"><t t-esc="tab_d.tab_id.name"/></a>
+											</li>
+										</t>
+										<t t-else="">
+											<li class="nav-item">
+												<a class="nav-link o_default_snippet_text" t-att-id="'nav_tabs_link_' + str(tab_d.tab_id.id) + '_' + str(ust_s_main.id)" data-bs-toggle="tab" 
+												t-att-href="'#nav_tabs_content_' + str(tab_d.tab_id.id) + '_' + str(ust_s_main.id)" role="tab" 
+												t-attf-aria-controls="nav_tabs_content_#{str(tab_d.tab_id.id) + '_' + str(ust_s_main.id)}" t-att-aria-selected="false"><t t-esc="tab_d.tab_id.name"/></a>
+											</li>
+										</t>
+									</t>
+								</t>
+		                    </ul>
+		            	</div>
+					</t>
+					<div t-attf-class="all_slider_div w-100 #{'s_tabs_content tab-content' if ust_s_main.slider_type == 'product' else ''}">
+						<t t-if="ust_s_main.style_type == 'slider'">
+							<t t-if="ust_s_main.slider_type == 'category'">
+								<div class="owl-carousel ust-all-slider" t-att-id="'ust-%s' % (	ust_s_main.id)">
+									<t t-call="ust_common_features.category_slider"/>
+								</div>
+							</t>
+							<t t-elif="ust_s_main.slider_type == 'brand'">
+								<div class="owl-carousel ust-all-slider" t-att-id="'ust-%s' % (	ust_s_main.id)">
+									<t t-call="ust_common_features.brand_slider"/>
+								</div>
+							</t>
+
+							<t t-elif="ust_s_main.slider_type == 'blog'">
+								<div class="owl-carousel ust-all-slider" t-att-id="'ust-%s' % (	ust_s_main.id)">
+									<t t-call="ust_common_features.blog_slider"/>
+								</div>
+							</t>
+
+							<t t-elif="ust_s_main.slider_type == 'product'">
+								<t t-foreach="ust_s_main.tabs_line_ids" t-as="tab_d">
+									<t t-if="tab_d.id == ust_s_main.tabs_line_ids[0].id">
+										<div class="tab-pane fade show active" t-att-id="'nav_tabs_content_' + str(tab_d.tab_id.id) + '_' + str(ust_s_main.id)" role="tabpanel" 
+										t-attf-aria-labelledby="nav_tabs_link_{{str(tab_d.tab_id.id) + '_' + str(ust_s_main.id)}}">
+											<div class="owl-carousel ust-all-slider" t-att-id="'ust-%s' % (	ust_s_main.id)">
+												<t t-call="ust_common_features.product_slider"/>
+											</div>
+										</div>
+									</t>
+									<t t-else="">
+										<div class="tab-pane fade" t-att-id="'nav_tabs_content_' + str(tab_d.tab_id.id) + '_' + str(ust_s_main.id)" role="tabpanel" 
+										t-attf-aria-labelledby="nav_tabs_link_{{str(tab_d.tab_id.id) + '_' + str(ust_s_main.id)">
+											<div class="owl-carousel ust-all-slider" t-att-id="'ust-%s' % (	ust_s_main.id)">
+												<t t-call="ust_common_features.product_slider"/>
+											</div>
+										</div>
+									</t>
+								</t>
+							</t>
+						</t>
+						<t t-elif="ust_s_main.style_type == 'grid'">
+							<t t-if="ust_s_main.slider_type == 'category'">
+								<div class="mx-auto cat-div">
+									<div class="row">
+										<t t-call="ust_common_features.category_grid"/>
+									</div>
+								</div>
+							</t>
+							<t t-elif="ust_s_main.slider_type == 'brand'">
+								<div class="row">
+									<t t-call="ust_common_features.brand_grid"/>
+								</div>
+							</t>
+
+							<t t-elif="ust_s_main.slider_type == 'blog'">
+								<div class="row">
+									<t t-call="ust_common_features.blog_grid"/>
+								</div>
+							</t>
+							<t t-elif="ust_s_main.slider_type == 'product'">
+								<t t-foreach="ust_s_main.tabs_line_ids" t-as="tab_d">
+									<t t-if="tab_d.id == ust_s_main.tabs_line_ids[0].id">
+										<div class="tab-pane fade show active" t-att-id="'nav_tabs_content_' + str(tab_d.tab_id.id) + '_' + str(ust_s_main.id)" role="tabpanel" 
+										t-attf-aria-labelledby="nav_tabs_link_{{str(tab_d.tab_id.id) + '_' + str(ust_s_main.id)}}">
+											<div class="row">
+												<t t-call="ust_common_features.product_grid"/>
+											</div>
+										</div>
+									</t>
+									<t t-else="">
+										<div class="tab-pane fade" t-att-id="'nav_tabs_content_' + str(tab_d.tab_id.id) + '_' + str(ust_s_main.id)" role="tabpanel" 
+										t-attf-aria-labelledby="nav_tabs_link_{{str(tab_d.tab_id.id) + '_' + str(ust_s_main.id)">
+											<div class="row">
+												<t t-call="ust_common_features.product_grid"/>
+											</div>
+										</div>
+									</t>
+								</t>
+							</t>
+						</t>
+						<t t-else="">
+							<h3>No Slider Data Configure Please Contact Administrator.</h3>
+						</t>
+					</div>
+	            </div>
+			</div>
+		</t>
+	</template>
+
+
+	<template id="product_grid" name="Product Grid">
+		<t t-as="product" t-foreach="tab_d.product_ids">
+			<div class="col-lg-3 col-md-6" id="ust-product-grid">
+				<t t-set="combination_info" t-value="product._get_combination_info(only_template=True, add_qty=add_qty or 1, pricelist=pricelist)" />
+				<form action="/shop/cart/update" method="post" class="oe_product_cart h-100 d-flex"
+		            t-att-data-publish="product.website_published and 'on' or 'off'"
+		            itemscope="itemscope" itemtype="http://schema.org/Product">
+
+		            <div class="oe_product_image position-relative flex-grow-0 overflow-hidden">
+		                <a t-att-href="'/shop/product/%s' % slug(product)"  class="oe_product_image_link d-block h-100 position-relative pt-0" itemprop="url" contenteditable="false">
+		                    <t t-set="image_holder" t-value="product._get_image_holder()"/>
+		                    <img t-att-src="website.image_url(product, 'image_1920')" data-lazy="" class="front img-fluid shop-prod-main-img" t-att-alt="product.name"
+									t-att-title="product.name"
+									t-att-data-src="website.image_url(product, 'image_1920')" />
+
+		                </a>
+		                <t t-if="product.prod_label_id">
+			                <t t-call="ust_common_features.ust_product_label_temp"/>
+			            </t>
+		            </div>
+		            <div class="o_wsale_product_information position-relative d-flex flex-column flex-grow-1 flex-shrink-1">
+		                <div class="o_wsale_product_information_text flex-grow-1">
+		                	<p class="brand mb4" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
+		                    <h6 class="o_wsale_products_item_title mb8">
+		                        <a class="text-primary text-decoration-none" itemprop="name" t-att-href="'/shop/product/%s' % slug(product)" t-att-content="product.name" t-esc="product.name" />
+		                        <a t-if="not product.website_published" role="button" t-att-href="'/shop/product/%s' % slug(product)" class="btn btn-sm btn-danger" title="This product is unpublished.">
+		                            Unpublished
+		                        </a>
+		                    </h6>
+		                    <div class="product_bottom d-flex align-items-end justify-content-between">
+		                    	<div class="product_price_div">
+									<h3 class="css_editable_mode_hidden" style="font-size: 13px;font-weight:bold;">
+										<span class="oe_price" style="white-space: nowrap;" t-esc="combination_info['price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+										<span itemprop="price" style="display:none;" t-esc="combination_info['price']"/>
+										<span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name"/>
+										<span t-attf-class="text-danger oe_default_price ms-1 h5 {{'' if combination_info['has_discounted_price'] and not combination_info['compare_list_price'] else 'd-none'}}"
+											style="text-decoration: line-through; white-space: nowrap;font-size: 13px;font-weight:bold;"
+											t-esc="combination_info['list_price']"
+											t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"
+											itemprop="listPrice"
+										/>
+										<t t-if="is_view_active('website_sale.tax_indication')" t-call="website_sale.tax_indication"/>
+										<del t-if="combination_info['compare_list_price'] and (combination_info['compare_list_price'] &gt; combination_info['price'])">
+											<bdi dir="inherit">
+											<span t-esc="combination_info['compare_list_price']"
+												groups="website_sale.group_product_price_comparison"
+												t-options='{
+												   "widget": "monetary",
+												   "display_currency": website.currency_id,
+											   }'/>
+											</bdi>
+										</del>
+									</h3>
+			                    	<!-- <t t-call="website_sale.product_price"/> -->
+			                    </div>
+			                    <div class="s_btn">
+			                    	<a t-att-href="'/shop/product/%s' % slug(product)" class="btn btn-outline-dark"><i class="fa fa-arrow-right"></i></a>
+			                    </div>
+			                </div>
+		                </div>
+		            </div>
+		        </form>
+			</div>
+		</t>
+	</template>
+
+	<template id="product_slider" name="Product Slider">
+		<t t-as="product" t-foreach="tab_d.product_ids">
+			<div id="ust-product-slider">
+				<t t-set="combination_info" t-value="product._get_combination_info(only_template=True, add_qty=add_qty or 1, pricelist=pricelist)" />
+				<form action="/shop/cart/update" method="post" class="oe_product_cart h-100 d-flex"
+		            t-att-data-publish="product.website_published and 'on' or 'off'"
+		            itemscope="itemscope" itemtype="http://schema.org/Product">
+
+		            <div class="oe_product_image position-relative flex-grow-0 overflow-hidden">
+		                <a t-att-href="'/shop/product/%s' % slug(product)"  class="oe_product_image_link d-block h-100 position-relative pt-0" itemprop="url" contenteditable="false">
+		                    <t t-set="image_holder" t-value="product._get_image_holder()"/>
+		                    <img t-att-src="website.image_url(product, 'image_1920')" data-lazy="" class="front img-fluid shop-prod-main-img" t-att-alt="product.name"
+									t-att-title="product.name"
+									t-att-data-src="website.image_url(product, 'image_1920')" />
+
+		                </a>
+		                <t t-if="product.prod_label_id">
+			                <t t-call="ust_common_features.ust_product_label_temp"/>
+			            </t>
+		            </div>
+		            <div class="o_wsale_product_information position-relative d-flex flex-column flex-grow-1 flex-shrink-1">
+		                <div class="o_wsale_product_information_text flex-grow-1">
+		                	<p class="brand mb4" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
+		                    <h6 class="o_wsale_products_item_title mb8">
+		                        <a class="text-primary text-decoration-none" itemprop="name" t-att-href="'/shop/product/%s' % slug(product)" t-att-content="product.name" t-esc="product.name" />
+		                        <a t-if="not product.website_published" role="button" t-att-href="'/shop/product/%s' % slug(product)" class="btn btn-sm btn-danger" title="This product is unpublished.">
+		                            Unpublished
+		                        </a>
+		                    </h6>
+		                    <div class="product_bottom d-flex align-items-end justify-content-between">
+		                    	<div class="product_price_div">
+									<h3 class="css_editable_mode_hidden" style="font-size: 13px;font-weight:bold;">
+										<span class="oe_price" style="white-space: nowrap;" t-esc="combination_info['price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+										<span itemprop="price" style="display:none;" t-esc="combination_info['price']"/>
+										<span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name"/>
+										<span t-attf-class="text-danger oe_default_price ms-1 h5 {{'' if combination_info['has_discounted_price'] and not combination_info['compare_list_price'] else 'd-none'}}"
+											style="text-decoration: line-through; white-space: nowrap;font-size: 13px;font-weight:bold"
+											t-esc="combination_info['list_price']"
+											t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"
+											itemprop="listPrice"
+										/>
+										<t t-if="is_view_active('website_sale.tax_indication')" t-call="website_sale.tax_indication"/>
+										<del t-if="combination_info['compare_list_price'] and (combination_info['compare_list_price'] &gt; combination_info['price'])">
+											<bdi dir="inherit">
+											<span t-esc="combination_info['compare_list_price']"
+												groups="website_sale.group_product_price_comparison"
+												t-options='{
+												   "widget": "monetary",
+												   "display_currency": website.currency_id,
+											   }'/>
+											</bdi>
+										</del>
+									</h3>
+			                    	<!-- <t t-call="website_sale.product_price"/> -->
+			                    </div>
+			                    <div class="s_btn">
+			                    	<a t-att-href="'/shop/product/%s' % slug(product)" class="btn btn-outline-dark"><i class="fa fa-arrow-right"></i></a>
+			                    </div>
+			                </div>
+		                </div>
+		            </div>
+		        </form>
+			</div>
+		</t>
+	</template>
+
+
+	<template id="category_slider" name="Category Slider">
+		<t t-as="cat" t-foreach="ust_s_main.category_ids">
+			<div class="ust-cat-slider">
+				<a t-att-href=" '/shop/category/%s' % slug(cat)" class="nav-link slider-img">
+					<img t-att-alt="cat.name" t-att-src="website.image_url(cat, 'image_1920')" t-att-title="cat.name" class="img img-fluid"/>
+					<p class="slider_name">
+						<t t-esc="cat.name"/>
+					</p>
+				</a>
+			</div>
+		</t>
+	</template>
+
+	<template id="category_grid" name="Category Grid">
+		<t t-set="category_count" t-value="1"/>
+		<t t-as="grid_data" t-foreach="ust_s_main.category_ids">
+			<div t-if="category_count == 1" class="col-lg-6 pt16 pb16">
+				<div class="ust-cat-grid">
+					<a t-att-href=" '/shop/category/%s' % slug(grid_data)" class="nav-link grid-img">
+						<img class="img img-fluid" t-att-alt="grid_data.name" t-att-src="website.image_url(grid_data, 'image_1920')" t-att-title="grid_data.name"/>
+						<p class="grid_data">
+							<t t-esc="grid_data.name"/>
+						</p>
+					</a>
+				</div>
+			</div>
+			<div t-elif="category_count == 2" class="col-6 pt16 pb16">
+				<div class="ust-cat-grid">
+					<a t-att-href=" '/shop/category/%s' % slug(grid_data)" class="nav-link grid-img">
+						<img class="img img-fluid" t-att-alt="grid_data.name" t-att-src="website.image_url(grid_data, 'image_1920')" t-att-title="grid_data.name"/>
+						<p class="grid_data">
+							<t t-esc="grid_data.name"/>
+						</p>
+					</a>
+				</div>
+			</div>
+			<div t-else="" class="col-6 col-lg-4 pt16 pb16">
+				<div class="ust-cat-grid">
+					<a t-att-href=" '/shop/category/%s' % slug(grid_data)" class="nav-link grid-img">
+						<img class="img img-fluid" t-att-alt="grid_data.name" t-att-src="website.image_url(grid_data, 'image_1920')" t-att-title="grid_data.name"/>
+						<p class="grid_data">
+							<t t-esc="grid_data.name"/>
+						</p>
+					</a>
+				</div>
+			</div>
+
+			<t t-set="category_count" t-value="category_count + 1"/>
+			<t t-if="category_count == 6">
+				<t t-set="category_count" t-value="1"/>
+			</t>
+		</t>
+	</template>
+
+	<template id="brand_slider" name="Brand Slider">
+		<t t-as="brand" t-foreach="ust_s_main.brand_ids">
+			<div class="ust-brand-slider">
+				<a t-att-href="'/shop?brand=%s' % (brand.id)" class="nav-link slider-img">
+					<img t-att-alt="brand.name" t-att-src="website.image_url(brand, 'brand_image')" t-att-title="brand.name" class="img img-fluid"/>
+					<p class="slider_data">
+						<t t-esc="brand.name"/>
+					</p>
+				</a>
+			</div>
+		</t>
+	</template>
+
+	<template id="brand_grid" name="Brand Grid">
+		<t t-set="brand_count" t-value="1"/>
+		<t t-as="grid_data" t-foreach="ust_s_main.brand_ids">
+			<div t-if="brand_count == 1" class="col-lg-6 pt16 pb16">
+				<div class="ust-brand-grid">
+					<a t-att-href="'/shop?brand=%s' % (grid_data.id)" class="nav-link brand-img">
+						<img t-att-alt="grid_data.name" t-att-src="website.image_url(grid_data, 'brand_image')" t-att-title="grid_data.name"  class="img img-fluid"/>
+						<p class="all_slider_data text-capitalize text-center mt16">
+							<t t-esc="grid_data.name"/>
+						</p>
+					</a>
+				</div>
+			</div>
+			<div t-elif="brand_count == 2" class="col-6 pt16 pb16">
+				<div class="ust-brand-grid">
+					<a t-att-href="'/shop?brand=%s' % (grid_data.id)" class="nav-link brand-img">
+						<img t-att-alt="grid_data.name" t-att-src="website.image_url(grid_data, 'brand_image')" t-att-title="grid_data.name"  class="img img-fluid"/>
+						<p class="all_slider_data text-capitalize text-center mt16">
+							<t t-esc="grid_data.name"/>
+						</p>
+					</a>
+				</div>
+			</div>
+			<div t-else="" class="col-6 col-lg-4 pt16 pb16">
+				<div class="ust-brand-grid">
+					<a t-att-href="'/shop?brand=%s' % (grid_data.id)" class="nav-link brand-img">
+						<img t-att-alt="grid_data.name" t-att-src="website.image_url(grid_data, 'brand_image')" t-att-title="grid_data.name"  class="img img-fluid"/>
+						<p class="all_slider_data text-capitalize text-center mt16">
+							<t t-esc="grid_data.name"/>
+						</p>
+					</a>
+				</div>
+			</div>
+
+			<t t-set="brand_count" t-value="brand_count + 1"/>
+			<t t-if="brand_count == 6">
+				<t t-set="brand_count" t-value="1"/>
+			</t>
+		</t>
+	</template>
+
+	<template id="blog_slider" name="Brand Slider">
+		<t t-foreach="ust_s_main.blog_ids" t-as="record">
+			<div class="s_blog_posts_post w-100 h-100">
+	            <div class="card h-100">
+	                <a class="s_blog_posts_post_cover" t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)">
+	                    <t t-call="website.record_cover">
+	                        <t t-set="_record" t-value="record"/>
+	                        <t t-set="_resize_height" t-value="256"/>
+	                        <t t-set="_resize_width" t-value="256"/>
+	                        <t t-set="additionnal_classes" t-value="'thumb'"/>
+	                    </t>
+	                </a>
+	                <div class="card-body">
+	                    <div class="card-details">
+	                        <a class="mb16 d-block category" t-attf-href="/blog/#{slug(record.blog_id)}" t-esc="record.blog_id.name"/>
+	                        <a t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)"><h4 class=" s_blog_posts_post_title mb8" t-esc="record.name"/></a>
+	                        <div t-if="is_sample" class="h5 o_ribbon_right bg-primary text-uppercase">Sample</div>
+	                        <div class="s_blog_posts_post_subtitle" t-esc="record.subtitle"/>
+	                    </div>
+	                    <div class="text-end mt8">
+	                        <a t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)}" class="btn"><i class="fa fa-arrow-right"></i></a>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </t>
+	</template>
+
+	<template id="blog_grid" name="Blog Grid">
+		<div t-foreach="ust_s_main.blog_ids" t-as="record" class="col-lg-3 col-md-6 my-4">
+			<div class="s_blog_posts_post w-100 h-100">
+	            <div class="card h-100">
+	                <a class="s_blog_posts_post_cover" t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)">
+	                    <t t-call="website.record_cover">
+	                        <t t-set="_record" t-value="record"/>
+	                        <t t-set="_resize_height" t-value="256"/>
+	                        <t t-set="_resize_width" t-value="256"/>
+	                        <t t-set="additionnal_classes" t-value="'thumb'"/>
+	                    </t>
+	                </a>
+	                <div class="card-body">
+	                    <div class="card-details">
+	                        <a class="mb16 d-block category" t-attf-href="/blog/#{slug(record.blog_id)}" t-esc="record.blog_id"/>
+	                        <a t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)"><h4 class=" s_blog_posts_post_title mb8" t-esc="record.name"/></a>
+	                        <div t-if="is_sample" class="h5 o_ribbon_right bg-primary text-uppercase">Sample</div>
+	                        <div class="s_blog_posts_post_subtitle" t-esc="record.subtitle"/>
+	                    </div>
+	                    <div class="text-end mt8">
+	                        <a t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)}" class="btn"><i class="fa fa-arrow-right"></i></a>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+     </template>
+
+</odoo>
