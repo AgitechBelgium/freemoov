@@ -54,6 +54,8 @@ odoo.define('website_freemoov.category_script', function (require) {
                     console.log('>>>>>>>>>categoryId>>>>>>>>>>',data['sub_catg'])                    // $("#subcategoryModalTitle").text(categoryName);
                     var category_html = "<a class='nav_link text-white' href='/shop/category/" + data['category'] + "'>" + categoryName + "</a>"  
                     $("#subcategoryModalTitle").find('a').html(category_html);
+                    var link = "/shop/category/" + data['category']
+                    $(".sub_categ_button").find('a').attr('href',link);
                     $("#subcategoryModalBody").html(data['sub_catg']);
                             
                     $("#top-menu-collapse-sub-category").modal("show");

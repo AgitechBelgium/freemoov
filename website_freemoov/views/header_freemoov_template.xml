@@ -119,12 +119,12 @@
                                     <a class="nav_link"></a>
                                 </h2>
                                 <div class="buttons pb32 text-center d-block d-md-none">
-                                    <a href="/shop" class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">voir tout</a>
+                                    <a  class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0 ">voir tout</a>
                                 </div>
                                 <!-- Modal body -->
                                 <div class="modal-body p-0" id="subcategoryModalBody">
                                 </div>
-                                <div class="buttons pt40 text-center text-xl-start d-none d-md-block">
+                                <div class="buttons pt40 text-center text-xl-start d-none d-md-block sub_categ_button">
                                     <a href="/shop" class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">voir tout</a>
                                     <button type="button" class="btn btn-outline-light my-2 my-xl-0" data-bs-toggle="modal" data-bs-target="#top-menu-collapse">Back to menu</button>
                                 </div>

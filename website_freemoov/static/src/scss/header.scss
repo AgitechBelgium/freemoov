@@ -65,6 +65,8 @@
     							font-weight: bold;
     							color: #fff;
 								cursor: pointer;
+								margin-bottom: 10px;
+								font-style: italic;
 							}
 							ul.dropdown-menu{
 								background-image: linear-gradient(rgb(9, 157, 93), rgb(122, 193, 68));
@@ -112,6 +114,8 @@
 			height: 100vh;
 			.modal-dialog {
 				max-width: 100%;
+				padding-top: 0;
+
 				.modal-content {
 					height: 100vh;
 					background-image: linear-gradient(map-get($theme-colors, 'primary'),map-get($theme-colors, 'secondary'));
@@ -152,6 +156,8 @@
 											font-size: 28px;
 										    text-transform: uppercase;
 										    color: #fff;
+											margin-bottom: 10px;
+											font-style: italic;
 										}
 									}
 									@media (max-width: 991.98px) {
