@@ -44,6 +44,19 @@ odoo.define('website_freemoov.category_script', function (require) {
     var Widget = require('web.Widget');
 
     $(document).ready(function () {
+        var triggerSecondClick = true;
+        $(".back_to_menu").click(function() {
+            console.log("clicck=== ",triggerSecondClick)
+            if (triggerSecondClick) {
+                // Simulate a second click
+                console.log("againnnn")
+                $(".back_to_menun").click();
+              } else {
+                // Set the flag to true for the next click
+                triggerSecondClick = false;
+              }
+        })
+
         if($('div').hasClass('cat-div')) {
             $('#ust_all_in_one_configure').closest('#ust_all_in_one_configure').addClass('bg-white')
           }

@@ -93,6 +93,16 @@
                                                 <t t-call="website_freemoov.menu_catego_recursive"/>
                                             </t>
                                         </t>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="/blog">
+                                                <span>Blog</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="/contactus">
+                                                <span>Contact</span>
+                                            </a>
+                                        </li>
                                     </ul>
                                     <div class="login-buttons pt40 text-center text-xl-start">
                                         <a href="/web/login?" class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">se connecter</a>
