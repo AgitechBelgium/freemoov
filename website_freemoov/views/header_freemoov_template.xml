@@ -126,7 +126,7 @@
                                 </div>
                                 <div class="buttons pt40 text-center text-xl-start d-none d-md-block sub_categ_button">
                                     <a href="/shop" class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">voir tout</a>
-                                    <button type="button" class="btn btn-outline-light my-2 my-xl-0" data-bs-toggle="modal" data-bs-target="#top-menu-collapse">Back to menu</button>
+                                    <button type="button" class="btn btn-outline-light my-2 my-xl-0 back_to_menu" data-bs-toggle="modal" data-bs-target="#top-menu-collapse">Back to menu</button>
                                 </div>
                             </div>
                         </div>
