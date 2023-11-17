@@ -351,6 +351,9 @@
                 <t t-set="template_price_vals" t-value="get_product_prices(product)"/>
                 <div class="o_wsale_product_btn"/>
                 <div class="product_sub_detail align-items-center">
+                    <!-- <p class="prod_desc" t-if="product.description" >
+                        <span t-esc="product.description"/>
+                    </p> -->
                     <p class="label"><span t-attf-class="o_ribbon #{bg_class}" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/><span t-out="td_product['ribbon']['html'] or ''"/></p>
                     <p class="variant" t-if="len(product.valid_product_template_attribute_line_ids) != 0"><t t-esc="len(product.valid_product_template_attribute_line_ids)"/> variantes</p>
                     <div class="product_price" itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer">
@@ -858,6 +861,17 @@
                 </div>
             </div>
         </xpath>
+        <xpath expr="//div//h1" position="before">
+            <div class="review_product_detail">
+                <span class="fa fa-star"/>
+                <span class="fa fa-star"/>
+                <span class="fa fa-star"/>
+                <span class="fa fa-star"/>
+                <span class="fa fa-star-o"/>
+                <span> 4.2/5 (50 avis)</span>
+            </div>
+        </xpath>
+        
         <xpath expr="//div//h1" position="after">
             <div class="product_tags_block">
                 <t t-foreach="product.product_tag_ids" t-as="product_tag">
