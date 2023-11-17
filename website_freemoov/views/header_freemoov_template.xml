@@ -57,7 +57,7 @@
 
                             <!-- Navbar Toggler -->
                             <li class="nav-item">
-                                <button type="button" class="navbar_toggler btn p-1" data-bs-toggle="modal" data-bs-target="#top-menu-collapse"><img class="img img-fluid" src="/website_freemoov/static/src/img/menu.png"/></button>
+                                <button type="button" style="background-image: linear-gradient(#099D5D, rgba(51, 163, 58, 0.82));" class="navbar_toggler btn p-1" data-bs-toggle="modal" data-bs-target="#top-menu-collapse"><img class="img img-fluid" src="/website_freemoov/static/src/img/menu.png"/></button>
                             </li>
 
                             <!-- Language Selector -->
