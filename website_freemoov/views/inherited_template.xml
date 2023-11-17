@@ -347,13 +347,18 @@
         <xpath expr="//span[contains(@t-attf-class, 'o_ribbon')]" position="replace">
         </xpath>
         <xpath expr="//form//div[hasclass('o_wsale_product_sub')]" position="replace">
+            <p class="prod_desc" t-if="product.description" 
+                style="">
+                <span t-esc="product.description" style=""/>
+            </p>
             <div class="o_wsale_product_sub d-flex align-items-end pb-1">
+                
                 <t t-set="template_price_vals" t-value="get_product_prices(product)"/>
+                
                 <div class="o_wsale_product_btn"/>
+                
                 <div class="product_sub_detail align-items-center">
-                    <!-- <p class="prod_desc" t-if="product.description" >
-                        <span t-esc="product.description"/>
-                    </p> -->
+                    
                     <p class="label"><span t-attf-class="o_ribbon #{bg_class}" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/><span t-out="td_product['ribbon']['html'] or ''"/></p>
                     <p class="variant" t-if="len(product.valid_product_template_attribute_line_ids) != 0"><t t-esc="len(product.valid_product_template_attribute_line_ids)"/> variantes</p>
                     <div class="product_price" itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer">
@@ -603,7 +608,7 @@
                 <div class="container">
                     <div class="row align-items-center">
                         <div class="col-lg-6">
-                            <h5 class="fw-bold text-uppercase mb-0">Galerie d’images</h5>
+                            <h5 class="fw-bold text-uppercase mb-0 d-none">Galerie d’images</h5>
                         </div>
                         <div class="col-lg-6">
                             <p class="text-end mb-0">voir tout</p>
