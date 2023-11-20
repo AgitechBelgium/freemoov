@@ -55,8 +55,8 @@
                         <div class="row">
                             <div class="col-12">
                                 <ol class="breadcrumb ps-0">
-                                    <li class="breadcrumb-item"><a href="/">Home</a></li>
-                                    <li class="breadcrumb-item"><a href="/shop">Shop</a></li>
+                                    <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                                    <li class="breadcrumb-item"><a href="/shop">Produits</a></li>
                                     <li class="breadcrumb-item active"><t t-esc="category.name"/></li>
                                 </ol>
                             </div>
@@ -81,8 +81,8 @@
                         <div class="row">
                             <div class="col-12">
                                 <ol class="breadcrumb ps-0">
-                                    <li class="breadcrumb-item"><a href="/">Home</a></li>
-                                    <li class="breadcrumb-item active"><span>Shop</span></li>
+                                    <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                                    <li class="breadcrumb-item active"><span>Produits</span></li>
                                 </ol>
                             </div>
                         </div>
@@ -221,7 +221,7 @@
                     <t t-if="product.prod_label_id">
                         <t t-call="ust_common_features.ust_product_label_temp"/>
                     </t>
-                    <p class="brand" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
+                    <p class="brand" t-if="product.x_studio_marque"><t t-esc="product.x_studio_marque"/></p>
                     <h6 class="o_wsale_products_item_title mb-2">
                         <a class="text-primary text-decoration-none" itemprop="name" t-att-href="product_href" t-att-content="product.name" t-esc="product.name" />
                         <a t-if="not product.website_published" role="button" t-att-href="product_href" class="btn btn-sm btn-danger" title="This product is unpublished.">
@@ -359,21 +359,34 @@
                 
                 <div class="product_sub_detail align-items-center">
                     
-                    <p class="label"><span t-attf-class="o_ribbon #{bg_class}" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/><span t-out="td_product['ribbon']['html'] or ''"/></p>
+                    <t t-if="product.virtual_available &gt; 0">
+                        <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
+                            <span> En stock </span>
+                        </p>
+                    </t>
+                    <t t-if="product.virtual_available &lt;= 0">
+                        <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
+                            <span> Out of stock </span>
+                        </p>
+                    </t>
+                    <!-- <p class="label"><span t-attf-class="o_ribbon #{bg_class}" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/><span t-out="td_product['ribbon']['html'] or ''"/></p> -->
                     <p class="variant" t-if="len(product.valid_product_template_attribute_line_ids) != 0"><t t-esc="len(product.valid_product_template_attribute_line_ids)"/> variantes</p>
                     <div class="product_price" itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer">
-                        <t t-if="'base_price' in template_price_vals">
-                            <del t-attf-class="text-muted me-1 h6 mb-0" style="white-space: nowrap;">
-                                <em class="small" t-esc="template_price_vals['base_price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}" />
-                            </del>
-                        </t>
+                        
                         <t t-if="len(product.attribute_line_ids)>0">
                             <span>à partir de</span>
                         </t>
                         <span class="h6 mb-0" t-if="template_price_vals['price_reduce'] or not website.prevent_zero_price_sale" t-esc="template_price_vals['price_reduce']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
                         <span class="h6 mb-0" t-else="" t-field="website.prevent_zero_price_sale_text"/>
+                        <br/>
+                        
                         <span itemprop="price" style="display:none;" t-esc="template_price_vals['price_reduce']" />
                         <span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name" />
+                        <t t-if="'base_price' in template_price_vals">
+                            <del t-attf-class="text-muted me-1 h6 mb-0" style="white-space: nowrap;">
+                                <em class="small" t-esc="template_price_vals['base_price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}" />
+                            </del>
+                        </t>
                     </div>
                 </div>
             </div>
@@ -693,6 +706,14 @@
                                             </t>
                                         </a>
                                     </t>
+                                </div>
+                                <div class="review_product_detail1" data-oe-id="2971" data-oe-xpath="/data/xpath[3]/div" data-oe-model="ir.ui.view" data-oe-field="arch">
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star-o"></span>
+                                    <span> 4.2/5 (50 avis)</span>
                                 </div>
                                 <div class="s_btn text-lg-center ms-lg-4">
                                     <a class="btn btn-primary rounded-pill text-white fw-bold" href="/">Laisser votre avis</a>
