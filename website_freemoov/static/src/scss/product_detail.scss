@@ -587,12 +587,14 @@
 .mobile_searchbar {
 	display: none;
 }
-.prod_desc + p {
-	width:62%;
-	display: -webkit-box;
-	-webkit-line-clamp: 3;
-	-webkit-box-orient: vertical;
-	overflow: hidden;
+.prod_desc_div {
+	width: 48%;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-top: 15px;
+    margin-bottom: 20px;
 }
 #product_full_spec {
 	display: none;

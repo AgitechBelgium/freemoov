@@ -350,10 +350,6 @@
             <div class="prod_desc_div">
                 <t t-esc="product.description" />
             </div>
-            <!-- <p class="prod_desc" t-if="product.description" 
-                style="">
-                <span t-esc="product.description" style=""/>
-            </p> -->
             <div class="o_wsale_product_sub d-flex align-items-end pb-1">
                 
                 <t t-set="template_price_vals" t-value="get_product_prices(product)"/>
@@ -364,7 +360,7 @@
                     
                     <t t-if="product.virtual_available &gt; 0">
                         <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
-                            <span> En stock </span>
+                            <span> En stock</span>
                         </p>
                     </t>
                     <t t-if="product.virtual_available &lt;= 0">
