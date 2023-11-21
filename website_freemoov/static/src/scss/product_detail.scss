@@ -422,7 +422,7 @@
 					.o_add_wishlist_dyn{
 						position: absolute;
 					    left: 60px;
-						top :56%;
+						top :67%;
 					    padding: 0;
 						.fa{
 							font-size: 24px;
@@ -432,7 +432,7 @@
 					@media (max-width: 767.98px){
 						.o_add_wishlist_dyn{
 							left: 35px;
-					    	top: 27%;
+					    	top: 33%;
 						}
 					}
 				}
@@ -550,7 +550,7 @@
 .carousel_product_num {
 	position: absolute;
     left: 50%;
-    bottom: 41%;
+    bottom: 30%;
     background-color: #F5F6F7;
     padding: 2px 17px;
     border-radius: 20px;
@@ -558,7 +558,7 @@
 .download_product_img {
 	position: absolute;
     right: 60px;
-    bottom: 42%;
+    bottom: 31%;
     color: #000;	
 	a {
 		color: #000;
@@ -600,11 +600,15 @@
 
 @media (max-width: 767.98px){
 	.download_product_img {
-		bottom: 18%;
+		bottom: 2%;
 	}
+	.review_product_detail {
+		top: 0%;
+	}
+	
 	.carousel_product_num {
 		left: 38%;
-    	bottom: 17%;
+    	bottom: 2%;
 	}
 	#product_detail #o-carousel-product .carousel-control-prev, #product_detail #o-carousel-product .carousel-control-next {
 		opacity: 0;
