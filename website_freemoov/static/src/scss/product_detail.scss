@@ -358,6 +358,13 @@
 			display: none;
 		}
 		.js_product{
+			h3.css_editable_mode_hidden {
+				del {
+					color: #BABABA;
+					font-size: 14px;
+					margin-left: 10px;
+				}
+			}
 			.js_add_cart_variants{
 				.variant_attribute{
 					strong{
@@ -575,8 +582,8 @@
 	}
 }
 .ust-prod-label.btn.btn-primary.rounded-circle {
-	background-color: #233E8D;
-	border-color: #233E8D;
+	background-color: #233E8D !important;
+	border-color: #233E8D !important;
 	color: #fff;
 }
 .review_product_detail {

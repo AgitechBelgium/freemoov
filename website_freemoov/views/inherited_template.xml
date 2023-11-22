@@ -473,7 +473,7 @@
                                                     </div>
                                                 </div>
                                             </t>
-                                            <t t-if="product.attribute_line_ids and len(product.attribute_line_ids) &lt; 10">
+                                            <t t-if="product.attribute_line_ids and len(product.attribute_line_ids) &lt; 5">
                                                 <div class="card bg-white" data-name="Item">
                                                     <a href="#" role="tab" data-bs-toggle="collapse" aria-expanded="false" class="collapsed card-header s_faq_collapse_right_icon o_default_snippet_text" data-bs-target="#myCollapseTab44542_2">Spécifications techniques</a>
                                                     <div class="collapse" data-bs-parent="#myCollapse" role="tabpanel" id="myCollapseTab44542_2">
