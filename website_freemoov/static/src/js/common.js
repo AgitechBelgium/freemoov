@@ -46,15 +46,8 @@ odoo.define('website_freemoov.category_script', function (require) {
     $(document).ready(function () {
         var triggerSecondClick = true;
         $(".back_to_menu").click(function() {
-            console.log("clicck=== ",triggerSecondClick)
-            if (triggerSecondClick) {
-                // Simulate a second click
-                console.log("againnnn")
-                $(".back_to_menun").click();
-              } else {
-                // Set the flag to true for the next click
-                triggerSecondClick = false;
-              }
+            $("#top-menu-collapse").modal("show");
+            $("#top-menu-collapse-sub-category").modal("hide");
         })
 
         if($('div').hasClass('cat-div')) {

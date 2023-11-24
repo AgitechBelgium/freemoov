@@ -46,6 +46,14 @@
             </div>
         </xpath>
     </template>
+    <template id="products_breadcrumb_inherited" inherit_id="website_sale.products_breadcrumb" name="Products Breadcrumb Inherit">
+        <xpath expr="//li[hasclass('breadcrumb-item')]" position="before">
+            <li class="breadcrumb-item">
+                <a href="/">Accueil</a>
+            </li> 
+        </xpath>
+        
+    </template>
 
     <template id="inherit_pager" inherit_id="website_sale.products" name="Inherit Pager">
         <xpath expr="//div[hasclass('oe_website_sale')]" position="before">
@@ -54,7 +62,7 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-12">
-                                <ol class="breadcrumb ps-0">
+                                <ol class="breadcrumb ps-0 d-none">
                                     <li class="breadcrumb-item"><a href="/">Accueil</a></li>
                                     <li class="breadcrumb-item"><a href="/shop">Produits</a></li>
                                     <li class="breadcrumb-item active"><t t-esc="category.name"/></li>
@@ -80,7 +88,7 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-12">
-                                <ol class="breadcrumb ps-0">
+                                <ol class="breadcrumb ps-0 d-none">
                                     <li class="breadcrumb-item"><a href="/">Accueil</a></li>
                                     <li class="breadcrumb-item active"><span>Produits</span></li>
                                 </ol>
@@ -199,13 +207,7 @@
         </xpath>
     </template>
 
-    <template id="inherit_cart_button" inherit_id="website_sale.products_add_to_cart" name="Inherit Cart Button">
-        <xpath expr="//t//a[hasclass('a-submit')]" position="replace">
-            <a t-if="product._website_show_quick_add()" href="#" role="button" class="btn btn-primary a-submit" aria-label="Shopping cart" title="Shopping cart">
-                <img class="img img-fluid" src="/website_freemoov/static/src/img/Vector.png" alt="Hero Img"/>
-            </a>
-        </xpath>
-    </template>
+    
 
     <template id="inherit_buttons" inherit_id="website_sale.products_item" name="Inherit Buttons">
         <xpath expr="//form//div[hasclass('o_wsale_product_information')]" position="inside">
@@ -228,8 +230,117 @@
                             Unpublished
                         </a>
                     </h6>
+                    <div class="prod_desc_div">
+                        <t t-esc="product.description" />
+                    </div>
                 </div>
                 <div class="product_variant">
+                    <ul class="list-unstyled js_add_cart_variants mb-5 d-none">
+                        <t t-foreach="product.attribute_line_ids" t-as="ptal">
+                            <li t-att-data-attribute_id="ptal.attribute_id.id"
+                                t-att-data-attribute_name="ptal.attribute_id.name"
+                                t-att-data-attribute_display_type="ptal.attribute_id.display_type"
+                                t-attf-class="variant_attribute d-flex justify-content-between align-items-end}">
+                            
+                                <p t-field="ptal.attribute_id.name" class="attribute_name"/>
+                                <t t-if="ptal.attribute_id.display_type == 'select'">
+                                    <select
+                                        t-att-data-attribute_id="ptal.attribute_id.id"
+                                        t-attf-class="form-select css_attribute_select o_wsale_product_attribute js_variant_change #{ptal.attribute_id.create_variant} #{'d-none' if single_and_custom else ''}"
+                                        t-att-name="'ptal-%s' % ptal.id">
+                                        <t t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav">
+                                            <option t-att-value="ptav.id"
+                                                t-att-data-value_id="ptav.id"
+                                                t-att-data-value_name="ptav.name"
+                                                t-att-data-attribute_name="ptav.attribute_id.name"
+                                                t-att-data-is_custom="ptav.is_custom"
+                                                t-att-data-is_single="single"
+                                                t-att-data-is_single_and_custom="single_and_custom">
+                                                <span t-field="ptav.name"/>
+                                                <t t-call="sale.badge_extra_price"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                </t>
+                                <t t-if="ptal.attribute_id.display_type == 'radio'">
+                                    <ul t-att-data-attribute_id="ptal.attribute_id.id" t-attf-class="list-inline list-unstyled o_wsale_product_attribute #{'d-none' if single_and_custom else ''}">
+                                        <t t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav">
+                                            <li class="list-inline-item mb-3 js_attribute_value" style="margin: 0;">
+                                                <label class="col-form-label">
+                                                    <div class="form-check">
+                                                        <input type="radio"
+                                                            t-attf-class="form-check-input js_variant_change #{ptal.attribute_id.create_variant}"
+                                                            t-att-name="'ptal-%s' % ptal.id"
+                                                            t-att-value="ptav.id"
+                                                            t-att-data-value_id="ptav.id"
+                                                            t-att-data-value_name="ptav.name"
+                                                            t-att-data-attribute_name="ptav.attribute_id.name"
+                                                            t-att-data-is_custom="ptav.is_custom"
+                                                            t-att-data-is_single="single"
+                                                            t-att-data-is_single_and_custom="single_and_custom" />
+                                                        <div class="radio_input_value form-check-label">
+                                                            <span t-field="ptav.name"/>
+                                                            <t t-call="sale.badge_extra_price"/>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </t>
+
+                                <t t-if="ptal.attribute_id.display_type == 'pills'">
+                                    <ul t-att-data-attribute_id="ptal.attribute_id.id"
+                                        t-attf-class="btn-group-toggle list-inline list-unstyled o_wsale_product_attribute #{'d-none' if single_and_custom else ''}"
+                                        data-bs-toggle="buttons">
+                                        <t t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav">
+                                            <li class="o_variant_pills btn btn-primary mb-1 list-inline-item js_attribute_value">
+                                                <input type="radio"
+                                                    t-attf-class="js_variant_change #{ptal.attribute_id.create_variant}"
+                                                    t-att-name="'ptal-%s' % ptal.id"
+                                                    t-att-value="ptav.id"
+                                                    t-att-data-value_id="ptav.id"
+                                                    t-att-id="ptav.id"
+                                                    t-att-data-value_name="ptav.name"
+                                                    t-att-data-attribute_name="ptav.attribute_id.name"
+                                                    t-att-data-is_custom="ptav.is_custom"
+                                                    t-att-data-is_single_and_custom="single_and_custom"
+                                                    t-att-autocomplete="off"/>
+                                                <label class="radio_input_value o_variant_pills_input_value"
+                                                       t-att-for="ptav.id">
+                                                    <span t-field="ptav.name"/>
+                                                    <t t-call="sale.badge_extra_price"/>
+                                                </label>
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </t>
+
+                                <t t-if="ptal.attribute_id.display_type == 'color'">
+                                    <ul t-att-data-attribute_id="ptal.attribute_id.id" t-attf-class="list-inline o_wsale_product_attribute #{'d-none' if single_and_custom else ''}">
+                                        <li t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav" class="list-inline-item me-1">
+                                            <label t-attf-style="background-color:#{ptav.html_color or ptav.product_attribute_value_id.name if not ptav.is_custom else ''}"
+                                                t-attf-class="css_attribute_color #{'custom_value' if ptav.is_custom else ''} #{'transparent' if (not ptav.is_custom and not ptav.html_color) else ''}">
+                                                <input type="radio"
+                                                    t-attf-class="js_variant_change  #{ptal.attribute_id.create_variant}"
+                                                    t-att-name="'ptal-%s' % ptal.id"
+                                                    t-att-value="ptav.id"
+                                                    t-att-title="ptav.name"
+                                                    t-att-data-value_id="ptav.id"
+                                                    t-att-data-value_name="ptav.name"
+                                                    t-att-data-attribute_name="ptav.attribute_id.name"
+                                                    t-att-data-is_custom="ptav.is_custom"
+                                                    t-att-data-is_single="single"
+                                                    t-att-data-is_single_and_custom="single_and_custom"/>
+                                            </label>
+                                        </li>
+                                    </ul>
+                                </t>
+                        
+                            </li>
+                        </t>
+
+                    </ul>
                     <t t-set="attribute_exclusions" t-value="product._get_attribute_exclusions(parent_combination, parent_name)"/>
                     <ul t-attf-class="list-unstyled js_add_cart_variants mb-0 #{ul_class}" t-att-data-attribute_exclusions="json.dumps(attribute_exclusions)">
                         <t t-foreach="product.valid_product_template_attribute_line_ids" t-as="ptal">
@@ -354,7 +465,12 @@
                 
                 <t t-set="template_price_vals" t-value="get_product_prices(product)"/>
                 
-                <div class="o_wsale_product_btn"/>
+                <div class="o_wsale_product_btn">
+                    <a t-if="product._website_show_quick_add()" href="#" role="button" class="btn btn-primary a-submit add_to_cart_btn" aria-label="Shopping cart" title="Shopping cart">
+                        <img class="img img-fluid" src="/website_freemoov/static/src/img/Vector.png" alt="Hero Img"/>
+                    </a>
+                </div>
+                <!-- <h1 t-esc="product._website_show_quick_add()" ></h1> -->
                 
                 <div class="product_sub_detail align-items-center">
                     
@@ -403,6 +519,26 @@
             <button t-if="product_variant_id and categories" type="button" role="button" class="d-md-inline-block btn o_add_compare p-0" title="Compare" aria-label="Compare" t-att-data-product-product-id="product_variant_id" data-action="o_comparelist">Comparez<img class="img img-fluid ms-2" src="/website_freemoov/static/src/img/plus-circle.png" alt="Hero Img"/></button>
         </xpath>
     </template>
+    <template id="inherit_cart_button" inherit_id="website_sale.products_add_to_cart" name="Inherit Cart Button" active="True">
+        <xpath expr="//t//a[hasclass('a-submit')]" position="replace">
+            <h2 t-esc="product._website_show_quick_add()" ></h2>
+            <a t-if="product._website_show_quick_add()" href="#" role="button" class="btn btn-primary a-submit" aria-label="Shopping cart" title="Shopping cart">
+                <img class="img img-fluid" src="/website_freemoov/static/src/img/Vector.png" alt="Hero Img"/>
+            </a>
+        </xpath>
+    </template>
+    <!-- <template id="products_add_to_cart" inherit_id="website_sale.products_item" active="False" name="Add to Cart">
+        <xpath expr="//div[hasclass('o_wsale_product_btn')]" position="inside">
+            <t t-set="product_variant_id" t-value="product._get_first_possible_variant_id()"/>
+            <input name="product_id" t-att-value="product_variant_id" type="hidden"/>
+            <t t-if="product_variant_id and template_price_vals['price_reduce'] or not website.prevent_zero_price_sale">
+                <a t-if="product._website_show_quick_add()"
+                   href="#" role="button" class="btn btn-primary a-submit" aria-label="Shopping cart" title="Shopping cart">
+                    <span class="fa fa-shopping-cart"/>
+                </a>
+            </t>
+        </xpath>
+    </template> -->
 
     <template id="product_details_inherited" inherit_id="website_sale.product" name="Product Details">
         <xpath expr="//section[@id='product_detail']" position="after">
@@ -534,7 +670,7 @@
                                 </section>
                             </div>
                             <div class="col-lg-6 pt16 pb16 order-1 order-md-2">
-                                <div class="d-flex justify-content-around align-items-center mb24">
+                                <div class="d-flex justify-content-around align-items-center mb24" t-if="product.categ_id.name == 'Trottinette électrique' or product.categ_id.name == 'Gyroroue'">
                                     <div class="propertie-box text-center">
                                         <img class="img-fluid" src="/website_freemoov/static/src/img/Layer_1.png" alt="photo"/>
                                         <p class="name mb-0">Puissance</p>
@@ -551,7 +687,7 @@
                                         <p class="fw-bold">12 h</p>
                                     </div>
                                 </div>
-                                <div class="d-flex justify-content-around align-items-center">
+                                <div class="d-flex justify-content-around align-items-center" t-if="product.categ_id.name == 'Trottinette électrique' or product.categ_id.name == 'Gyroroue'">
                                     <div class="propertie-box text-center">
                                         <img class="img-fluid" src="/website_freemoov/static/src/img/Layer_4.png" alt="photo"/>
                                         <p class="name mb-0">Voltage</p>
