@@ -616,6 +616,11 @@
 	}
 	.s_btn.d-flex.align-items-center {
 		display: block !important;
+
+		a.btn {
+			position: relative;
+    		left: 37%;
+		}
 	}
 	.review_product_detail {
 		top: 0%;

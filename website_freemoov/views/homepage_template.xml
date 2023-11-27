@@ -42,10 +42,12 @@
 						                            		<p>65 km d'autonomie de PUR plaisir</p>
 						                            		<div class="s_btn d-flex align-items-center">
 						                            			<h5 class="mb-0 me-3 fw-bold text-white">1099,00€</h5>
-						                            			<a href="/shop" class="btn btn-outline-light">
-						                            				<span class="d-lg-inline-block d-none me-lg-4">Découvrir</span>
-						                            				<span class="fa fa-arrow-right"/>
-						                            			</a>
+						                            			<button class="btn btn-outline-light">
+																	<a role="button" href="/shop" class="">
+																		<span class="d-lg-inline-block d-none me-lg-4">Découvrir</span>
+																		<span class="fa fa-arrow-right"/>
+																	</a>
+																</button>
 						                            		</div>
 						                            	</div>
 						                            </div>

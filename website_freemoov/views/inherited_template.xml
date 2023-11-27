@@ -73,7 +73,7 @@
                             <div class="col-lg-7">
                                 <div class="title mb16">
                                     <h3 class="fw-bold text-uppercase"><t t-esc="category.name"/></h3>
-                                    <p>Découvrez notre sélection de trottinettes électriques confortable ! Chacune de ces beautés à deux roues est conçue pour rendre votre trajet aussi doux qu'une brise d'été.</p>
+                                    <p t-if="category.category_description" t-esc="category.category_description"></p>
                                 </div>
                             </div>
                             <div class="col-lg-5 text-end d-none d-lg-block">
@@ -230,9 +230,7 @@
                             Unpublished
                         </a>
                     </h6>
-                    <div class="prod_desc_div">
-                        <t t-esc="product.description" />
-                    </div>
+                    
                 </div>
                 <div class="product_variant">
                     <ul class="list-unstyled js_add_cart_variants mb-5 d-none">
@@ -465,11 +463,11 @@
                 
                 <t t-set="template_price_vals" t-value="get_product_prices(product)"/>
                 
-                <div class="o_wsale_product_btn">
-                    <a t-if="product._website_show_quick_add()" href="#" role="button" class="btn btn-primary a-submit add_to_cart_btn" aria-label="Shopping cart" title="Shopping cart">
+                <div class="o_wsale_product_btn"/>
+                    <!-- <a t-if="product._website_show_quick_add()" href="#" role="button" class="btn btn-primary a-submit add_to_cart_btn" aria-label="Shopping cart" title="Shopping cart">
                         <img class="img img-fluid" src="/website_freemoov/static/src/img/Vector.png" alt="Hero Img"/>
-                    </a>
-                </div>
+                    </a> -->
+                <!-- </div> -->
                 <!-- <h1 t-esc="product._website_show_quick_add()" ></h1> -->
                 
                 <div class="product_sub_detail align-items-center">
@@ -519,9 +517,13 @@
             <button t-if="product_variant_id and categories" type="button" role="button" class="d-md-inline-block btn o_add_compare p-0" title="Compare" aria-label="Compare" t-att-data-product-product-id="product_variant_id" data-action="o_comparelist">Comparez<img class="img img-fluid ms-2" src="/website_freemoov/static/src/img/plus-circle.png" alt="Hero Img"/></button>
         </xpath>
     </template>
-    <template id="inherit_cart_button" inherit_id="website_sale.products_add_to_cart" name="Inherit Cart Button" active="True">
-        <xpath expr="//t//a[hasclass('a-submit')]" position="replace">
-            <h2 t-esc="product._website_show_quick_add()" ></h2>
+    <template id="inherit_cart_button" inherit_id="website_sale.products_add_to_cart" name="Inherit Cart Button" >
+        <xpath expr="//a[hasclass('a-submit')]" position="replace">
+            <!-- <h2 t-esc="product._website_show_quick_add()" ></h2> -->
+            <!-- <a t-if="product._website_show_quick_add()"
+                   href="#" role="button" class="btn btn-primary a-submit" aria-label="Shopping cart" title="Shopping cart">
+                    <span class="fa fa-shopping-cart"/>
+                </a> -->
             <a t-if="product._website_show_quick_add()" href="#" role="button" class="btn btn-primary a-submit" aria-label="Shopping cart" title="Shopping cart">
                 <img class="img img-fluid" src="/website_freemoov/static/src/img/Vector.png" alt="Hero Img"/>
             </a>
@@ -1074,11 +1076,15 @@
             <t t-call="website_sale.product_price"/>
 
             <p class="label mb-1" t-if="product.is_available_trial">
+                <span class="o_ribbon bg-primary o_ribbon_left" style=""></span>
+                <span>Disponible à l'essai</span>
+            </p>
+            <!-- <p class="label mb-1" t-if="product.is_available_trial">
                 <t t-set="bg_color" t-value="product.website_ribbon_id['bg_color'] or ''"/>
                 <t t-set="text_color" t-value="product.website_ribbon_id['text_color']"/>
                 <t t-set="bg_class" t-value="product.website_ribbon_id['html_class']"/>
                 <span t-attf-class="o_ribbon #{bg_class}" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/><span t-out="product.website_ribbon_id['html'] or ''"/>
-            </p>
+            </p> -->
         </xpath>
         <xpath expr="//div[@id='product_option_block']" position="after">
             <div class="compare-box text-center">

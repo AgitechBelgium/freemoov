@@ -14,4 +14,5 @@ class ProductCategoryTemplate(models.Model):
 	
 	# category_ids = fields.Many2many('product.public.category',string="Categories")
 	brand_ids = fields.Many2many('ust.product.brand',string="Brand")
+	category_description = fields.Text(string="Category Description")
 
