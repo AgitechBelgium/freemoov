@@ -609,6 +609,11 @@
 .add_to_cart_btn {
 	background-image: linear-gradient(#099D5D, #7AC144);
 }
+.o_wsale_product_btn {
+	.btn.btn-primary.a-submit {
+		background-image: linear-gradient(#099D5D, #7AC144);
+	}
+}
 
 @media (max-width: 767.98px){
 	.download_product_img {

@@ -233,8 +233,10 @@
                     
                 </div>
                 <div class="product_variant">
-                    <ul class="list-unstyled js_add_cart_variants mb-5 d-none">
-                        <t t-foreach="product.attribute_line_ids" t-as="ptal">
+                    <ul class="list-unstyled js_add_cart_variants mb-5">
+                        <t t-set="count" t-value="0"></t>
+                        <t t-foreach="product.attribute_line_ids" t-as="ptal" t-if="count &lt; 4">
+                            <t t-set="count" t-value="count + 1"></t>
                             <li t-att-data-attribute_id="ptal.attribute_id.id"
                                 t-att-data-attribute_name="ptal.attribute_id.name"
                                 t-att-data-attribute_display_type="ptal.attribute_id.display_type"
@@ -340,7 +342,7 @@
 
                     </ul>
                     <t t-set="attribute_exclusions" t-value="product._get_attribute_exclusions(parent_combination, parent_name)"/>
-                    <ul t-attf-class="list-unstyled js_add_cart_variants mb-0 #{ul_class}" t-att-data-attribute_exclusions="json.dumps(attribute_exclusions)">
+                    <ul t-attf-class="d-none list-unstyled js_add_cart_variants mb-0 #{ul_class}" t-att-data-attribute_exclusions="json.dumps(attribute_exclusions)">
                         <t t-foreach="product.valid_product_template_attribute_line_ids" t-as="ptal">
                             <li t-att-data-attribute_id="ptal.attribute_id.id"
                                 t-att-data-attribute_name="ptal.attribute_id.name"
@@ -464,11 +466,6 @@
                 <t t-set="template_price_vals" t-value="get_product_prices(product)"/>
                 
                 <div class="o_wsale_product_btn"/>
-                    <!-- <a t-if="product._website_show_quick_add()" href="#" role="button" class="btn btn-primary a-submit add_to_cart_btn" aria-label="Shopping cart" title="Shopping cart">
-                        <img class="img img-fluid" src="/website_freemoov/static/src/img/Vector.png" alt="Hero Img"/>
-                    </a> -->
-                <!-- </div> -->
-                <!-- <h1 t-esc="product._website_show_quick_add()" ></h1> -->
                 
                 <div class="product_sub_detail align-items-center">
                     
@@ -517,30 +514,7 @@
             <button t-if="product_variant_id and categories" type="button" role="button" class="d-md-inline-block btn o_add_compare p-0" title="Compare" aria-label="Compare" t-att-data-product-product-id="product_variant_id" data-action="o_comparelist">Comparez<img class="img img-fluid ms-2" src="/website_freemoov/static/src/img/plus-circle.png" alt="Hero Img"/></button>
         </xpath>
     </template>
-    <template id="inherit_cart_button" inherit_id="website_sale.products_add_to_cart" name="Inherit Cart Button" >
-        <xpath expr="//a[hasclass('a-submit')]" position="replace">
-            <!-- <h2 t-esc="product._website_show_quick_add()" ></h2> -->
-            <!-- <a t-if="product._website_show_quick_add()"
-                   href="#" role="button" class="btn btn-primary a-submit" aria-label="Shopping cart" title="Shopping cart">
-                    <span class="fa fa-shopping-cart"/>
-                </a> -->
-            <a t-if="product._website_show_quick_add()" href="#" role="button" class="btn btn-primary a-submit" aria-label="Shopping cart" title="Shopping cart">
-                <img class="img img-fluid" src="/website_freemoov/static/src/img/Vector.png" alt="Hero Img"/>
-            </a>
-        </xpath>
-    </template>
-    <!-- <template id="products_add_to_cart" inherit_id="website_sale.products_item" active="False" name="Add to Cart">
-        <xpath expr="//div[hasclass('o_wsale_product_btn')]" position="inside">
-            <t t-set="product_variant_id" t-value="product._get_first_possible_variant_id()"/>
-            <input name="product_id" t-att-value="product_variant_id" type="hidden"/>
-            <t t-if="product_variant_id and template_price_vals['price_reduce'] or not website.prevent_zero_price_sale">
-                <a t-if="product._website_show_quick_add()"
-                   href="#" role="button" class="btn btn-primary a-submit" aria-label="Shopping cart" title="Shopping cart">
-                    <span class="fa fa-shopping-cart"/>
-                </a>
-            </t>
-        </xpath>
-    </template> -->
+    
 
     <template id="product_details_inherited" inherit_id="website_sale.product" name="Product Details">
         <xpath expr="//section[@id='product_detail']" position="after">
