@@ -52,6 +52,17 @@
                 <a href="/">Accueil</a>
             </li> 
         </xpath>
+        <xpath expr="//ol" position="after">
+            <ol t-if="not category" t-attf-class="breadcrumb #{_classes}">
+                <li class="breadcrumb-item">
+                    <a href="/">Accueil</a>
+                </li> 
+                <li class="breadcrumb-item">
+                    <a href="/shop">Products</a>
+                </li>
+                
+            </ol>
+        </xpath>
         
     </template>
 
@@ -230,10 +241,16 @@
                             Unpublished
                         </a>
                     </h6>
+
+
+                    <div class="prod_desc_div">
+                        <t t-esc="product.pro_description" />
+                    </div>
+                    
                     
                 </div>
                 <div class="product_variant">
-                    <ul class="list-unstyled js_add_cart_variants mb-5">
+                    <ul class="list-unstyled js_add_cart_variants mb-0">
                         <t t-set="count" t-value="0"></t>
                         <t t-foreach="product.attribute_line_ids" t-as="ptal" t-if="count &lt; 4">
                             <t t-set="count" t-value="count + 1"></t>
@@ -458,7 +475,7 @@
         <xpath expr="//span[contains(@t-attf-class, 'o_ribbon')]" position="replace">
         </xpath>
         <xpath expr="//form//div[hasclass('o_wsale_product_sub')]" position="replace">
-            <div class="prod_desc_div">
+            <div class="prod_desc_div d-none">
                 <t t-esc="product.description" />
             </div>
             <div class="o_wsale_product_sub d-flex align-items-end pb-1">

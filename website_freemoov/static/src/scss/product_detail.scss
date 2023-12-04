@@ -595,7 +595,7 @@
 	display: none;
 }
 .prod_desc_div {
-	width: 48%;
+	width: 81%;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -661,5 +661,20 @@
 		.modal-dialog {
 			margin: 0;
 		}
+	}
+}
+.oe_cart, #o_cart_summary {
+	.btn-secondary {
+		background-color: #099D5D !important;
+		color: #fff !important;
+	}
+}
+#add_to_cart_button {
+	background-color: #099D5D !important;
+	color: #fff !important;
+}
+#products_grid:not(.o_wsale_layout_list) .o_wsale_products_grid_table_wrapper .oe_product .o_wsale_product_grid_wrapper {
+	.prod_desc_div {
+		display: none;
 	}
 }
