@@ -486,7 +486,7 @@
                 
                 <div class="product_sub_detail align-items-center">
                     
-                    <!-- <t t-if="product.is_dropship_product"> -->
+                    <t t-if="product.is_dropship_product">
                         <t t-if="product.virtual_available &gt; 0">
                             <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
                                 <span> En stock</span>
@@ -497,7 +497,7 @@
                                 <span> Out of stock </span>
                             </p>
                         </t>
-                    <!-- </t> -->
+                    </t>
                     <!-- <p class="label"><span t-attf-class="o_ribbon #{bg_class}" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/><span t-out="td_product['ribbon']['html'] or ''"/></p> -->
                     <p class="variant" t-if="len(product.valid_product_template_attribute_line_ids) != 0"><t t-esc="len(product.valid_product_template_attribute_line_ids)"/> variantes</p>
                     <div class="product_price" itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer">
@@ -1067,7 +1067,7 @@
         </xpath>
         <xpath expr="//t[@t-placeholder='select']" position="after">
             <t t-call="website_sale.product_price"/>
-            <!-- <t t-if="product.is_dropship_product"> -->
+            <t t-if="product.is_dropship_product">
                 <t t-if="product.virtual_available &gt; 0">
                     <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
                         <span> En stock</span>
@@ -1078,7 +1078,7 @@
                         <span> Out of stock </span>
                     </p>
                 </t>
-            <!-- </t> -->
+            </t>
 
             <p class="label mb-1" t-if="product.is_available_trial">
                 <span class="o_ribbon bg-primary o_ribbon_left" style=""></span>
