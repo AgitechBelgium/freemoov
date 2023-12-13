@@ -5,9 +5,10 @@ from odoo import fields, models,api,_
 class ProductTemplate(models.Model):
 	_inherit = "product.template"
 	
-	pro_description = fields.Char('Description')
-	delivery_return = fields.Char('Delivery & return')
-	warranty_support = fields.Char('Warranty & Support')
+	pro_description = fields.Text('Description')
+	delivery_return = fields.Text('Delivery & return')
+	warranty_support = fields.Text('Warranty & Support')
+	is_dropship_product = fields.Boolean(string="Dropshipping Product?")
 
 class ProductCategoryTemplate(models.Model):
 	_inherit = "product.public.category"

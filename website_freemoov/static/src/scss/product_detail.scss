@@ -439,7 +439,7 @@
 					@media (max-width: 767.98px){
 						.o_add_wishlist_dyn{
 							left: 35px;
-					    	top: 33%;
+					    	top: 31%;
 						}
 					}
 				}
@@ -588,7 +588,7 @@
 }
 .review_product_detail {
 	position: absolute;
-	top: -5%;
+	top: -3%;
 	right: 0;
 }
 .mobile_searchbar {
@@ -614,6 +614,9 @@
 		background-image: linear-gradient(#099D5D, #7AC144);
 	}
 }
+.d-none.d-md-block.btn.btn-link.px-0.o_add_compare_dyn {
+	display: none !important;
+}
 
 @media (max-width: 767.98px){
 	.download_product_img {
@@ -628,7 +631,14 @@
 		}
 	}
 	.review_product_detail {
-		top: 0%;
+		top: -2%;
+		right: 5%;
+	}
+	.o_product_feature_panel.d-none {
+		display: block !important;
+	}
+	#products_grid:not(.o_wsale_layout_list) .o_wsale_products_grid_table_wrapper .oe_product .oe_product_cart .o_wsale_product_information .compare-button {
+		display: none;
 	}
 	
 	.carousel_product_num {

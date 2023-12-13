@@ -197,3 +197,19 @@
 		}
 	}
 }
+.o_wsale_my_wish.nav-item.o_wsale_my_wish_hide_empty.d-none {
+	display: block !important;
+}
+.visit .detail { 
+	.fa {
+		position: relative;
+	}
+	.fa-map-marker {
+		top : 3px;
+		right: 0px;
+	}
+	.fa-clock-o {
+		top: 2px;
+		right: 8px;
+	}
+}
