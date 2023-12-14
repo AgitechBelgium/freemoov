@@ -262,8 +262,10 @@
 	.dynamic_snippet_template{
 		#s_dynamic_snippet_1{
 			.carousel-item{
-				background-color: #F5F6F7 !important;
-				padding: 15px;
+				.flex-shrink-0 {
+					background-color: #F5F6F7 !important;
+					padding: 15px;
+				}
 				.o_carousel_product_card{
 					.o_carousel_product_card_body{
 						.o_website_rating_static{
@@ -441,7 +443,7 @@
 					@media (max-width: 767.98px){
 						.o_add_wishlist_dyn{
 							left: 35px;
-					    	top: 29%;
+					    	top: 30%;
 						}
 					}
 				}
