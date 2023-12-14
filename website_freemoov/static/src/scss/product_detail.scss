@@ -262,6 +262,8 @@
 	.dynamic_snippet_template{
 		#s_dynamic_snippet_1{
 			.carousel-item{
+				background-color: #F5F6F7 !important;
+				padding: 15px;
 				.o_carousel_product_card{
 					.o_carousel_product_card_body{
 						.o_website_rating_static{
@@ -439,7 +441,7 @@
 					@media (max-width: 767.98px){
 						.o_add_wishlist_dyn{
 							left: 35px;
-					    	top: 31%;
+					    	top: 29%;
 						}
 					}
 				}
@@ -636,6 +638,8 @@
 	}
 	.o_product_feature_panel.d-none {
 		display: block !important;
+		padding-left: 0rem !important;
+		padding-right: 0rem !important;
 	}
 	#products_grid:not(.o_wsale_layout_list) .o_wsale_products_grid_table_wrapper .oe_product .oe_product_cart .o_wsale_product_information .compare-button {
 		display: none;
