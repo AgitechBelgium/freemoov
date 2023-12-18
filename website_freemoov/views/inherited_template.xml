@@ -543,8 +543,8 @@
                         <div class="row">
                             <div class="col-lg-6 pt16 pb16 order-2 order-md-1">
                                 <div class="data">
-                                    <p class="" t-if="product.out_of_stock_message">
-                                        <span t-esc="product.out_of_stock_message" style=""/>
+                                    <p class="" t-if="product.summary">
+                                        <span t-esc="product.summary" style=""/>
                                     </p>
                                     <!-- <p>La trottinette électrique Navee S65 est un vrai tapis volant ! Ces suspensions à torsion et ces pneus tubeless en 10 pouces lui procurent un confort irréprochable. Tous les défauts (ou presque) des routes urbaines sont absorbées vous garantissant un réel plaisir de conduire.</p> -->
                                 </div>
