@@ -20,6 +20,7 @@
                    <field name="pro_description"/>
                    <field name="delivery_return"/>
                    <field name="warranty_support"/>
+                   <field name="summary" />
                    <field name="is_dropship_product"/>
             </xpath>
             <!-- <xpath expr="//notebook" position="inside">
