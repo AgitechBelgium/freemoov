@@ -24,7 +24,7 @@
         'views/header_freemoov_template.xml',
         'views/footer_template.xml',
         'views/modal_customize_template.xml',
-        # 'views/homepage_template.xml',
+        'views/homepage_template.xml',
         'views/inherited_product_template_view.xml',
         'views/inherited_template.xml',
     ],

@@ -6,9 +6,9 @@ from odoo.tools.translate import html_translate
 class ProductTemplate(models.Model):
 	_inherit = "product.template"
 	
-	pro_description = fields.Text('Description',translate=True)
-	delivery_return = fields.Text('Delivery & return',translate=True)
-	warranty_support = fields.Text('Warranty & Support',translate=True)
+	pro_description = fields.Html('Description',translate=html_translate)
+	delivery_return = fields.Html('Delivery & return',translate=html_translate)
+	warranty_support = fields.Html('Warranty & Support',translate=html_translate)
 	summary = fields.Html('Résumé',translate=html_translate)
 	is_dropship_product = fields.Boolean(string="Dropshipping Product?")
 

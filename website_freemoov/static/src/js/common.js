@@ -3,6 +3,10 @@ $(document).ready(function(){
         console.log("=====================")
         $(this).closest('.dropdown-menu.o_mega_menu').modal('show');
     })
+    if($('div').hasClass('cat-div')) {
+        console.log("++++++++++++++++++++ ",$('.cat-div').parent().find('#ust_all_in_one_configure'))
+        $('.cat-div').parent().find('#ust_all_in_one_configure').addClass('bg-white')
+      }
 });
 $('.client').owlCarousel({
     loop:true,
@@ -49,9 +53,9 @@ odoo.define('website_freemoov.category_script', function (require) {
             $("#top-menu-collapse").modal("show");
             $("#top-menu-collapse-sub-category").modal("hide");
         })
-
+        $(".cat-div").parents('#ust_all_in_one_configure').css("background-color", "#fff");
         if($('div').hasClass('cat-div')) {
-            $('#ust_all_in_one_configure').closest('#ust_all_in_one_configure').addClass('bg-white')
+            $('.cat-div').parent().find('#ust_all_in_one_configure').addClass('bg-white')
           }
         
         
