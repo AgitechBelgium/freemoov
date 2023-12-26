@@ -486,7 +486,7 @@
                 
                 <div class="product_sub_detail align-items-center">
                     
-                    <t t-if="product.is_dropship_product">
+                    <t t-if="not product.is_dropship_product">
                         <t t-if="product.virtual_available &gt; 0">
                             <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
                                 <span> En stock</span>
@@ -571,7 +571,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <t t-if="product.attribute_line_ids and len(product.attribute_line_ids) &gt; 10">
+                                            <t t-if="product.attribute_line_ids and len(product.attribute_line_ids) &gt; 5">
                                                 <div class="card bg-white" data-name="Item">
                                                     <a type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" aria-expanded="false" class="py-3 btn collapsed card-header s_faq_collapse_right_icon text-start">Spécifications techniques</a>
                                                 </div>
@@ -606,7 +606,7 @@
                                             </t>
                                             <t t-if="product.attribute_line_ids and len(product.attribute_line_ids) &lt; 5">
                                                 <div class="card bg-white" data-name="Item">
-                                                    <a href="#" role="tab" data-bs-toggle="collapse" aria-expanded="false" class="collapsed card-header s_faq_collapse_right_icon o_default_snippet_text" data-bs-target="#myCollapseTab44542_2">Spécifications techniques</a>
+                                                    <a href="#" role="tab" data-bs-toggle="collapse" aria-expanded="false" class="collapsed card-header py-3 s_faq_collapse_right_icon o_default_snippet_text" data-bs-target="#myCollapseTab44542_2">Spécifications techniques</a>
                                                     <div class="collapse" data-bs-parent="#myCollapse" role="tabpanel" id="myCollapseTab44542_2">
                                                         <div class="card-body specification-box">
                                                             <!-- <p>La trottinette électrique Navee S65 est un vrai tapis volant ! Ces suspensions à torsion et ces pneus tubeless en 10 pouces lui procurent un confort irréprochable. Tous les défauts (ou presque) des routes urbaines sont absorbées vous garantissant un réel plaisir de conduire.</p> -->
@@ -750,7 +750,7 @@
                 </section>
             </t>
             <div class="oe_structure oe_empty"></div>
-            <section class="gallery pt64 pb64 oe_structure oe_empty">
+            <section class="gallery pt64 pb64 oe_structure oe_empty d-none">
                 <div class="container">
                     <div class="row align-items-center">
                         <div class="col-lg-6">
@@ -1067,7 +1067,7 @@
         </xpath>
         <xpath expr="//t[@t-placeholder='select']" position="after">
             <t t-call="website_sale.product_price"/>
-            <t t-if="product.is_dropship_product">
+            <t t-if="not product.is_dropship_product">
                 <t t-if="product.virtual_available &gt; 0">
                     <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
                         <span> En stock</span>

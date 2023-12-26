@@ -100,7 +100,7 @@
 					    </section>
 						<div class="oe_structure oe_empty"></div>
 
-					    <section class="freemoov_details pt64 pb64 oe_structure oe_empty" id="freemoov_details">
+					    <section class="freemoov_details pt64 pb64 oe_structure oe_empty bg-gray" id="freemoov_details">
 					    	<div class="container">
 					    		<div class="row justify-content-around align-items-center">
 					    			<div class="col-xl-7 col-lg-8">

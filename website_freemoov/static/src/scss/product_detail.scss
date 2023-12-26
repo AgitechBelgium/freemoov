@@ -259,6 +259,7 @@
 	}
 }
 .o_wsale_alternative_products{
+	display: none;
 	.dynamic_snippet_template{
 		#s_dynamic_snippet_1{
 			.carousel-item{
@@ -697,4 +698,10 @@
 }
 .cat-div > #ust_all_in_one_configure {
 	background-color: #fff;
+}
+.text-gray {
+	color: #7F7F7F;
+}
+.bg-gray {
+	background-color: #F5F6F7;
 }

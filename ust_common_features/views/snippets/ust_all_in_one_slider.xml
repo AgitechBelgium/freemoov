@@ -43,6 +43,12 @@
 								</span>
 							</div>
 						</t>
+						<t t-if="ust_s_main.slider_type == 'product'">
+							<span class="d-flex align-items-center justify-content-between filter" t-if="ust_s_main.slider_name">
+								<h5 class="" t-esc="ust_s_main.slider_name" />
+								<a class="other-title" t-if="ust_s_main.slider_type == 'product'" href="/shop">voir tout</a>
+							</span>
+						</t>
 						<t t-else="">
 							<span class="d-flex align-items-center justify-content-between filter" t-if="ust_s_main.slider_name">
 								<h5 class="" t-esc="ust_s_main.slider_name" />
