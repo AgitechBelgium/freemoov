@@ -49,7 +49,7 @@
 								<a class="other-title" t-if="ust_s_main.slider_type == 'product'" href="/shop">voir tout</a>
 							</span>
 						</t>
-						<t t-else="">
+						<t t-if="ust_s_main.slider_type == 'blog' or ust_s_main.slider_type == 'brand'">
 							<span class="d-flex align-items-center justify-content-between filter" t-if="ust_s_main.slider_name">
 								<h5 class="" t-esc="ust_s_main.slider_name" />
 								<a class="other-title" t-if="ust_s_main.slider_type == 'blog'" href="/blog">voir tout</a>
@@ -387,10 +387,10 @@
 	                </a>
 	                <div class="card-body">
 	                    <div class="card-details">
-	                        <a class="mb16 d-block category" t-attf-href="/blog/#{slug(record.blog_id)}" t-field="record.blog_id"/>
-	                        <a t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)"><h4 class=" s_blog_posts_post_title mb8" t-field="record.name"/></a>
+	                        <a class="mb16 d-block category" t-attf-href="/blog/#{slug(record.blog_id)}" t-esc="record.blog_id.name"/>
+	                        <a t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)"><h4 class=" s_blog_posts_post_title mb8" t-esc="record.name"/></a>
 	                        <div t-if="is_sample" class="h5 o_ribbon_right bg-primary text-uppercase">Sample</div>
-	                        <div class="s_blog_posts_post_subtitle" t-field="record.subtitle"/>
+	                        <div class="s_blog_posts_post_subtitle" t-esc="record.subtitle"/>
 	                    </div>
 	                    <div class="text-end mt8">
 	                        <a t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)}" class="btn"><i class="fa fa-arrow-right"></i></a>
@@ -415,10 +415,10 @@
 	                </a>
 	                <div class="card-body">
 	                    <div class="card-details">
-	                        <a class="mb16 d-block category" t-attf-href="/blog/#{slug(record.blog_id)}" t-field="record.blog_id"/>
-	                        <a t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)"><h4 class=" s_blog_posts_post_title mb8" t-field="record.name"/></a>
+	                        <a class="mb16 d-block category" t-attf-href="/blog/#{slug(record.blog_id)}" t-esc="record.blog_id"/>
+	                        <a t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)"><h4 class=" s_blog_posts_post_title mb8" t-esc="record.name"/></a>
 	                        <div t-if="is_sample" class="h5 o_ribbon_right bg-primary text-uppercase">Sample</div>
-	                        <div class="s_blog_posts_post_subtitle" t-field="record.subtitle"/>
+	                        <div class="s_blog_posts_post_subtitle" t-esc="record.subtitle"/>
 	                    </div>
 	                    <div class="text-end mt8">
 	                        <a t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)}" class="btn"><i class="fa fa-arrow-right"></i></a>
