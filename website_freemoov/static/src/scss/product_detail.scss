@@ -695,6 +695,12 @@
 	.prod_desc_div {
 		display: none;
 	}
+	.o_ribbon {
+		display: none;
+	}
+}
+#products_grid.o_wsale_layout_list .o_wsale_products_grid_table_wrapper .o_ribbon {
+	display: none;
 }
 .cat-div > #ust_all_in_one_configure {
 	background-color: #fff;

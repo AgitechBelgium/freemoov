@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="header_freemoov" inherit_id="website.layout" name="Header One" active="True">
+    <template id="header_freemoov" inherit_id="website.layout" name="Header One" active="False">
         <xpath expr="//header" position="attributes">
             <attribute name="t-attf-class" add="header_freemoov" separator=" "/>
         </xpath>

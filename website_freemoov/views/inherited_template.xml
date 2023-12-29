@@ -472,12 +472,12 @@
         </xpath>
         <xpath expr="//form//div[hasclass('product_price')]" position="replace">
         </xpath>
-        <xpath expr="//span[contains(@t-attf-class, 'o_ribbon')]" position="replace">
-        </xpath>
+        <!-- <xpath expr="//span[contains(@t-attf-class, 'o_ribbon')]" position="replace">
+        </xpath> -->
         <xpath expr="//form//div[hasclass('o_wsale_product_sub')]" position="replace">
-            <div class="prod_desc_div d-none">
+            <!-- <div class="prod_desc_div d-none">
                 <t t-esc="product.description" />
-            </div>
+            </div> -->
             <div class="o_wsale_product_sub d-flex align-items-end pb-1">
                 
                 <t t-set="template_price_vals" t-value="get_product_prices(product)"/>
@@ -524,6 +524,18 @@
     <template id="inherit_wishlist_button" inherit_id="website_sale_wishlist.add_to_wishlist" name="Inherit Wishlist Button">
         <xpath expr="//t//button" position="replace">
             <button t-if="product_variant_id" type="button" role="button" class="btn btn-outline-primary bg-white o_add_wishlist" t-att-disabled='in_wish or None' title="Add to Wishlist" t-att-data-product-template-id="product.id" t-att-data-product-product-id="product_variant_id" data-action="o_wishlist"><img class="img img-fluid" src="/website_freemoov/static/src/img/wishlist-2.png" alt="Hero Img"/></button>
+        </xpath>
+    </template>
+    <template id="products_add_to_cart" inherit_id="website_sale.products_item" active="True" name="Add to Cart" >
+        <xpath expr="//div[hasclass('o_wsale_product_btn')]" position="inside">
+            <t t-set="product_variant_id" t-value="product._get_first_possible_variant_id()"/>
+            <input name="product_id" t-att-value="product_variant_id" type="hidden"/>
+            <t t-if="product_variant_id and template_price_vals['price_reduce'] or not website.prevent_zero_price_sale">
+                <a t-if="product._website_show_quick_add()"
+                   href="#" role="button" class="btn btn-primary a-submit" aria-label="Shopping cart" title="Shopping cart">
+                    <span class="fa fa-shopping-cart"/>
+                </a>
+            </t>
         </xpath>
     </template>
 
