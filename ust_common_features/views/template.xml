@@ -4,22 +4,22 @@
 		<div class="ust-product-label">
 			<div class="ust-main-prod-label">
 				<span class="ust-prod-label btn btn-fill-primary" t-if="product.prod_label_id.label_type == 'fill'"
-				t-field="product.prod_label_id.name" t-attf-style="border:1px solid #{product.prod_label_id.bg_color_of_label}; color:#{product.prod_label_id.font_color_of_label}; background-color:#{product.prod_label_id.bg_color_of_label}"/>
+				t-esc="product.prod_label_id.name" t-attf-style="border:1px solid #{product.prod_label_id.bg_color_of_label}; color:#{product.prod_label_id.font_color_of_label}; background-color:#{product.prod_label_id.bg_color_of_label}"/>
 
 				<span class="ust-prod-label btn-primary flat"  t-if="product.prod_label_id.label_type == 'flat'"
-				t-field="product.prod_label_id.name" t-attf-style="background-color:#{product.prod_label_id.bg_color_of_label}; color:#{product.prod_label_id.font_color_of_label};"/>
+				t-esc="product.prod_label_id.name" t-attf-style="background-color:#{product.prod_label_id.bg_color_of_label}; color:#{product.prod_label_id.font_color_of_label};"/>
 
 				<span class="ust-prod-label btn btn-outline-primary rounded-circle" t-if="product.prod_label_id.label_type == 'outlineround'" 
-				t-field="product.prod_label_id.name" t-attf-style="border:1px solid #{product.prod_label_id.bg_color_of_label}; color:#{product.prod_label_id.font_color_of_label};"/>
+				t-esc="product.prod_label_id.name" t-attf-style="border:1px solid #{product.prod_label_id.bg_color_of_label}; color:#{product.prod_label_id.font_color_of_label};"/>
 
 				<span class="ust-prod-label btn btn-primary rounded-circle" t-if="product.prod_label_id and product.prod_label_id.label_type == 'rounded'" 
 				t-esc="product.prod_label_id.name" t-attf-style="background-color:#{product.prod_label_id.bg_color_of_label}; color:#{product.prod_label_id.font_color_of_label};"/>
 
 				<span class="ust-prod-label btn btn-outline-primary" t-if="product.prod_label_id.label_type == 'outlinesquare'" 
-				t-field="product.prod_label_id.name" t-attf-style="border:1px solid #{product.prod_label_id.bg_color_of_label}; color:#{product.prod_label_id.font_color_of_label};"/>
+				t-esc="product.prod_label_id.name" t-attf-style="border:1px solid #{product.prod_label_id.bg_color_of_label}; color:#{product.prod_label_id.font_color_of_label};"/>
 
 				<span class="ust-prod-label btn btn-fill-primary rounded-circle" t-if="product.prod_label_id.label_type == 'fillrounded'" 
-				t-field="product.prod_label_id.name" t-attf-style="border:1px solid #{product.prod_label_id.bg_color_of_label}; color:#{product.prod_label_id.font_color_of_label};"/>
+				t-esc="product.prod_label_id.name" t-attf-style="border:1px solid #{product.prod_label_id.bg_color_of_label}; color:#{product.prod_label_id.font_color_of_label};"/>
 			</div>
 		</div>
 	</template>

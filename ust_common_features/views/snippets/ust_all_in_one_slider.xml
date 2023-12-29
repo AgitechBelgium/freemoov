@@ -200,7 +200,7 @@
 		                <div class="o_wsale_product_information_text flex-grow-1">
 		                	<p class="brand mb4" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
 		                    <h6 class="o_wsale_products_item_title mb8">
-		                        <a class="text-primary text-decoration-none" itemprop="name" t-att-href="'/shop/product/%s' % slug(product)" t-att-content="product.name" t-field="product.name" />
+		                        <a class="text-primary text-decoration-none" itemprop="name" t-att-href="'/shop/product/%s' % slug(product)" t-att-content="product.name" t-esc="product.name" />
 		                        <a t-if="not product.website_published" role="button" t-att-href="'/shop/product/%s' % slug(product)" class="btn btn-sm btn-danger" title="This product is unpublished.">
 		                            Unpublished
 		                        </a>
@@ -244,7 +244,7 @@
 		                <div class="o_wsale_product_information_text flex-grow-1">
 		                	<p class="brand mb4" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
 		                    <h6 class="o_wsale_products_item_title mb8">
-		                        <a class="text-primary text-decoration-none" itemprop="name" t-att-href="'/shop/product/%s' % slug(product)" t-att-content="product.name" t-field="product.name" />
+		                        <a class="text-primary text-decoration-none" itemprop="name" t-att-href="'/shop/product/%s' % slug(product)" t-att-content="product.name" t-esc="product.name" />
 		                        <a t-if="not product.website_published" role="button" t-att-href="'/shop/product/%s' % slug(product)" class="btn btn-sm btn-danger" title="This product is unpublished.">
 		                            Unpublished
 		                        </a>
