@@ -3,7 +3,7 @@
 
     <template id="ust_all_in_one_slider"
 		name="All In One Slider">
-		<section id="ust_all_in_one_configure" class="ust_all_in_one_configure_slider ust_all_in_one_slider pt32 pb32 oe_structure oe_empty" contentEditable="false" data-all_slider_s_id="">
+		<section id="ust_all_in_one_configure" class="ust_all_in_one_configure_slider ust_all_in_one_slider pt32 pb32" contentEditable="false" data-all_slider_s_id="">
 			<div class="container">
 				<div class="all-slider-header-title text-center">
 					<h3 class="filter">All In One Slider</h3>
@@ -43,7 +43,13 @@
 								</span>
 							</div>
 						</t>
-						<t t-else="">
+						<t t-if="ust_s_main.slider_type == 'product'">
+							<span class="d-flex align-items-center justify-content-between filter" t-if="ust_s_main.slider_name">
+								<h5 class="" t-esc="ust_s_main.slider_name" />
+								<a class="other-title" t-if="ust_s_main.slider_type == 'product'" href="/shop">voir tout</a>
+							</span>
+						</t>
+						<t t-if="ust_s_main.slider_type == 'blog' or ust_s_main.slider_type == 'brand'">
 							<span class="d-flex align-items-center justify-content-between filter" t-if="ust_s_main.slider_name">
 								<h5 class="" t-esc="ust_s_main.slider_name" />
 								<a class="other-title" t-if="ust_s_main.slider_type == 'blog'" href="/blog">voir tout</a>
@@ -194,36 +200,14 @@
 		                <div class="o_wsale_product_information_text flex-grow-1">
 		                	<p class="brand mb4" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
 		                    <h6 class="o_wsale_products_item_title mb8">
-		                        <a class="text-primary text-decoration-none" itemprop="name" t-att-href="'/shop/product/%s' % slug(product)" t-att-content="product.name" t-esc="product.name" />
+		                        <a class="text-primary text-decoration-none" itemprop="name" t-att-href="'/shop/product/%s' % slug(product)" t-att-content="product.name" t-field="product.name" />
 		                        <a t-if="not product.website_published" role="button" t-att-href="'/shop/product/%s' % slug(product)" class="btn btn-sm btn-danger" title="This product is unpublished.">
 		                            Unpublished
 		                        </a>
 		                    </h6>
 		                    <div class="product_bottom d-flex align-items-end justify-content-between">
 		                    	<div class="product_price_div">
-									<h3 class="css_editable_mode_hidden" style="font-size: 13px;font-weight:bold;">
-										<span class="oe_price" style="white-space: nowrap;" t-esc="combination_info['price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
-										<span itemprop="price" style="display:none;" t-esc="combination_info['price']"/>
-										<span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name"/>
-										<span t-attf-class="text-danger oe_default_price ms-1 h5 {{'' if combination_info['has_discounted_price'] and not combination_info['compare_list_price'] else 'd-none'}}"
-											style="text-decoration: line-through; white-space: nowrap;font-size: 13px;font-weight:bold;"
-											t-esc="combination_info['list_price']"
-											t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"
-											itemprop="listPrice"
-										/>
-										<t t-if="is_view_active('website_sale.tax_indication')" t-call="website_sale.tax_indication"/>
-										<del t-if="combination_info['compare_list_price'] and (combination_info['compare_list_price'] &gt; combination_info['price'])">
-											<bdi dir="inherit">
-											<span t-esc="combination_info['compare_list_price']"
-												groups="website_sale.group_product_price_comparison"
-												t-options='{
-												   "widget": "monetary",
-												   "display_currency": website.currency_id,
-											   }'/>
-											</bdi>
-										</del>
-									</h3>
-			                    	<!-- <t t-call="website_sale.product_price"/> -->
+			                    	<t t-call="website_sale.product_price"/>
 			                    </div>
 			                    <div class="s_btn">
 			                    	<a t-att-href="'/shop/product/%s' % slug(product)" class="btn btn-outline-dark"><i class="fa fa-arrow-right"></i></a>
@@ -260,36 +244,14 @@
 		                <div class="o_wsale_product_information_text flex-grow-1">
 		                	<p class="brand mb4" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
 		                    <h6 class="o_wsale_products_item_title mb8">
-		                        <a class="text-primary text-decoration-none" itemprop="name" t-att-href="'/shop/product/%s' % slug(product)" t-att-content="product.name" t-esc="product.name" />
+		                        <a class="text-primary text-decoration-none" itemprop="name" t-att-href="'/shop/product/%s' % slug(product)" t-att-content="product.name" t-field="product.name" />
 		                        <a t-if="not product.website_published" role="button" t-att-href="'/shop/product/%s' % slug(product)" class="btn btn-sm btn-danger" title="This product is unpublished.">
 		                            Unpublished
 		                        </a>
 		                    </h6>
 		                    <div class="product_bottom d-flex align-items-end justify-content-between">
 		                    	<div class="product_price_div">
-									<h3 class="css_editable_mode_hidden" style="font-size: 13px;font-weight:bold;">
-										<span class="oe_price" style="white-space: nowrap;" t-esc="combination_info['price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
-										<span itemprop="price" style="display:none;" t-esc="combination_info['price']"/>
-										<span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name"/>
-										<span t-attf-class="text-danger oe_default_price ms-1 h5 {{'' if combination_info['has_discounted_price'] and not combination_info['compare_list_price'] else 'd-none'}}"
-											style="text-decoration: line-through; white-space: nowrap;font-size: 13px;font-weight:bold"
-											t-esc="combination_info['list_price']"
-											t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"
-											itemprop="listPrice"
-										/>
-										<t t-if="is_view_active('website_sale.tax_indication')" t-call="website_sale.tax_indication"/>
-										<del t-if="combination_info['compare_list_price'] and (combination_info['compare_list_price'] &gt; combination_info['price'])">
-											<bdi dir="inherit">
-											<span t-esc="combination_info['compare_list_price']"
-												groups="website_sale.group_product_price_comparison"
-												t-options='{
-												   "widget": "monetary",
-												   "display_currency": website.currency_id,
-											   }'/>
-											</bdi>
-										</del>
-									</h3>
-			                    	<!-- <t t-call="website_sale.product_price"/> -->
+			                    	<t t-call="website_sale.product_price"/>
 			                    </div>
 			                    <div class="s_btn">
 			                    	<a t-att-href="'/shop/product/%s' % slug(product)" class="btn btn-outline-dark"><i class="fa fa-arrow-right"></i></a>

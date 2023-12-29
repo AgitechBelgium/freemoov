@@ -37,8 +37,8 @@
 		.o_wsale_products_main_row{
 			#products_grid_before{
 				.o_wsale_products_grid_before_rail{
-		 			overflow-y: unset !important;
-		 			height: unset !important;
+		 			// overflow-y: unset !important;
+		 			// height: unset !important;
 		 			.products_categories{
 		 				h6{
 		 					font-size: 16px;
@@ -84,7 +84,7 @@
 	.o_wsale_products_grid_table_wrapper{
 		.oe_product{
 			.o_wsale_product_grid_wrapper{
-				height: 425px !important;
+				height: 455px !important;
 			}
 		    .oe_product_cart{
 		    	border: 0;
@@ -118,6 +118,7 @@
 			    			}
 			    			.brand{
 			    				margin-bottom: 8px;
+								font-size: 10px;
 			    			}
 			    			h6{
 				    			font-size: 16px;
@@ -140,7 +141,11 @@
 			    			.h6{
 			    				font-weight: 700;
 			    				font-size: 16px;
+								
 			    			}
+							del {
+								color: #dc3545 !important;
+							}
 			    		}
 			    		.o_wsale_product_btn{
 			    			position: unset;
@@ -229,6 +234,8 @@
 			    .o_wsale_product_information{
 		    		.brand {
 		    			margin-bottom: 4px;
+						font-size: 10px;
+						margin-top: 10px;
 		    		}
 			    	.o_wsale_product_information_text{
 			    		display: flex;
@@ -278,6 +285,9 @@
 			    				font-weight: 700;
 			    				font-size: 16px;
 			    			}
+							del {
+								color: #dc3545 !important;
+							}
 			    		}
 			    		.o_wsale_product_btn{
 			    			order: 3;
@@ -538,5 +548,10 @@
 				font-size: 20px;
 			}
 	    }
+	}
+}
+.availability_messages {
+	#out_of_stock_message {
+		display: none;
 	}
 }

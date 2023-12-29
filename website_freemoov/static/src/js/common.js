@@ -3,6 +3,10 @@ $(document).ready(function(){
         console.log("=====================")
         $(this).closest('.dropdown-menu.o_mega_menu').modal('show');
     })
+    if($('div').hasClass('cat-div')) {
+        console.log("++++++++++++++++++++ ",$('.cat-div').parent().find('#ust_all_in_one_configure'))
+        $('.cat-div').parent().find('#ust_all_in_one_configure').addClass('bg-white')
+      }
 });
 $('.client').owlCarousel({
     loop:true,
@@ -44,6 +48,17 @@ odoo.define('website_freemoov.category_script', function (require) {
     var Widget = require('web.Widget');
 
     $(document).ready(function () {
+        var triggerSecondClick = true;
+        $(".back_to_menu").click(function() {
+            $("#top-menu-collapse").modal("show");
+            $("#top-menu-collapse-sub-category").modal("hide");
+        })
+        $(".cat-div").parents('#ust_all_in_one_configure').css("background-color", "#fff");
+        if($('div').hasClass('cat-div')) {
+            $('.cat-div').parent().find('#ust_all_in_one_configure').addClass('bg-white')
+          }
+        
+        
         $(".category-link").click(function (event) {
             event.preventDefault();
             var categoryId = $(this).data("category-id");
@@ -54,6 +69,8 @@ odoo.define('website_freemoov.category_script', function (require) {
                     console.log('>>>>>>>>>categoryId>>>>>>>>>>',data['sub_catg'])                    // $("#subcategoryModalTitle").text(categoryName);
                     var category_html = "<a class='nav_link text-white' href='/shop/category/" + data['category'] + "'>" + categoryName + "</a>"  
                     $("#subcategoryModalTitle").find('a').html(category_html);
+                    var link = "/shop/category/" + data['category']
+                    $(".sub_categ_button").find('a').attr('href',link);
                     $("#subcategoryModalBody").html(data['sub_catg']);
                             
                     $("#top-menu-collapse-sub-category").modal("show");

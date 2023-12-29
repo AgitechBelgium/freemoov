@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="product_public_category_form_view_freemov" model="ir.ui.view">
+        <field name="name">product.public.category.freemov.form</field>
+        <field name="model">product.public.category</field>
+        <field name="type">form</field>
+        <field name="inherit_id" ref="website_sale.product_public_category_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='sequence']" position="after">
+                <field name="category_description"/>
+            </xpath>
+        </field>
+    </record>
 	<record id="inherit_product_template_view" model="ir.ui.view">
         <field name="name">product.template.inherit</field>
         <field name="model">product.template</field>
@@ -9,6 +20,8 @@
                    <field name="pro_description"/>
                    <field name="delivery_return"/>
                    <field name="warranty_support"/>
+                   <field name="summary" />
+                   <field name="is_dropship_product"/>
             </xpath>
             <!-- <xpath expr="//notebook" position="inside">
                 <page string="Additional Details" name="additional_product_info">

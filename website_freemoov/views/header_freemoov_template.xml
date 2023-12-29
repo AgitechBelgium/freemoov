@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <template id="header_freemoov" inherit_id="website.layout" name="Header One" active="False">
+    <template id="header_freemoov" inherit_id="website.layout" name="Header One" active="True">
         <xpath expr="//header" position="attributes">
             <attribute name="t-attf-class" add="header_freemoov" separator=" "/>
         </xpath>
@@ -93,6 +93,16 @@
                                                 <t t-call="website_freemoov.menu_catego_recursive"/>
                                             </t>
                                         </t>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="/blog">
+                                                <span>Blog</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="/contactus">
+                                                <span>Contact</span>
+                                            </a>
+                                        </li>
                                     </ul>
                                     <div class="login-buttons pt40 text-center text-xl-start">
                                         <a href="/web/login?" class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">se connecter</a>
@@ -119,17 +129,31 @@
                                     <a class="nav_link"></a>
                                 </h2>
                                 <div class="buttons pb32 text-center d-block d-md-none">
-                                    <a href="/shop" class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">voir tout</a>
+                                    <a  class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0 ">voir tout</a>
                                 </div>
                                 <!-- Modal body -->
                                 <div class="modal-body p-0" id="subcategoryModalBody">
                                 </div>
-                                <div class="buttons pt40 text-center text-xl-start d-none d-md-block">
+                                <div class="buttons pt40 text-center text-xl-start d-none d-md-block sub_categ_button">
                                     <a href="/shop" class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">voir tout</a>
-                                    <button type="button" class="btn btn-outline-light my-2 my-xl-0" data-bs-toggle="modal" data-bs-target="#top-menu-collapse">Back to menu</button>
+                                    <!-- <button type="button" class="btn btn-outline-light my-2 my-xl-0 back_to_menu" data-dismiss="modal" data-bs-toggle="modal" data-bs-target="#top-menu-collapse">Back to menu</button> -->
+                                    <button type="button" class="btn btn-outline-light my-2 my-xl-0 back_to_menu" >Back to menu</button>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="search_bar_2 order-md-0 mt-2 mt-lg-0 mobile_searchbar">
+                        <form method="get" data-snippet="s_searchbar_input" class="o_searchbar_form s_searchbar_input me-lg-5 pe-md-3" action="/website/search">
+                            <div role="search" class="input-group ">
+                              <input type="search" name="search" class="search-query form-control border-0 rounded-0 oe_search_box None" placeholder="Ecrivez Xiaomi 4 Pro, Inmotion S1, Dualtron Thunder..." data-search-type="all" data-limit="5" data-display-image="true" data-display-description="true" data-display-extra-link="true" data-display-detail="true" data-order-by="name asc"/>
+                              <div class="input-group-append">
+                                    <button type="submit" aria-label="Search" title="Search" class="btn oe_search_button rounded-0">
+                                        <i class="fa fa-search"/>
+                                    </button>
+                                </div>
+                            </div>
+                            <input name="order" type="hidden" class="o_search_order_by" value="name asc"/>
+                        </form>
                     </div>
                 </div>
             </t>

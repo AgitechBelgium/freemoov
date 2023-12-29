@@ -33,10 +33,10 @@
                     </a>
                     <div class="card-body">
                         <div class="card-details">
-                            <a class="mb16 d-block category" t-attf-href="/blog/#{slug(record.blog_id)}" t-field="record.blog_id"/>
-                            <a t-att-href="data['call_to_action_url']"><h4 class=" s_blog_posts_post_title mb8" t-field="record.name"/></a>
+                            <a class="mb16 d-block category" t-attf-href="/blog/#{slug(record.blog_id)}" t-esc="record.blog_id"/>
+                            <a t-att-href="data['call_to_action_url']"><h4 class=" s_blog_posts_post_title mb8" t-esc="record.name"/></a>
                             <div t-if="is_sample" class="h5 o_ribbon_right bg-primary text-uppercase">Sample</div>
-                            <div class="s_blog_posts_post_subtitle" t-field="record.subtitle"/>
+                            <div class="s_blog_posts_post_subtitle" t-esc="record.subtitle"/>
                         </div>
                         <div class="text-end mt8">
                             <a t-attf-href="/blog/#{slug(record.blog_id)}/#{slug(record)}" class="btn"><i class="fa fa-arrow-right"></i></a>
@@ -46,6 +46,25 @@
             </div>
         </xpath>
     </template>
+    <template id="products_breadcrumb_inherited" inherit_id="website_sale.products_breadcrumb" name="Products Breadcrumb Inherit">
+        <xpath expr="//li[hasclass('breadcrumb-item')]" position="before">
+            <li class="breadcrumb-item">
+                <a href="/">Accueil</a>
+            </li> 
+        </xpath>
+        <xpath expr="//ol" position="after">
+            <ol t-if="not category" t-attf-class="breadcrumb #{_classes}">
+                <li class="breadcrumb-item">
+                    <a href="/">Accueil</a>
+                </li> 
+                <li class="breadcrumb-item">
+                    <a href="/shop">Products</a>
+                </li>
+                
+            </ol>
+        </xpath>
+        
+    </template>
 
     <template id="inherit_pager" inherit_id="website_sale.products" name="Inherit Pager">
         <xpath expr="//div[hasclass('oe_website_sale')]" position="before">
@@ -54,9 +73,9 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-12">
-                                <ol class="breadcrumb ps-0">
-                                    <li class="breadcrumb-item"><a href="/">Home</a></li>
-                                    <li class="breadcrumb-item"><a href="/shop">Shop</a></li>
+                                <ol class="breadcrumb ps-0 d-none">
+                                    <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                                    <li class="breadcrumb-item"><a href="/shop">Produits</a></li>
                                     <li class="breadcrumb-item active"><t t-esc="category.name"/></li>
                                 </ol>
                             </div>
@@ -65,7 +84,7 @@
                             <div class="col-lg-7">
                                 <div class="title mb16">
                                     <h3 class="fw-bold text-uppercase"><t t-esc="category.name"/></h3>
-                                    <p>Découvrez notre sélection de trottinettes électriques confortable ! Chacune de ces beautés à deux roues est conçue pour rendre votre trajet aussi doux qu'une brise d'été.</p>
+                                    <p t-if="category.category_description" t-esc="category.category_description"></p>
                                 </div>
                             </div>
                             <div class="col-lg-5 text-end d-none d-lg-block">
@@ -80,9 +99,9 @@
                     <div class="container">
                         <div class="row">
                             <div class="col-12">
-                                <ol class="breadcrumb ps-0">
-                                    <li class="breadcrumb-item"><a href="/">Home</a></li>
-                                    <li class="breadcrumb-item active"><span>Shop</span></li>
+                                <ol class="breadcrumb ps-0 d-none">
+                                    <li class="breadcrumb-item"><a href="/">Accueil</a></li>
+                                    <li class="breadcrumb-item active"><span>Produits</span></li>
                                 </ol>
                             </div>
                         </div>
@@ -199,13 +218,7 @@
         </xpath>
     </template>
 
-    <template id="inherit_cart_button" inherit_id="website_sale.products_add_to_cart" name="Inherit Cart Button">
-        <xpath expr="//t//a[hasclass('a-submit')]" position="replace">
-            <a t-if="product._website_show_quick_add()" href="#" role="button" class="btn btn-primary a-submit" aria-label="Shopping cart" title="Shopping cart">
-                <img class="img img-fluid" src="/website_freemoov/static/src/img/Vector.png" alt="Hero Img"/>
-            </a>
-        </xpath>
-    </template>
+    
 
     <template id="inherit_buttons" inherit_id="website_sale.products_item" name="Inherit Buttons">
         <xpath expr="//form//div[hasclass('o_wsale_product_information')]" position="inside">
@@ -221,17 +234,132 @@
                     <t t-if="product.prod_label_id">
                         <t t-call="ust_common_features.ust_product_label_temp"/>
                     </t>
-                    <p class="brand" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
+                    <p class="brand" t-if="product.x_studio_marque"><t t-esc="product.x_studio_marque"/></p>
                     <h6 class="o_wsale_products_item_title mb-2">
                         <a class="text-primary text-decoration-none" itemprop="name" t-att-href="product_href" t-att-content="product.name" t-esc="product.name" />
                         <a t-if="not product.website_published" role="button" t-att-href="product_href" class="btn btn-sm btn-danger" title="This product is unpublished.">
                             Unpublished
                         </a>
                     </h6>
+
+
+                    <div class="prod_desc_div">
+                        <t t-esc="product.pro_description" />
+                    </div>
+                    
+                    
                 </div>
                 <div class="product_variant">
+                    <ul class="list-unstyled js_add_cart_variants mb-0">
+                        <t t-set="count" t-value="0"></t>
+                        <t t-foreach="product.attribute_line_ids" t-as="ptal" t-if="count &lt; 4">
+                            <t t-set="count" t-value="count + 1"></t>
+                            <li t-att-data-attribute_id="ptal.attribute_id.id"
+                                t-att-data-attribute_name="ptal.attribute_id.name"
+                                t-att-data-attribute_display_type="ptal.attribute_id.display_type"
+                                t-attf-class="variant_attribute d-flex justify-content-between align-items-end}">
+                            
+                                <p t-field="ptal.attribute_id.name" class="attribute_name"/>
+                                <t t-if="ptal.attribute_id.display_type == 'select'">
+                                    <select
+                                        t-att-data-attribute_id="ptal.attribute_id.id"
+                                        t-attf-class="form-select css_attribute_select o_wsale_product_attribute js_variant_change #{ptal.attribute_id.create_variant} #{'d-none' if single_and_custom else ''}"
+                                        t-att-name="'ptal-%s' % ptal.id">
+                                        <t t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav">
+                                            <option t-att-value="ptav.id"
+                                                t-att-data-value_id="ptav.id"
+                                                t-att-data-value_name="ptav.name"
+                                                t-att-data-attribute_name="ptav.attribute_id.name"
+                                                t-att-data-is_custom="ptav.is_custom"
+                                                t-att-data-is_single="single"
+                                                t-att-data-is_single_and_custom="single_and_custom">
+                                                <span t-field="ptav.name"/>
+                                                <t t-call="sale.badge_extra_price"/>
+                                            </option>
+                                        </t>
+                                    </select>
+                                </t>
+                                <t t-if="ptal.attribute_id.display_type == 'radio'">
+                                    <ul t-att-data-attribute_id="ptal.attribute_id.id" t-attf-class="list-inline list-unstyled o_wsale_product_attribute #{'d-none' if single_and_custom else ''}">
+                                        <t t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav">
+                                            <li class="list-inline-item mb-3 js_attribute_value" style="margin: 0;">
+                                                <label class="col-form-label">
+                                                    <div class="form-check">
+                                                        <input type="radio"
+                                                            t-attf-class="form-check-input js_variant_change #{ptal.attribute_id.create_variant}"
+                                                            t-att-name="'ptal-%s' % ptal.id"
+                                                            t-att-value="ptav.id"
+                                                            t-att-data-value_id="ptav.id"
+                                                            t-att-data-value_name="ptav.name"
+                                                            t-att-data-attribute_name="ptav.attribute_id.name"
+                                                            t-att-data-is_custom="ptav.is_custom"
+                                                            t-att-data-is_single="single"
+                                                            t-att-data-is_single_and_custom="single_and_custom" />
+                                                        <div class="radio_input_value form-check-label">
+                                                            <span t-field="ptav.name"/>
+                                                            <t t-call="sale.badge_extra_price"/>
+                                                        </div>
+                                                    </div>
+                                                </label>
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </t>
+
+                                <t t-if="ptal.attribute_id.display_type == 'pills'">
+                                    <ul t-att-data-attribute_id="ptal.attribute_id.id"
+                                        t-attf-class="btn-group-toggle list-inline list-unstyled o_wsale_product_attribute #{'d-none' if single_and_custom else ''}"
+                                        data-bs-toggle="buttons">
+                                        <t t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav">
+                                            <li class="o_variant_pills btn btn-primary mb-1 list-inline-item js_attribute_value">
+                                                <input type="radio"
+                                                    t-attf-class="js_variant_change #{ptal.attribute_id.create_variant}"
+                                                    t-att-name="'ptal-%s' % ptal.id"
+                                                    t-att-value="ptav.id"
+                                                    t-att-data-value_id="ptav.id"
+                                                    t-att-id="ptav.id"
+                                                    t-att-data-value_name="ptav.name"
+                                                    t-att-data-attribute_name="ptav.attribute_id.name"
+                                                    t-att-data-is_custom="ptav.is_custom"
+                                                    t-att-data-is_single_and_custom="single_and_custom"
+                                                    t-att-autocomplete="off"/>
+                                                <label class="radio_input_value o_variant_pills_input_value"
+                                                       t-att-for="ptav.id">
+                                                    <span t-field="ptav.name"/>
+                                                    <t t-call="sale.badge_extra_price"/>
+                                                </label>
+                                            </li>
+                                        </t>
+                                    </ul>
+                                </t>
+
+                                <t t-if="ptal.attribute_id.display_type == 'color'">
+                                    <ul t-att-data-attribute_id="ptal.attribute_id.id" t-attf-class="list-inline o_wsale_product_attribute #{'d-none' if single_and_custom else ''}">
+                                        <li t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav" class="list-inline-item me-1">
+                                            <label t-attf-style="background-color:#{ptav.html_color or ptav.product_attribute_value_id.name if not ptav.is_custom else ''}"
+                                                t-attf-class="css_attribute_color #{'custom_value' if ptav.is_custom else ''} #{'transparent' if (not ptav.is_custom and not ptav.html_color) else ''}">
+                                                <input type="radio"
+                                                    t-attf-class="js_variant_change  #{ptal.attribute_id.create_variant}"
+                                                    t-att-name="'ptal-%s' % ptal.id"
+                                                    t-att-value="ptav.id"
+                                                    t-att-title="ptav.name"
+                                                    t-att-data-value_id="ptav.id"
+                                                    t-att-data-value_name="ptav.name"
+                                                    t-att-data-attribute_name="ptav.attribute_id.name"
+                                                    t-att-data-is_custom="ptav.is_custom"
+                                                    t-att-data-is_single="single"
+                                                    t-att-data-is_single_and_custom="single_and_custom"/>
+                                            </label>
+                                        </li>
+                                    </ul>
+                                </t>
+                        
+                            </li>
+                        </t>
+
+                    </ul>
                     <t t-set="attribute_exclusions" t-value="product._get_attribute_exclusions(parent_combination, parent_name)"/>
-                    <ul t-attf-class="list-unstyled js_add_cart_variants mb-0 #{ul_class}" t-att-data-attribute_exclusions="json.dumps(attribute_exclusions)">
+                    <ul t-attf-class="d-none list-unstyled js_add_cart_variants mb-0 #{ul_class}" t-att-data-attribute_exclusions="json.dumps(attribute_exclusions)">
                         <t t-foreach="product.valid_product_template_attribute_line_ids" t-as="ptal">
                             <li t-att-data-attribute_id="ptal.attribute_id.id"
                                 t-att-data-attribute_name="ptal.attribute_id.name"
@@ -347,25 +475,47 @@
         <xpath expr="//span[contains(@t-attf-class, 'o_ribbon')]" position="replace">
         </xpath>
         <xpath expr="//form//div[hasclass('o_wsale_product_sub')]" position="replace">
+            <div class="prod_desc_div d-none">
+                <t t-esc="product.description" />
+            </div>
             <div class="o_wsale_product_sub d-flex align-items-end pb-1">
+                
                 <t t-set="template_price_vals" t-value="get_product_prices(product)"/>
+                
                 <div class="o_wsale_product_btn"/>
+                
                 <div class="product_sub_detail align-items-center">
-                    <p class="label"><span t-attf-class="o_ribbon #{bg_class}" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/><span t-out="td_product['ribbon']['html'] or ''"/></p>
-                    <p class="variant" t-if="len(product.valid_product_template_attribute_line_ids) != 0"><t t-esc="len(product.valid_product_template_attribute_line_ids)"/> variantes</p>
-                    <div class="product_price" itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer">
-                        <t t-if="'base_price' in template_price_vals">
-                            <del t-attf-class="text-muted me-1 h6 mb-0" style="white-space: nowrap;">
-                                <em class="small" t-esc="template_price_vals['base_price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}" />
-                            </del>
+                    
+                    <t t-if="not product.is_dropship_product">
+                        <t t-if="product.virtual_available &gt; 0">
+                            <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
+                                <span> En stock</span>
+                            </p>
                         </t>
+                        <t t-if="product.virtual_available &lt;= 0">
+                            <p class="label"><span class="o_ribbon bg-danger o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
+                                <span> Out of stock </span>
+                            </p>
+                        </t>
+                    </t>
+                    <!-- <p class="label"><span t-attf-class="o_ribbon #{bg_class}" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/><span t-out="td_product['ribbon']['html'] or ''"/></p> -->
+                    <p class="variant" t-if="product.product_variant_count and product.product_variant_count >= 2"><t t-esc="product.product_variant_count"/> variantes</p>
+                    <div class="product_price" itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer">
+                        
                         <t t-if="len(product.attribute_line_ids)>0">
                             <span>à partir de</span>
                         </t>
                         <span class="h6 mb-0" t-if="template_price_vals['price_reduce'] or not website.prevent_zero_price_sale" t-esc="template_price_vals['price_reduce']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
                         <span class="h6 mb-0" t-else="" t-field="website.prevent_zero_price_sale_text"/>
+                        <br/>
+                        
                         <span itemprop="price" style="display:none;" t-esc="template_price_vals['price_reduce']" />
                         <span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name" />
+                        <t t-if="'base_price' in template_price_vals">
+                            <del t-attf-class="text-muted me-1 h6 mb-0" style="white-space: nowrap;">
+                                <em class="small" t-esc="template_price_vals['base_price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}" />
+                            </del>
+                        </t>
                     </div>
                 </div>
             </div>
@@ -383,6 +533,7 @@
             <button t-if="product_variant_id and categories" type="button" role="button" class="d-md-inline-block btn o_add_compare p-0" title="Compare" aria-label="Compare" t-att-data-product-product-id="product_variant_id" data-action="o_comparelist">Comparez<img class="img img-fluid ms-2" src="/website_freemoov/static/src/img/plus-circle.png" alt="Hero Img"/></button>
         </xpath>
     </template>
+    
 
     <template id="product_details_inherited" inherit_id="website_sale.product" name="Product Details">
         <xpath expr="//section[@id='product_detail']" position="after">
@@ -392,15 +543,18 @@
                         <div class="row">
                             <div class="col-lg-6 pt16 pb16 order-2 order-md-1">
                                 <div class="data">
-                                    <p>La trottinette électrique Navee S65 est un vrai tapis volant ! Ces suspensions à torsion et ces pneus tubeless en 10 pouces lui procurent un confort irréprochable. Tous les défauts (ou presque) des routes urbaines sont absorbées vous garantissant un réel plaisir de conduire.</p>
+                                    <p class="" t-if="product.summary">
+                                        <span t-esc="product.summary" style=""/>
+                                    </p>
+                                    <!-- <p>La trottinette électrique Navee S65 est un vrai tapis volant ! Ces suspensions à torsion et ces pneus tubeless en 10 pouces lui procurent un confort irréprochable. Tous les défauts (ou presque) des routes urbaines sont absorbées vous garantissant un réel plaisir de conduire.</p> -->
                                 </div>
                                 <section class="s_faq_collapse o_colored_level" data-snippet="s_faq_collapse" data-name="Accordion" style="background-image: none;">
                                     <div class="container">
                                         <div id="myCollapse" class="accordion" role="tablist">
-                                            <div class="card bg-white" data-name="Item">
+                                            <div class="card bg-white" data-name="Item" t-if="product.pro_description">
                                                 <a href="#" role="tab" data-bs-toggle="modal" aria-expanded="false" class="card-header py-3 collapsed s_faq_collapse_right_icon" data-bs-target="#descriptionmodel">Description</a>
                                             </div>
-                                            <div class="modal modal-fullscreen fade" id="descriptionmodel" tabindex="-1" aria-labelledby="descriptionmodelLabel" aria-hidden="true">
+                                            <div t-if="product.pro_description" class="modal modal-fullscreen fade" id="descriptionmodel" tabindex="-1" aria-labelledby="descriptionmodelLabel" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header border-bottom-0 mx-auto">
@@ -417,7 +571,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <t t-if="len(product.attribute_line_ids) &gt; 5">
+                                            <t t-if="product.attribute_line_ids and len(product.attribute_line_ids) &gt; 5">
                                                 <div class="card bg-white" data-name="Item">
                                                     <a type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" aria-expanded="false" class="py-3 btn collapsed card-header s_faq_collapse_right_icon text-start">Spécifications techniques</a>
                                                 </div>
@@ -450,12 +604,12 @@
                                                     </div>
                                                 </div>
                                             </t>
-                                            <t t-if="len(product.attribute_line_ids) &lt; 5">
+                                            <t t-if="product.attribute_line_ids and len(product.attribute_line_ids) &lt; 5">
                                                 <div class="card bg-white" data-name="Item">
-                                                    <a href="#" role="tab" data-bs-toggle="collapse" aria-expanded="false" class="collapsed card-header s_faq_collapse_right_icon o_default_snippet_text" data-bs-target="#myCollapseTab44542_2">Spécifications techniques</a>
+                                                    <a href="#" role="tab" data-bs-toggle="collapse" aria-expanded="false" class="collapsed card-header py-3 s_faq_collapse_right_icon o_default_snippet_text" data-bs-target="#myCollapseTab44542_2">Spécifications techniques</a>
                                                     <div class="collapse" data-bs-parent="#myCollapse" role="tabpanel" id="myCollapseTab44542_2">
                                                         <div class="card-body specification-box">
-                                                            <p>La trottinette électrique Navee S65 est un vrai tapis volant ! Ces suspensions à torsion et ces pneus tubeless en 10 pouces lui procurent un confort irréprochable. Tous les défauts (ou presque) des routes urbaines sont absorbées vous garantissant un réel plaisir de conduire.</p>
+                                                            <!-- <p>La trottinette électrique Navee S65 est un vrai tapis volant ! Ces suspensions à torsion et ces pneus tubeless en 10 pouces lui procurent un confort irréprochable. Tous les défauts (ou presque) des routes urbaines sont absorbées vous garantissant un réel plaisir de conduire.</p> -->
                                                             <t t-if="product.attribute_line_ids">
                                                                 <div class="col-md-12 pt16 pb16 col-12 px-3 me-lg-3 column">
                                                                     <table>
@@ -474,10 +628,10 @@
                                                     </div>
                                                 </div>
                                             </t>
-                                            <div class="card bg-white" data-name="Item">
+                                            <div class="card bg-white" data-name="Item" t-if="product.delivery_return">
                                                 <a href="#" role="tab" data-bs-toggle="modal" aria-expanded="false" class="collapsed card-header py-3 o_default_snippet_text s_faq_collapse_right_icon" data-bs-target="#livraisonmodel">Livraison &amp; retour</a>
                                             </div>
-                                            <div class="modal modal-fullscreen fade" id="livraisonmodel" tabindex="-1" aria-labelledby="livraisonmodelLabel" aria-hidden="true">
+                                            <div t-if="product.delivery_return" class="modal modal-fullscreen fade" id="livraisonmodel" tabindex="-1" aria-labelledby="livraisonmodelLabel" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header border-bottom-0 mx-auto">
@@ -490,10 +644,10 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="card bg-white" data-name="Item">
+                                            <div class="card bg-white" data-name="Item" t-if="product.warranty_support">
                                                 <a href="#" role="tab" data-bs-toggle="modal" aria-expanded="false" class="collapsed card-header py-3 o_default_snippet_text s_faq_collapse_right_icon" data-bs-target="#garantiemodel">Garantie &amp; Assistance</a>
                                             </div>
-                                            <div class="modal modal-fullscreen fade" id="garantiemodel" tabindex="-1" aria-labelledby="garantiemodelLabel" aria-hidden="true">
+                                            <div t-if="product.warranty_support" class="modal modal-fullscreen fade" id="garantiemodel" tabindex="-1" aria-labelledby="garantiemodelLabel" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header border-bottom-0 mx-auto">
@@ -511,7 +665,7 @@
                                 </section>
                             </div>
                             <div class="col-lg-6 pt16 pb16 order-1 order-md-2">
-                                <div class="d-flex justify-content-around align-items-center mb24">
+                                <div class="d-flex justify-content-around align-items-center mb24" t-if="product.categ_id.name == 'Trottinette électrique' or product.categ_id.name == 'Gyroroue'">
                                     <div class="propertie-box text-center">
                                         <img class="img-fluid" src="/website_freemoov/static/src/img/Layer_1.png" alt="photo"/>
                                         <p class="name mb-0">Puissance</p>
@@ -528,7 +682,7 @@
                                         <p class="fw-bold">12 h</p>
                                     </div>
                                 </div>
-                                <div class="d-flex justify-content-around align-items-center">
+                                <div class="d-flex justify-content-around align-items-center" t-if="product.categ_id.name == 'Trottinette électrique' or product.categ_id.name == 'Gyroroue'">
                                     <div class="propertie-box text-center">
                                         <img class="img-fluid" src="/website_freemoov/static/src/img/Layer_4.png" alt="photo"/>
                                         <p class="name mb-0">Voltage</p>
@@ -596,16 +750,33 @@
                 </section>
             </t>
             <div class="oe_structure oe_empty"></div>
-            <section class="gallery pt64 pb64 oe_structure oe_empty">
+            <section class="gallery pt64 pb64 oe_structure oe_empty d-none">
                 <div class="container">
                     <div class="row align-items-center">
                         <div class="col-lg-6">
-                            <h5 class="fw-bold text-uppercase mb-0">Galerie d’images</h5>
+                            <h5 class="fw-bold text-uppercase mb-0 d-none">Galerie d’images</h5>
                         </div>
-                        <div class="col-lg-6">
+                        <div class="col-lg-6 d-none">
                             <p class="text-end mb-0">voir tout</p>
                         </div>
                     </div>
+
+                    <!-- <div class="row">
+                        <t t-foreach="product.product_template_image_ids" t-as="pro_img">
+                            <div class="gallery-img">
+                                <span t-esc="pro_img.name"></span>
+                                
+                                <img class="img img-fluid photo" 
+                                t-att-src="image_data_uri(pro_img.image_1920)"
+                                    
+                                />
+                                
+                            </div>
+                        </t>
+                        
+                        
+                    </div> -->
+
                     <div class="row">
                         <div class="col-md-4 pt16 pb16">
                             <div class="gallery-img">
@@ -685,6 +856,14 @@
                                             </t>
                                         </a>
                                     </t>
+                                </div>
+                                <div class="review_product_detail1" data-oe-id="2971" data-oe-xpath="/data/xpath[3]/div" data-oe-model="ir.ui.view" data-oe-field="arch">
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star-o"></span>
+                                    <span> 4.2/5 (50 avis)</span>
                                 </div>
                                 <div class="s_btn text-lg-center ms-lg-4">
                                     <a class="btn btn-primary rounded-pill text-white fw-bold" href="/">Laisser votre avis</a>
@@ -858,6 +1037,17 @@
                 </div>
             </div>
         </xpath>
+        <xpath expr="//div//h1" position="before">
+            <div class="review_product_detail">
+                <span class="fa fa-star"/>
+                <span class="fa fa-star"/>
+                <span class="fa fa-star"/>
+                <span class="fa fa-star"/>
+                <span class="fa fa-star-o"/>
+                <span> 4.2/5 (50 avis)</span>
+            </div>
+        </xpath>
+        
         <xpath expr="//div//h1" position="after">
             <div class="product_tags_block">
                 <t t-foreach="product.product_tag_ids" t-as="product_tag">
@@ -877,13 +1067,29 @@
         </xpath>
         <xpath expr="//t[@t-placeholder='select']" position="after">
             <t t-call="website_sale.product_price"/>
+            <t t-if="not product.is_dropship_product">
+                <t t-if="product.virtual_available &gt; 0">
+                    <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
+                        <span> En stock</span>
+                    </p>
+                </t>
+                <t t-if="product.virtual_available &lt;= 0">
+                    <p class="label"><span class="o_ribbon bg-danger o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
+                        <span> Out of stock </span>
+                    </p>
+                </t>
+            </t>
 
             <p class="label mb-1" t-if="product.is_available_trial">
+                <span class="o_ribbon bg-primary o_ribbon_left" style=""></span>
+                <span>Disponible à l'essai</span>
+            </p>
+            <!-- <p class="label mb-1" t-if="product.is_available_trial">
                 <t t-set="bg_color" t-value="product.website_ribbon_id['bg_color'] or ''"/>
                 <t t-set="text_color" t-value="product.website_ribbon_id['text_color']"/>
                 <t t-set="bg_class" t-value="product.website_ribbon_id['html_class']"/>
                 <span t-attf-class="o_ribbon #{bg_class}" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/><span t-out="product.website_ribbon_id['html'] or ''"/>
-            </p>
+            </p> -->
         </xpath>
         <xpath expr="//div[@id='product_option_block']" position="after">
             <div class="compare-box text-center">
@@ -909,7 +1115,7 @@
             <div class="custom-text">
                 <div class="payment-method text-center text-md-start">
                     <p>Moyen de paiement sécurisé</p>
-                    <img src="/website_freemoov/static/src/img/Frame.png" class="img"/>
+                    <img src="/website_freemoov/static/src/img/payment_icons.png" class="img img-fluid"/>
                 </div>
                 <div class="advantages">
                     <h5 class="text-uppercase fw-bold mb-3">Vos avantages Freemoov</h5>
