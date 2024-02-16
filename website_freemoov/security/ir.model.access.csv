@@ -8,3 +8,7 @@ website_freemoov.access_undercarriage_details,access_undercarriage_details,websi
 website_freemoov.access_braking_details,access_braking_details,website_freemoov.model_braking_details,base.group_user,1,1,1,1
 website_freemoov.access_lighting_details,access_lighting_details,website_freemoov.model_lighting_details,base.group_user,1,1,1,1
 website_freemoov.access_option_details,access_option_details,website_freemoov.model_option_details,base.group_user,1,1,1,1
+access_stock_warehouse_public,access_stock_warehouse,stock.model_stock_warehouse,,1,0,0,0
+access_stock_location_public,access_stock_location,stock.model_stock_location,,1,0,0,0
+access_stock_move_public,access_stock_move,stock.model_stock_move,,1,0,0,0
+access_stock_quant_public,access_stock_quant,stock.model_stock_quant,,1,0,0,0

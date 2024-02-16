@@ -11,7 +11,7 @@
 	          			<!-- home banner -->
 	          			<div class="oe_structure oe_empty"></div>
 						
-						<section class="s_carousel_wrapper home_banner pb64 pt64" data-vxml="001" data-snippet="s_carousel" data-name="Carousel" style="" id="home_banner">
+						<section class="s_carousel_wrapper home_banner pb64 pt64 oe_structure oe_empty" data-vxml="001" data-snippet="s_carousel" data-name="Carousel" style="" id="home_banner">
 					        <div class="s_carousel carousel s_carousel_boxed carousel-fade slide px-md-0" data-bs-interval="10000" id="myCarousel1691558034203" style="background-image: none;">
 					            
 					            <ol class="carousel-indicators o_we_no_overlay">
@@ -30,11 +30,10 @@
 				                        	<div class="row_content d-flex align-items-center">
 						                        <div class="row content w-100">
 						                            <div class="carousel-content col-lg-6 offset-lg-0 col-7 offset-5">
-						                            	<div class="hero-tag text-lg-end">
+						                            	<section class="hero-tag text-lg-end">
 						                            		<span class="text-uppercase">new</span>
-						                            		<p></p>
-						                            		<p></p>
-						                            	</div>
+						                            		
+						                            	</section>
 						                            </div>
 						                            <div class="carousel-content col-lg-6 offset-lg-0 col-7 offset-5">
 						                            	<div class="hero-details text-white">
@@ -64,11 +63,9 @@
 				                        	<div class="row_content d-flex align-items-center">
 						                        <div class="row content w-100">
 						                            <div class="carousel-content col-lg-6 offset-lg-0 col-7 offset-5">
-						                            	<div class="hero-tag text-lg-end">
+						                            	<section class="hero-tag text-lg-end">
 						                            		<span class="text-uppercase">new</span>
-						                            		<p></p>
-						                            		<p></p>
-						                            	</div>
+						                            	</section>
 						                            </div>
 						                            <div class="carousel-content col-lg-6 offset-lg-0 col-7 offset-5">
 						                            	<div class="hero-details text-white">
@@ -330,38 +327,6 @@
 				      	</section>
 						  <div class="oe_structure oe_empty"></div>
 
-				      	<section class="experts pt32 pb64 oe_structure oe_empty">
-          					<div class="container px-xl-0">
-          						<section class="description px-xl-3 pt32 pb32">
-	          						<div class="row justify-content-around">
-	          							<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
-	          								<div class="experts-box d-flex d-md-block text-center">
-	          									<img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group1.png" alt="photo"/>
-	          									<p class="mb-0 text-white mt16">Le <b>spécialiste</b> en  trottinette électrique</p>
-	          								</div>
-	          							</div>
-	          							<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
-	          								<div class="experts-box d-flex d-md-block text-center">
-	          									<img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group2.png" alt="photo"/>
-	          									<p class="mb-0 text-white mt16">Expert en <b>satisfaction client</b></p>
-	          								</div>
-	          							</div>
-	          							<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
-	          								<div class="experts-box d-flex d-md-block text-center">
-	          									<img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group3.png" alt="photo"/>
-	          									<p class="mb-0 text-white mt16"><b>Services après-vente</b>par nos spécialistes</p>
-	          								</div>
-	          							</div>
-	          							<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
-	          								<div class="experts-box d-flex d-md-block text-center">
-	          									<img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group4.png" alt="photo"/>
-	          									<p class="mb-0 text-white mt16"><b>À votre écoute</b>en magasin spécialisé</p>
-	          								</div>
-	          							</div>
-	          						</div>
-	          					</section>
-          					</div>
-          				</section>
 						  <div class="oe_structure oe_empty"></div>
 	          		</div>
 	          	</t>

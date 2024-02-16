@@ -4,3 +4,4 @@
 from . import website
 from . import bettery_details
 from . import product
+from . import product_attribute

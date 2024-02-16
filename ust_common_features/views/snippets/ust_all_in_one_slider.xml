@@ -3,7 +3,7 @@
 
     <template id="ust_all_in_one_slider"
 		name="All In One Slider">
-		<section id="ust_all_in_one_configure" class="ust_all_in_one_configure_slider ust_all_in_one_slider pt32 pb32" contentEditable="false" data-all_slider_s_id="">
+		<section id="ust_all_in_one_configure" class="ust_all_in_one_configure_slider ust_all_in_one_slider pt32 pb32 oe_structure oe_empty" contentEditable="false" data-all_slider_s_id="">
 			<div class="container">
 				<div class="all-slider-header-title text-center">
 					<h3 class="filter">All In One Slider</h3>
@@ -293,6 +293,16 @@
 		                            Unpublished
 		                        </a>
 		                    </h6>
+							<t t-if="is_view_active('website_sale.product_comment')">
+								<a href="#o_product_page_reviews" class="o_product_page_reviews_link text-decoration-none">
+									<t t-call="portal_rating.rating_widget_stars_static">
+										<t t-set="rating_avg" t-value="product.rating_avg"/>
+										<t t-set="trans_text_plural">%s reviews</t>
+										<t t-set="trans_text_singular">%s review</t>
+										<t t-set="rating_count" t-value="(trans_text_plural if product.rating_count > 1 else trans_text_singular) % product.rating_count"/>
+									</t>
+								</a>
+							</t>
 		                    <div class="product_bottom d-flex align-items-end justify-content-between">
 		                    	<div class="product_price_div">
 			                    	<div itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer" t-attf-class="product_price mt-2 mb-3 {{'d-none' if combination_info['prevent_zero_price_sale'] else 'd-inline-block'}}">

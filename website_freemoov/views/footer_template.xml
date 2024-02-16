@@ -2,8 +2,41 @@
 <odoo>
     <template id="footer" name="Footer one" inherit_id="website.layout" active="False">
         <xpath expr="//div[@id='footer']" position="replace">
-        	<div id="footer" class="oe_structure oe_structure_solo footer" t-ignore="true" t-if="not no_footer">
-        		<section class="s_text_block pt64">
+        	<div class="oe_structure oe_empty"></div>
+			<div id="footer" class="oe_structure oe_structure_solo footer" t-ignore="true" t-if="not no_footer">
+        		<section class="experts pt32 pb64 oe_structure oe_empty">
+					<div class="container px-xl-0">
+						<section class="description px-xl-3 pt32 pb32">
+							<div class="row justify-content-around">
+								<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+									<div class="experts-box d-flex d-md-block text-center">
+										<img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group1.png" alt="photo"/>
+										<p class="mb-0 text-white mt16">Le <b>spécialiste</b> en  trottinette électrique</p>
+									</div>
+								</div>
+								<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+									<div class="experts-box d-flex d-md-block text-center">
+										<img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group2.png" alt="photo"/>
+										<p class="mb-0 text-white mt16">Expert en <b>satisfaction client</b></p>
+									</div>
+								</div>
+								<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+									<div class="experts-box d-flex d-md-block text-center">
+										<img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group3.png" alt="photo"/>
+										<p class="mb-0 text-white mt16"><b>Services après-vente</b>par nos spécialistes</p>
+									</div>
+								</div>
+								<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+									<div class="experts-box d-flex d-md-block text-center">
+										<img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group4.png" alt="photo"/>
+										<p class="mb-0 text-white mt16"><b>À votre écoute</b>en magasin spécialisé</p>
+									</div>
+								</div>
+							</div>
+						</section>
+					</div>
+				</section>
+				<section class="s_text_block pt64">
         			<div class="container">
         				<div class="row">
         					<div class="col-xl-4 col-lg-5 col-md-8 pt16 pb16 footer-data order-1">

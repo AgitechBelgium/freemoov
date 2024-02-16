@@ -15,31 +15,6 @@
                         <field name="is_available_trial"/> 
                     </group>
                 </xpath>
-                <xpath expr="//page[@name='sales']" position="after">
-                    <page name="product_tabs" string="Product Tabs">
-                        <field name="tab_ids" mode="kanban">
-                            <kanban>
-                                <templates>
-                                    <t t-name="kanban-box">
-                                        <div class="oe_kanban_details oe_kanban_global_click">
-                                            <field name="name"/>
-                                        </div>
-                                    </t>
-                                </templates>
-                            </kanban>
-                            <form string="Product Tab">
-                                <sheet>
-                                    <group>
-                                        <field name="name"/>
-                                        <field name="tab_description"/>
-                                        <field name="website_ids" options="{'no_create': True}" widget="many2many_tags"/>
-                                        <field name="sequence"/>
-                                    </group>
-                                </sheet>
-                            </form>
-                        </field>
-                    </page>
-                </xpath>
             </field>
         </record>
 

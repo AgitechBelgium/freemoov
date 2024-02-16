@@ -111,8 +111,8 @@
 			    					span{
 			    						text-transform: capitalize;
     									border-radius: 6px !important;
-    									background-color: #233E8D !important;
-										border-color: #233E8D !important;
+    									// background-color: #233E8D !important;
+										// border-color: #233E8D !important;
 			    					}
 			    				}
 			    			}
@@ -126,6 +126,7 @@
 				    				text-transform: uppercase;
 								    color: #000000 !important;
 								    font-weight: 700;
+									font-style: italic;
 				    			}
 				    		}
 				    		.oe_subdescription{
@@ -141,11 +142,10 @@
 			    			.h6{
 			    				font-weight: 700;
 			    				font-size: 16px;
+								color: #dc3545;
 								
 			    			}
-							del {
-								color: #dc3545 !important;
-							}
+							
 			    		}
 			    		.o_wsale_product_btn{
 			    			position: unset;
@@ -250,6 +250,7 @@
 				    				text-transform: uppercase;
 								    color: #000000 !important;
 								    font-weight: 700;
+									font-style: italic;
 				    			}
 				    		}
 			    		}
@@ -285,9 +286,9 @@
 			    				font-weight: 700;
 			    				font-size: 16px;
 			    			}
-							del {
-								color: #dc3545 !important;
-							}
+							// del {
+							// 	color: #dc3545 !important;
+							// }
 			    		}
 			    		.o_wsale_product_btn{
 			    			order: 3;
