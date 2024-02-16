@@ -4,7 +4,7 @@
 {
     'name': 'Website Freemoov',
     'category': 'Website',
-    'version': '16.0.0.0.3',
+    'version': '16.0.0.0.4',
     'summary': 'Website Freemoov',
     'author': '',
     'website' : '',
@@ -18,6 +18,7 @@
         'website_blog',
         'website_sale_comparison',
         'ust_common_features',
+        'website_sale_stock_wishlist',
     ],
     'data':[
         'security/ir.model.access.csv',
@@ -40,6 +41,8 @@
             'website_freemoov/static/src/scss/shop.scss',
             'website_freemoov/static/src/scss/product_detail.scss',
             'website_freemoov/static/src/js/common.js',
+            'website_freemoov/static/src/js/variant.js',
+            'website_freemoov/static/src/xml/stock_availability.xml',
         ],
         
         'web._assets_primary_variables': [

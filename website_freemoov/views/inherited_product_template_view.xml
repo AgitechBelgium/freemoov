@@ -23,6 +23,7 @@
                    <field name="warranty_support"/>
                    <field name="summary" />
                    <field name="is_dropship_product"/>
+                   <field name="tab_ids" invisible="1"></field>
             </xpath>
            <xpath expr="//field[@name='attribute_line_ids']/tree/field[@name='value_ids']" position="after">
                 <field name="attribute_default_val" domain="[('id','in',value_ids)]" />

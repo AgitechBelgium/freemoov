@@ -447,27 +447,33 @@
             <!-- <div class="prod_desc_div d-none">
                 <t t-esc="product.description" />
             </div> -->
-            <div class="o_wsale_product_sub d-flex align-items-end pb-1">
-                
+            <div class="o_wsale_product_sub d-flex align-items-end pb-1">                
                 <t t-set="template_price_vals" t-value="get_product_prices(product)"/>
-                
+                <!-- <t t-set="product_stock" t-value="website.check_tmpl_stock_availability(product)"/> -->
                 <div class="o_wsale_product_btn"/>
-                
                 <div class="product_sub_detail align-items-center">
-                   
+                   <!-- 
                     <t t-if="not product.is_dropship_product">
                         <t t-if="product.qty_available &gt; 0">
                             <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
-                                <span> En stock</span>
+                                <span> En stock 1111</span>
                             </p>
                         </t>
-                        <t t-if="product.qty_available &lt;= 0">
+                        <t t-esc="product_variant"/>
+                        <t t-if="product_variant_stock &lt;= 0">
                             <p class="label"><span class="o_ribbon bg-danger o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
-                                <span> Out of stock </span>
+                                <span> Out of stock 333 </span>
                             </p>
                         </t>
-                    </t>
+                    </t>-->
+
+                    <!-- <t t-if="product.qty_available &lt;= 0">
+                        <p class="label"><span class="o_ribbon bg-danger o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
+                            <span> Out of stock </span>
+                        </p>
+                    </t> -->
                     <!-- <p class="label"><span t-attf-class="o_ribbon #{bg_class}" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/><span t-out="td_product['ribbon']['html'] or ''"/></p> -->
+
                     <p class="variant" t-if="product.product_variant_count and product.product_variant_count >= 2"><t t-esc="product.product_variant_count"/> variantes</p>
                     <div class="product_price" itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer">
                         
@@ -1035,24 +1041,23 @@
         </xpath>
         <xpath expr="//t[@t-placeholder='select']" position="after">
             <t t-call="website_sale.product_price"/>
-            <t t-set="stock_availability" t-value="website.check_stock_availability(product) if website else None"/>
-            <t t-if="not product.is_dropship_product">
-                <t t-if="product.qty_available &gt; 0">
-                    <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
-                        <span> En stock</span>
-                    </p>
-                </t>
-                <t t-if="product.qty_available &lt;= 0">
-                    <p class="label"><span class="o_ribbon bg-danger o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
-                        <span> Out of stockkkk </span>
-                    </p>
-                </t>
+
+            <!-- <t t-set="stock_availability" t-value="website.check_stock_availability(product_variant) if website else None"/>
+            <t t-if="stock_availability == 0">
+                <p class="label"><span class="o_ribbon bg-danger o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
+                    <span> Out of stock</span>
+                </p>
+            </t>
+            <t t-else="else">
+                <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
+                    <span> En stock</span>
+                </p>
             </t>
 
             <p class="label mb-1" t-if="product.is_available_trial">
                 <span class="o_ribbon bg-primary o_ribbon_left" style=""></span>
                 <span>Disponible à l'essai</span>
-            </p>
+            </p> -->
             <!-- <p class="label mb-1" t-if="product.is_available_trial">
                 <t t-set="bg_color" t-value="product.website_ribbon_id['bg_color'] or ''"/>
                 <t t-set="text_color" t-value="product.website_ribbon_id['text_color']"/>
@@ -1184,4 +1189,6 @@
             </div>
         </div>
     </template> 
+   
+    
 </odoo>

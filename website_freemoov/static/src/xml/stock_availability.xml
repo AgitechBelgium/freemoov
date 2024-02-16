@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates xml:space="preserve">
+    
+    <t t-name="website_freemoov.product_availability" inherit_id="website_sale_stock.product_availability">
+        <t t-if="stock_availability &lt; 0">
+            <p class="label"><span class="o_ribbon bg-danger o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
+                <span> Out of stock</span>
+            </p>
+        </t>
+        <t t-if="stock_availability == 0">
+            <p class="label"><span class="o_ribbon bg-danger o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
+                <span> Out of stock</span>
+            </p>
+        </t>
+        <t t-else="else">
+            <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
+                <span> En stock</span>
+            </p>
+        </t>
+        <p class="label mb-1" t-if="product_id.is_available_trial">
+            <span class="o_ribbon bg-primary o_ribbon_left" style=""></span>
+            <span>Disponible à l'essai</span>
+        </p>
+        
+    </t>
+</templates>

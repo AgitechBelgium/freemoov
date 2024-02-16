@@ -11,6 +11,7 @@ class ProductTemplate(models.Model):
 	warranty_support = fields.Html('Warranty & Support',translate=html_translate)
 	summary = fields.Html('Résumé',translate=html_translate)
 	is_dropship_product = fields.Boolean(string="Dropshipping Product?")
+	tab_ids = field.One2many("ust.product.tabs","tab_ids")
 
 class ProductCategoryTemplate(models.Model):
 	_inherit = "product.public.category"
