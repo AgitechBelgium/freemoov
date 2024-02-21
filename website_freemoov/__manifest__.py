@@ -4,13 +4,14 @@
 {
     'name': 'Website Freemoov',
     'category': 'Website',
-    'version': '16.0.0.0.4',
+    'version': '16.0.0.0.5',
     'summary': 'Website Freemoov',
     'author': '',
     'website' : '',
     'sequence': 1,
     'description': """Website Freemoov""",
     'depends': [
+        'mrp',
         'website',
         'web_editor',
         'website_sale',

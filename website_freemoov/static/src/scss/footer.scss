@@ -1,4 +1,4 @@
-#footer {
+#footer, .o_footer {
 	background-color: #fff;
     // color: #FFFFFF;
 }
@@ -84,4 +84,14 @@
 	@media (max-width: 767.98px){
 		padding-top: 0px !important;
 	}
+}
+.o_cc5 a:not(.btn):hover, .o_footer a:not(.btn):hover, .o_cc5 .btn-link:hover, .o_footer .btn-link:hover, .o_colored_level .o_cc5 a:not(.btn):hover, .o_colored_level .o_cc5 .btn-link:hover {
+    color: #c6cacd;
+}
+.o_cc5 a:not(.btn), .o_footer a:not(.btn), .o_cc5 .btn-link, .o_footer .btn-link, .o_colored_level .o_cc5 a:not(.btn), .o_colored_level .o_cc5 .btn-link {
+    color: #EFF0F1;
+}
+.o_cc5 .btn-outline-secondary, .o_footer .btn-outline-secondary, .o_colored_level .o_cc5 .btn-outline-secondary {
+    color: #FFFFFF;
+    border-color: #FFFFFF;
 }

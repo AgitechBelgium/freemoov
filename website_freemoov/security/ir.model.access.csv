@@ -12,3 +12,4 @@ access_stock_warehouse_public,access_stock_warehouse,stock.model_stock_warehouse
 access_stock_location_public,access_stock_location,stock.model_stock_location,,1,0,0,0
 access_stock_move_public,access_stock_move,stock.model_stock_move,,1,0,0,0
 access_stock_quant_public,access_stock_quant,stock.model_stock_quant,,1,0,0,0
+access_mrp_bom_public,access_mrp_bom,mrp.model_mrp_bom,,1,0,0,0

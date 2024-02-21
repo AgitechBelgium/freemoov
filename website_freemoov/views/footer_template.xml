@@ -1,146 +1,356 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <template id="footer" name="Footer one" inherit_id="website.layout" active="False">
-        <xpath expr="//div[@id='footer']" position="replace">
-        	<div class="oe_structure oe_empty"></div>
-			<div id="footer" class="oe_structure oe_structure_solo footer" t-ignore="true" t-if="not no_footer">
-        		<section class="experts pt32 pb64 oe_structure oe_empty">
-					<div class="container px-xl-0">
-						<section class="description px-xl-3 pt32 pb32">
-							<div class="row justify-content-around">
-								<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
-									<div class="experts-box d-flex d-md-block text-center">
-										<img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group1.png" alt="photo"/>
-										<p class="mb-0 text-white mt16">Le <b>spécialiste</b> en  trottinette électrique</p>
-									</div>
-								</div>
-								<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
-									<div class="experts-box d-flex d-md-block text-center">
-										<img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group2.png" alt="photo"/>
-										<p class="mb-0 text-white mt16">Expert en <b>satisfaction client</b></p>
-									</div>
-								</div>
-								<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
-									<div class="experts-box d-flex d-md-block text-center">
-										<img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group3.png" alt="photo"/>
-										<p class="mb-0 text-white mt16"><b>Services après-vente</b>par nos spécialistes</p>
-									</div>
-								</div>
-								<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
-									<div class="experts-box d-flex d-md-block text-center">
-										<img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Group4.png" alt="photo"/>
-										<p class="mb-0 text-white mt16"><b>À votre écoute</b>en magasin spécialisé</p>
-									</div>
+	<template id="footer" name="Footer one" inherit_id="website.layout" active="False">
+		<xpath expr="//div[@id='footer']" position="before">
+			<section class="experts pt32 pb64 oe_structure oe_empty">
+				<div class="container px-xl-0">
+					<section class="description px-xl-3 pt32 pb32">
+						<div class="row justify-content-around">
+							<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+								<div class="experts-box d-flex d-md-block text-center">
+									<img class="img-fluid"
+										src="/website_freemoov/static/src/img/homepage/Group1.png"
+										alt="photo" />
+									<p class="mb-0 text-white mt16">Le <b>spécialiste</b> en
+										trottinette électrique</p>
 								</div>
 							</div>
-						</section>
+							<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+								<div class="experts-box d-flex d-md-block text-center">
+									<img class="img-fluid"
+										src="/website_freemoov/static/src/img/homepage/Group2.png"
+										alt="photo" />
+									<p class="mb-0 text-white mt16">Expert en <b>satisfaction
+										client</b></p>
+								</div>
+							</div>
+							<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+								<div class="experts-box d-flex d-md-block text-center">
+									<img class="img-fluid"
+										src="/website_freemoov/static/src/img/homepage/Group3.png"
+										alt="photo" />
+									<p class="mb-0 text-white mt16"><b>Services après-vente</b>par
+										nos spécialistes</p>
+								</div>
+							</div>
+							<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
+								<div class="experts-box d-flex d-md-block text-center">
+									<img class="img-fluid"
+										src="/website_freemoov/static/src/img/homepage/Group4.png"
+										alt="photo" />
+									<p class="mb-0 text-white mt16"><b>À votre écoute</b>en
+										magasin spécialisé</p>
+								</div>
+							</div>
+						</div>
+					</section>
+				</div>
+			</section>
+		</xpath>
+		<xpath expr="//div[@id='footer']" position="replace">
+			<div class="oe_structure oe_empty"></div>
+			<div id="footer" class="oe_structure oe_structure_solo">
+				<section class="s_text_block pt48 pb0" data-snippet="s_text_block" data-name="Text"
+					style="background-image: none;">
+					<div class="container">
+						<div class="row o_grid_mode" data-row-count="10">
+
+
+							<div class="o_colored_level o_grid_item g-col-lg-3 g-height-6 col-lg-3"
+								style="z-index: 1; grid-area: 1 / 7 / 7 / 10;">
+								<p>
+									<strong>
+										<span style="font-size: 18px;">A propros de Freemoov</span>
+									</strong>
+								</p>
+								<ul>
+									<li>
+										<h6>
+											<span style="font-size: 14px;">
+												<font class="text-400">Qui sommes-nous ?</font>
+											</span>
+											<br />
+										</h6>
+									</li>
+									<li>
+										<h6>
+											<font class="text-400">
+												<span style="font-size: 14px;">
+													<a href="/terms" data-bs-original-title=""
+														title="">Conditions générales</a>
+												</span>
+											</font>
+											<br />
+										</h6>
+									</li>
+									<li>
+										<h6>
+											<font class="text-400">
+												<span style="font-size: 14px;">
+													<a href="/cookie-policy">Cookies</a>
+												</span>
+											</font>
+											<br />
+										</h6>
+									</li>
+									<li>
+										<h6>
+											<font class="text-400">
+												<span style="font-size: 14px;">
+													<a href="/privacy-policy">Données personnelles</a>
+												</span>
+											</font>
+										</h6>
+									</li>
+									<li>
+										<h6>
+											<font class="text-400">
+												<span style="font-size: 14px;">
+													<a href="/delivery">Livraison</a>
+												</span>
+											</font>
+										</h6>
+									</li>
+									<li>
+										<h6>
+											<font class="text-400">
+												<span style="font-size: 14px;">
+													<a href="/garantie">Garantie</a>
+												</span>
+											</font>
+										</h6>
+									</li>
+									<li>
+										<h6>
+											<span style="font-size: 14px;">
+												<font class="text-400">
+													<a href="/return">Retour</a>
+												</font>
+											</span>
+										</h6>
+									</li>
+								</ul>
+							</div>
+							<div class="o_colored_level o_grid_item g-height-4 g-col-lg-3 col-lg-3"
+								style="z-index: 1; grid-area: 1 / 4 / 5 / 7;">
+								<p>
+									<strong>
+										<span style="font-size: 18px;">Besoins d'aide ?</span>
+									</strong>
+								</p>
+								<ul>
+									<li>
+										<h6>
+											<span style="font-size: 14px;">
+												<font class="text-400">
+													<a href="/blog">Guide et conseil</a>
+												</font>
+											</span>
+										</h6>
+									</li>
+									<li>
+										<h6>
+											<font class="text-400">
+												<span style="font-size: 14px;">
+													<a href="/contactus">Contactez-nous</a>
+												</span>
+											</font>
+										</h6>
+									</li>
+									<li>
+										<h6>
+											<font class="text-400">
+												<span style="font-size: 14px;">
+													<a href="/magasin">Magasin</a>
+												</span>
+											</font>
+										</h6>
+									</li>
+									<li>
+										<h6>
+											<span style="font-size: 14px;">
+												<font class="text-400">
+													<a href="/services-atelier">Services atelier</a>
+												</font>
+											</span>
+										</h6>
+									</li>
+								</ul>
+							</div>
+							<div class="o_grid_item o_colored_level g-col-lg-3 g-height-5 col-lg-3"
+								style="z-index: 2; grid-area: 1 / 10 / 6 / 13;">
+								<ul>
+									<li>
+										<strong>
+											<span style="font-size: 18px;">Rentrons en contact</span>
+										</strong>
+										<br />
+									</li>
+									<li>
+										<br />
+									</li>
+									<li>
+										<span class="o_force_ltr">
+											<a href="tel:+3281659166" data-bs-original-title=""
+												title="">
+												<span class="fa fa-phone text-o-color-2"
+													data-bs-original-title="" title=""
+													aria-describedby="tooltip521162"
+													contenteditable="false">​</span>
+												<span style="font-size: 18px;">&amp;nbsp;+32 81 65 91 66</span>
+											</a>
+										</span>
+									</li>
+									<li>
+										<span style="font-size: 12px;">
+											<font class="text-600">10h à 18h mardi à vendredi&amp;nbsp;</font>
+										</span>
+									</li>
+									<li>
+										<span style="font-size: 12px;">
+											<font class="text-600">11h à 17h samedi</font>
+										</span>
+									</li>
+									<li>
+										<font class="text-600">​</font>
+									</li>
+									<li>
+										<span class="fa fa-comments-o text-o-color-2"
+											data-bs-original-title="" title=""
+											aria-describedby="tooltip37375" contenteditable="false">
+											​</span>
+										<span style="font-size: 18px;">&amp;nbsp;<a href="/contactus"
+												data-bs-original-title="" title="">
+												<font class="text-o-color-4">Formulaire de contact</font>
+											</a></span>
+									</li>
+									<li>
+										<span style="font-size: 12px;">
+											<font class="text-600">10h à 18h lundi à vendredi</font>
+										</span>
+									</li>
+								</ul>
+							</div>
+							<div class="o_grid_item o_colored_level g-col-lg-3 g-height-4 col-lg-3"
+								style="z-index: 8; grid-area: 1 / 1 / 5 / 4;">
+								<p class="o_default_snippet_text">
+									<span style="font-size: 14px;">
+										<strong>
+											<span style="font-size: 18px;">Nous sommes Freemoov,
+												votre meilleur allié pour une mobilité électrique
+												sans tracas !</span>
+										</strong>
+									</span>
+								</p>
+								<p class="o_default_snippet_text">
+									<a href="/home" data-bs-original-title="" title="">
+										<img
+											src="/website_freemoov/static/sec/img/Freemoov_RGB_Logo_negatif.png"
+											alt="" class="img img-fluid o_we_custom_image"
+											style="width: 50% !important;" loading="lazy" />
+									</a>
+									<br />
+								</p>
+								<div class="s_social_media o_not_editable text-start"
+									data-snippet="s_social_media" data-name="Social Media"
+									contenteditable="false">
+									<p class="s_social_media_title mb-2 d-block">
+										<span style="font-size: 18px;"></span>
+										<br />
+									</p>
+									<a href="/website/social/instagram"
+										class="s_social_media_instagram" target="_blank">
+										<i
+											class="fa fa-instagram o_editable_media rounded shadow-sm"
+											contenteditable="false">​</i>
+									</a>
+									<a href="/website/social/facebook"
+										class="s_social_media_facebook" target="_blank">
+										<i class="fa o_editable_media fa-facebook rounded shadow-sm"
+											contenteditable="false">​</i>
+									</a>
+								</div>
+							</div>
+							<div class="o_grid_item o_colored_level g-col-lg-4 g-height-2 col-lg-4"
+								style="z-index: 7; grid-area: 9 / 1 / 11 / 5;">
+								<ul class="o_default_snippet_text">
+									<li>
+										<span style="font-size: 14px;">
+											<font class="text-400">Paiement 100% sécurisé</font>
+										</span>
+									</li>
+								</ul>
+								<p class="o_default_snippet_text">
+									<img
+										src="/website_freemoov/static/src/img/payment_icons.png"
+										alt="" class="img img-fluid o_we_custom_image"
+										data-original-src="/web/image/15461-03fbbea9/Bannier%20logo%20paiement.png"
+										data-mimetype="image/png" data-resize-width="450"
+										data-bs-original-title="" title=""
+										aria-describedby="tooltip460688" loading="lazy" style="" />
+									<br />
+								</p>
+							</div>
+							<div class="o_grid_item o_colored_level g-col-lg-8 g-height-1 col-lg-8"
+								style="z-index: 9; grid-area: 10 / 5 / 11 / 13;">
+								<p style="text-align: right;">
+									<span style="font-size: 14px;">
+										<font class="text-400"><a
+												href="/shop/category/trottinette-electrique-1">Trottinettes
+											électriques</a>&amp;nbsp; •&amp;nbsp; <a
+												href="/shop/category/gyroroue-47">Gyroroues</a>&amp;nbsp;
+											•&amp;nbsp; <a href="/shop/category/pieces-detachees-18">Pièces
+											détachées</a>&amp;nbsp; •&amp;nbsp; <a
+												href="/shop/category/accessoires-2">Accessoires</a>&amp;nbsp;
+											•&amp;nbsp; <a href="/shop/category/equipement-53">
+											Equipement</a></font>
+									</span>
+								</p>
+							</div>
+							<div class="o_grid_item o_colored_level g-col-lg-3 g-height-2 col-lg-3"
+								style="z-index: 4; grid-area: 7 / 1 / 9 / 4;">
+
+							</div>
+						</div>
 					</div>
 				</section>
-				<section class="s_text_block pt64">
-        			<div class="container">
-        				<div class="row">
-        					<div class="col-xl-4 col-lg-5 col-md-8 pt16 pb16 footer-data order-1">
-        						<div class="box d-flex">
-        							<div class="icon">
-        								<img src="/website_freemoov/static/src/img/footer-icon.png" class="img"/>
-        							</div>
-        							<div class="content ms-lg-5 ms-md-2">
-        								<h6 class="fw-bold">Bienvenue chez Freemoov. L'expert en trottinette électrique qui a pour objectif de chouchouter ses clients !</h6>
-        								<ul class="list-inline mt-2">
-		                                    <li class="list-inline-item"><a href="#">vente</a></li>
-		                                    <li class="list-inline-item"><a href="#">réparation</a></li>
-		                                    <li class="list-inline-item"><a href="#">conseil</a></li>
-		                                    <li class="list-inline-item"><a href="#">écoute</a></li>
-		                                    <li class="list-inline-item"><a href="#">essai</a></li>
-		                                </ul>
-		                                
-        							</div>
-        						</div>
-        					</div>
-        					<div class="col-lg-2 col-md-4 pt16 pb16 order-3 order-lg-2 footer-data offset-xl-1">
-        						<div class="box">
-        							<h6 class="title">Besoins d'aide ?</h6>
-        							<ul class="list-unstyled data">
-	                                    <li><a href="#">Guides et conseils</a></li>
-	                                    <li><a href="#">Nous contacter</a></li>
-	                                    <li><a href="#">Paiement</a></li>
-	                                    <li><a href="#">Livraison</a></li>
-	                                    <li><a href="#">Retour</a></li>
-	                                    <li><a href="#">Garantie et service après-vente</a></li>
-	                                </ul>
-        						</div>
-        					</div>
-        					<div class="col-lg-2 col-md-4 pt16 pb16 order-4 order-md-3 footer-data">
-        						<div class="box">
-        							<h6 class="title">A propos de Freemoov</h6>
-        							<ul class="list-unstyled data">
-	                                    <li><a href="#">Découvrez-nous</a></li>
-	                                    <li><a href="#">Magasin</a></li>
-	                                    <li><a href="#">Mentions légales</a></li>
-	                                    <li><a href="#">Conditions générales</a></li>
-	                                    <li><a href="#">Retour</a></li>
-	                                    <li><a href="#">Politique en matière de cookies</a></li>
-	                                </ul>
-        						</div>
-        					</div>
-        					<div class="col-lg-3 col-md-4 pt16 pb16 order-2 order-md-4 footer-data">
-        						<div class="box">
-        							<h6 class="title d-md-block d-none">Rentrons en contact !</h6>
-        							<div class="d-flex">
-        								<div class="me-3">
-        									<img src="/website_freemoov/static/src/img/Group.png" class="img"/>
-        								</div>
-        								<div>
-	        								<h6 class="mb4">+32 081 65 91 66</h6>
-	        								<p class="subtitle mb-0">10h à 18h Mardi, Mercredi, Vendredi et Samedi</p>
-        								</div>
-        							</div>
-        						</div>
-        					</div>
-        					<div class="col-lg-5 order-md-2 order-last col-md-4 order-lg-last offset-lg-1 ps-lg-4 footer-data pt16 pb16">
-        						<div class="d-flex d-md-block justify-content-between">
-	                                <h6 class="title">On reste connecté ?</h6>
-	                                <div data-snippet="s_share" class="s_share" data-name="Share">
-	                                    <a href="https://www.facebook.com/odoo/" target="_blank" class="s_share_facebook ">
-	                                        <i class="fa fa-facebook rounded"/>
-	                                    </a>
-	                                    <a href="https://www.instagram.com" target="_blank" class="s_share_instagram ">
-	                                        <i class="fa fa-instagram rounded"/>
-	                                    </a>
-	                                    <a href="/website/social/youtube" class="s_share_youtube" target="_blank">
-	                                    	<i class="fa fa-youtube-play rounded"/>
-	                                	</a>
-	                        		</div>
-	                        	</div>
-                        	</div>
-                        	<div class="col-lg-3 col-md-6 pt16 pb16 top footer-data offset-lg-3 ps-lg-4 order-last">
-		                   		<div class="images">
-		                   			<p class="subtitle text-start">Achat 100% sécurisé</p>
-		                   			<img src="/website_freemoov/static/src/img/payment_icons.png" class="img img-fluid"/>
-		                   		</div>
-		                   	</div>
-        				</div>
-        			</div>
-        		</section>
-        	</div>
-    	</xpath>
 
-    	<xpath expr="//div[hasclass('o_footer_copyright')]/div[hasclass('container')]" position="attributes">
-            <attribute name="t-if">False</attribute>
-        </xpath>
-        <xpath expr="//div[hasclass('o_footer_copyright')]" position="attributes">
-             <attribute name="class" add="footer_copyright overflow-hidden" separator=" "/>
-        </xpath>
-        <xpath expr="//div[hasclass('o_footer_copyright')]/div[hasclass('container')]" position="after">
-            <div class="container">
-                <div class="row">
-                   	<div class="col-lg-12 pt16 pb16 footer-data">
-                   		<div class="description text-center">
-                   			<p class="subtitle">© 2023 Copyright Freemoov. Tous droits réservés.</p>
-                   		</div>
-                   	</div>
-                </div>
-            </div>
-        </xpath>
-    </template>
+			</div>
+
+		</xpath>
+
+		<!-- <xpath expr="//div[hasclass('o_footer_copyright')]/div[hasclass('container')]"
+			position="attributes">
+			<attribute name="t-if">False</attribute>
+		</xpath>
+		<xpath expr="//div[hasclass('o_footer_copyright')]" position="attributes">
+			<attribute name="class" add="footer_copyright overflow-hidden" separator=" " />
+		</xpath>
+		<xpath expr="//div[hasclass('o_footer_copyright')]/div[hasclass('container')]"
+			position="after">
+			<div class="container py-3">
+				<div class="row">
+					<div class="col-sm text-center text-sm-start text-muted">
+						<span class="o_footer_copyright_name me-2">
+							<span style="font-size: 12px;"><font class="text-600">Copyright © Freemoov SRL |&amp;nbsp;&amp;nbsp;Tous droits réservé | Avenue du Bourgmestre Jean Materne 12, 5100 Jambes, Belgique</font></span></span>
+							<t id="language_selector_call" t-call="portal.language_selector">
+								<t t-set="_div_classes" t-value="(_div_classes or '') + ' dropup'"/>
+							</t>
+					</div>
+				</div>
+			</div>
+		</xpath> -->
+	</template>
+	
+	<template id="footer_copyright_company_name_inherited_portal" inherit_id="portal.frontend_layout" active="True">
+		<xpath expr="//footer//span[hasclass('o_footer_copyright_name')]" position="replace">
+			<span style="font-size: 12px;"><font class="text-600">Copyright © Freemoov SRL |&amp;nbsp;&amp;nbsp;Tous droits réservé | Avenue du Bourgmestre Jean Materne 12, 5100 Jambes, Belgique</font>
+			</span>
+			<!-- <t id="language_selector_call" t-call="portal.language_selector">
+                <t t-set="_div_classes" t-value="(_div_classes or '') + ' dropup'"/>
+				<t t-set="flags" t-value="True"/>
+            </t> -->
+		</xpath>
+	</template>
+
 </odoo>

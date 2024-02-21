@@ -695,9 +695,9 @@
                                                     <t t-if="attribute.attribute_default_val">
                                                         <p class="fw-bold" t-if="attribute.attribute_default_val" t-esc="attribute.attribute_default_val.name"></p>
                                                     </t>
-                                                    <t t-else="">
+                                                    <!-- <t t-else="">
                                                         <p class="fw-bold" t-if="attribute.value_ids" t-esc="attribute.value_ids[0].name"></p>
-                                                    </t>
+                                                    </t> -->
                                                     
                                                 </div>
                                             </div>
