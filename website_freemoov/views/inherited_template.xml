@@ -449,34 +449,20 @@
             </div> -->
             <div class="o_wsale_product_sub d-flex align-items-end pb-1">                
                 <t t-set="template_price_vals" t-value="get_product_prices(product)"/>
-                <!-- <t t-set="product_stock" t-value="website.check_tmpl_stock_availability(product)"/> -->
                 <div class="o_wsale_product_btn"/>
                 <div class="product_sub_detail align-items-center">
-                   <!-- 
-                    <t t-if="not product.is_dropship_product">
-                        <t t-if="product.qty_available &gt; 0">
-                            <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
-                                <span> En stock 1111</span>
-                            </p>
-                        </t>
-                        <t t-esc="product_variant"/>
-                        <t t-if="product_variant_stock &lt;= 0">
-                            <p class="label"><span class="o_ribbon bg-danger o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
-                                <span> Out of stock 333 </span>
-                            </p>
-                        </t>
-                    </t>-->
-
-                    <!-- <t t-if="product.qty_available &lt;= 0">
-                        <p class="label"><span class="o_ribbon bg-danger o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
-                            <span> Out of stock </span>
+                   <t t-set="stock_available" t-value="product.get_stock_availability(website)"></t>
+                   <t t-if="stock_available &gt; 0">
+                        <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
+                            <span>En stock</span>
                         </p>
-                    </t> -->
-                    <!-- <p class="label"><span t-attf-class="o_ribbon #{bg_class}" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/><span t-out="td_product['ribbon']['html'] or ''"/></p> -->
-
-                    <p class="variant" t-if="product.product_variant_count and product.product_variant_count >= 2"><t t-esc="product.product_variant_count"/> variantes</p>
+                   </t> 
+                   <t t-else="">
+                    <p class="label"><span class="o_ribbon bg-danger o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
+                        <span>Out of stock</span>
+                    </p>
+                   </t>
                     <div class="product_price" itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer">
-                        
                         <t t-if="len(product.attribute_line_ids)>0">
                             <span>à partir de</span>
                         </t>
@@ -862,14 +848,6 @@
                                         </a>
                                     </t>
                                 </div>
-                                <div class="review_product_detail1" data-oe-id="2971" data-oe-xpath="/data/xpath[3]/div" data-oe-model="ir.ui.view" data-oe-field="arch">
-                                    <span class="fa fa-star"></span>
-                                    <span class="fa fa-star"></span>
-                                    <span class="fa fa-star"></span>
-                                    <span class="fa fa-star"></span>
-                                    <span class="fa fa-star-o"></span>
-                                    <span> 4.2/5 (50 avis)</span>
-                                </div>
                                 <div class="s_btn text-lg-center ms-lg-4">
                                     <a class="btn btn-primary rounded-pill text-white fw-bold" href="/">Laisser votre avis</a>
                                 </div>
@@ -1042,28 +1020,6 @@
         <xpath expr="//t[@t-placeholder='select']" position="after">
             <t t-call="website_sale.product_price"/>
 
-            <!-- <t t-set="stock_availability" t-value="website.check_stock_availability(product_variant) if website else None"/>
-            <t t-if="stock_availability == 0">
-                <p class="label"><span class="o_ribbon bg-danger o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
-                    <span> Out of stock</span>
-                </p>
-            </t>
-            <t t-else="else">
-                <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
-                    <span> En stock</span>
-                </p>
-            </t>
-
-            <p class="label mb-1" t-if="product.is_available_trial">
-                <span class="o_ribbon bg-primary o_ribbon_left" style=""></span>
-                <span>Disponible à l'essai</span>
-            </p> -->
-            <!-- <p class="label mb-1" t-if="product.is_available_trial">
-                <t t-set="bg_color" t-value="product.website_ribbon_id['bg_color'] or ''"/>
-                <t t-set="text_color" t-value="product.website_ribbon_id['text_color']"/>
-                <t t-set="bg_class" t-value="product.website_ribbon_id['html_class']"/>
-                <span t-attf-class="o_ribbon #{bg_class}" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/><span t-out="product.website_ribbon_id['html'] or ''"/>
-            </p> -->
         </xpath>
         <xpath expr="//div[@id='product_option_block']" position="after">
             <div class="compare-box text-center">
@@ -1079,6 +1035,11 @@
         </xpath>
         <xpath expr="//div[@id='add_to_cart_wrap']" position="before">
             <ul class="text custom_product_list mb32">
+                <li class="mb-1">
+                    <p class="label mb-1"><span class="o_ribbon bg-primary o_ribbon_left" />
+                        <span> En stock</span>
+                    </p>
+                </li>
                 <li class="mb-1">
                     <i class="icon-truck"></i>
                     <!-- <img class="img img-fluid me-2" src="/website_freemoov/static/src/img/truck.png" alt="Hero Img"/> -->

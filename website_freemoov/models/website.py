@@ -8,12 +8,12 @@ class Website(models.Model):
 
 	def check_stock_availability(self,product_variant) :
 		qty_avail = 0
-		print('\n\n\n====product_variant====',product_variant)
-		for rec in self :
-			if rec.warehouse_id :
-				warehouse_location_id = rec.warehouse_id.lot_stock_id
-				stock_quant_ids = self.env['stock.quant'].sudo().search([('product_id','=',product_variant.id),('location_id','=',warehouse_location_id.id),('on_hand','=',True)])
-				qty_avail = sum(quant.quantity for quant in stock_quant_ids)
+		product_variant_id = self.env['product.product'].sudo().browse(product_variant)
+		website = self.get_current_website()
+		if website.warehouse_id :
+			warehouse_location_id = website.warehouse_id.lot_stock_id
+			stock_quant_ids = self.env['stock.quant'].sudo().search([('product_id','=',product_variant_id.id),('location_id','=',warehouse_location_id.id),('on_hand','=',True)])
+			qty_avail = sum(quant.quantity for quant in stock_quant_ids)
 		return qty_avail
 
 		# def check_tmpl_stock_availability(self,product_tmpl_id) :

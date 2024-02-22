@@ -19,7 +19,7 @@
         'website_blog',
         'website_sale_comparison',
         'ust_common_features',
-        'website_sale_stock_wishlist',
+        'website_sale_stock',
     ],
     'data':[
         'security/ir.model.access.csv',
