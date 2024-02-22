@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="header_freemoov_two" inherit_id="website.layout" name="Header Two" active="False">
+        <xpath expr="//header" position="attributes">
+            <attribute name="t-attf-class" add="header_freemoov" separator=" " />
+        </xpath>
+        <xpath expr="//header//nav" position="replace">
+            <t t-call="website.navbar">
+                <t t-set="_navbar_classes" t-valuef="cc_header_freemoov shadow-sm px-0" />
+                <t t-set="_navbar_expand_class" t-value="''" />
+                <div id="top_menu_container" class="container justify-content-between">
+                    <div class="col-auto justify-content-center logo_border d-flex">
+                        <!-- Brand -->
+                        <t t-call="website.placeholder_header_brand">
+                            <t t-set="_link_class" t-valuef="me-4" />
+                        </t>
+                    </div>
+                    <div class="search_bar_1 col order-last order-md-0 mt-2 mt-lg-0">
+                        <form method="get" data-snippet="s_searchbar_input"
+                            class="o_searchbar_form s_searchbar_input me-lg-5 pe-md-3"
+                            action="/website/search">
+                            <div role="search" class="input-group ">
+                                <input type="search" name="search"
+                                    class="search-query form-control border-0 rounded-0 oe_search_box None"
+                                    placeholder="Ecrivez Xiaomi 4 Pro, Inmotion S1, Dualtron Thunder..."
+                                    data-search-type="all" data-limit="5" data-display-image="true"
+                                    data-display-description="true" data-display-extra-link="true"
+                                    data-display-detail="true" data-order-by="name asc" />
+                                <div class="input-group-append">
+                                    <button type="submit" aria-label="Search" title="Search"
+                                        class="btn oe_search_button rounded-0">
+                                        <i class="fa fa-search" />
+                                    </button>
+                                </div>
+                            </div>
+                            <input name="order" type="hidden" class="o_search_order_by"
+                                value="name asc" />
+                        </form>
+                    </div>
+                    <div class="col-auto">
+                        <ul class="header_icon d-flex align-items-center justify-content-end mb-0">
+                            <!-- Sign In -->
+                            <li
+                                t-nocache="Profile session and user group can change unrelated to parent caches."
+                                t-nocache-_item_class="_item_class"
+                                t-nocache-_link_class="_link_class"
+                                groups="base.group_public" class="nav-item o_no_autohide_item">
+                                <a t-attf-href="/web/login" class="nav-link">
+                                    <img class="img img-fluid"
+                                        src="/website_freemoov/static/src/img/user.png" />
+                                    <span t-if="request.session.profile_session"
+                                        class="text-danger fa fa-circle" />
+                                </a>
+                            </li>
+
+                            <!-- User Dropdown -->
+                            <t t-call="portal.user_dropdown">
+                                <t t-set="_icon" t-value="True" />
+                                <t t-set="_item_class" t-valuef="nav-item dropdown" />
+                                <t t-set="_link_class" t-valuef="nav-link" />
+                            </t>
+                            <t t-call="website_sale.header_cart_link">
+                                <t t-set="_icon" t-value="True" />
+                                <t t-set="_item_class" t-value="'nav-item'" />
+                                <t t-set="_link_class" t-value="'nav-link'" />
+                            </t>
+                            <t t-call="website_sale_wishlist.header_wishlist_link">
+                                <t t-set="_icon" t-value="True" />
+                                <t t-set="_item_class" t-value="'nav-item'" />
+                                <t t-set="_link_class" t-value="'nav-link'" />
+                            </t>
+
+                            <!-- Navbar Toggler -->
+                            <li class="nav-item">
+                                <button type="button" class="navbar_toggler btn p-1"
+                                    data-bs-toggle="modal" data-bs-target="#top-menu-collapse">
+                                    <img class="img img-fluid"
+                                        src="/website_freemoov/static/src/img/menu.png" />
+                                </button>
+                            </li>
+
+                            <!-- Language Selector -->
+                            <t t-call="website.placeholder_header_language_selector">
+                                <t t-set="_btn_class" t-valuef="flat" />
+                                <t t-set="_div_classes" t-valuef="me-3" />
+                            </t>
+
+                            <!-- Call To Action -->
+                            <t t-call="website.placeholder_header_call_to_action">
+                                <t t-set="_div_classes" t-valuef="s_btn" />
+                            </t>
+                        </ul>
+                    </div>
+
+                    <!-- The Modal -->
+                    <div class="modal fade" id="top-menu-collapse">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+
+                                <!-- Modal Header -->
+                                <div class="modal-header p0 border-0">
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+
+                                <!-- Modal body -->
+                                <div class="modal-body p-0">
+                                    <img src="/website_freemoov/static/src/img/footer-icon.png"
+                                        class="img img-fluid pb40" />
+                                    <ul class="list-unstyled">
+                                        <t t-set="category_ids"
+                                            t-value="website.get_ust_cat_data() if website else None" />
+
+                                        <t t-set="menu_category_ids" t-value="request.env['menu.cms'].sudo().search([])"></t>
+                                       
+                                        <t t-if="menu_category_ids">
+                                            <t t-foreach="menu_category_ids" t-as="parent_category">
+                                                <li class="nav-item">
+                                                    <a
+                                                    class="nav-link parent_categ_link"
+                                                    href="#"
+                                                    t-attf-data-category-id="#{parent_category.id}"
+                                                    t-attf-data-category-name="#{parent_category.parent_id.name}"
+                                                    t-attf-onclick="$('#top-menu-collapse-second-category_#{parent_category.id}').modal('show');">
+                                                    <t t-set="record"
+                                                        t-value="parent_category"></t>
+                                                    <span
+                                                        t-esc="parent_category.parent_id.name" />
+                                                </a>
+                                                </li>
+                                                <t
+                                                    t-call="website_freemoov.subcategoryscond_template">
+                                                    <t t-set="record"
+                                                        t-value="parent_category" />
+                                                </t>
+                                            </t>
+                                        </t>
+
+                                       
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="/blog">
+                                                <span>Blog</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="/contactus">
+                                                <span>Contact</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    <div class="login-buttons pt40 text-center text-xl-start">
+                                        <a href="/web/login?"
+                                            class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">se
+                                            connecter</a>
+                                        <a href="/web/signup?"
+                                            class="btn btn-outline-light my-2 my-xl-0">créer un
+                                            compte</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- The Modal -->
+                    <div class="modal fade" id="top-menu-collapse-sub-category">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+
+                                <!-- Modal Header -->
+                                <div class="modal-header p0 border-0">
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="icon pb40">
+                                    <img src="/website_freemoov/static/src/img/footer-icon.png"
+                                        class="img img-fluid" />
+                                </div>
+                                <h2 class="modal-title pb40 text-center text-md-start"
+                                    id="subcategoryModalTitle">
+                                    <a class="nav_link"></a>
+                                </h2>
+                                <div class="buttons pb32 text-center d-block d-md-none">
+                                    <a
+                                        class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0 ">voir
+                                        tout</a>
+                                </div>
+                                <!-- Modal body -->
+                                <div class="modal-body p-0" id="subcategoryModalBody">
+                                </div>
+                                <div
+                                    class="buttons pt40 text-center text-xl-start d-none d-md-block sub_categ_button">
+                                    <a href="/shop"
+                                        class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">voir
+                                        tout</a>
+                                    <!-- <button type="button" class="btn btn-outline-light my-2
+                                    my-xl-0 back_to_menu" data-dismiss="modal"
+                                    data-bs-toggle="modal" data-bs-target="#top-menu-collapse">Back
+                                    to menu</button> -->
+                                    <button type="button"
+                                        class="btn btn-outline-light my-2 my-xl-0 back_to_menu">Back
+                                        to menu</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="search_bar_2 order-md-0 mt-2 mt-lg-0 mobile_searchbar">
+                        <form method="get" data-snippet="s_searchbar_input"
+                            class="o_searchbar_form s_searchbar_input me-lg-5 pe-md-3"
+                            action="/website/search">
+                            <div role="search" class="input-group ">
+                                <input type="search" name="search"
+                                    class="search-query form-control border-0 rounded-0 oe_search_box None"
+                                    placeholder="Ecrivez Xiaomi 4 Pro, Inmotion S1, Dualtron Thunder..."
+                                    data-search-type="all" data-limit="5" data-display-image="true"
+                                    data-display-description="true" data-display-extra-link="true"
+                                    data-display-detail="true" data-order-by="name asc" />
+                                <div class="input-group-append">
+                                    <button type="submit" aria-label="Search" title="Search"
+                                        class="btn oe_search_button rounded-0">
+                                        <i class="fa fa-search" />
+                                    </button>
+                                </div>
+                            </div>
+                            <input name="order" type="hidden" class="o_search_order_by"
+                                value="name asc" />
+                        </form>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </template>
+    <template id="subcategoryscond_template" name="Subcategory Template">
+        <div class="modal fade top_menu_sub_categ"
+            t-att-id="'top-menu-collapse-second-category_%s' % record.id" tabindex="-1"
+            role="dialog" aria-labelledby="slideShareModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header p0 border-0">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                    </div>
+                    <div class="icon pb40">
+                        <img src="/website_freemoov/static/src/img/footer-icon.png"
+                            class="img img-fluid" />
+                    </div>
+                    <h2 class="modal-title pb40 text-center text-md-start" id="subcategoryModalTitle1">
+                        <a class="nav_link"><a class="nav_link text-white" t-att-href="'/shop/category/%s' % slug(record.parent_id)" t-esc="record.parent_id.name"></a></a>
+                    </h2>
+                    <div class="modal-body p-0" id="subcategoryModalBody">
+                    
+                    <div class="d-lg-flex cat-brand">
+                        <t t-set="category_levels"
+                                t-value="website.category_levels() if website else None" />
+                        <div class="category-box col-lg-3">
+                            <p class="text-center text-lg-start">Catégories</p>
+                            <t t-foreach="record.child_category_ids" t-as="child_category">
+                                <ul class="list-unstyled">
+                                    <li class="nav-item">
+                                        <a class="nav-link fw-bold p-0"
+                                            t-att-href="'/shop/category/%s' % slug(child_category)">
+                                            <t t-esc="child_category.name" />
+                                            <br />
+                                        </a>
+                                    </li>
+                                </ul>
+                            </t>
+                        </div>
+                        <div class="brand-box col-lg-3  mt-4 mt-lg-0">
+                            <p class="text-center text-lg-start">Marques</p>
+                            <t t-foreach="record.sub_category_ids" t-as="sub_category">
+                                <ul class="list-unstyled">
+                                    <li class="nav-item">
+                                        <a class="nav-link fw-bold p-0"
+                                            t-att-href="'/shop/category/%s' % slug(sub_category)">
+                                            <t t-esc="sub_category.name" />
+                                            <br />
+                                        </a>
+                                    </li>
+                                </ul>
+                            </t>
+                        </div>
+                      
+                    </div>
+                    </div>
+                    <div
+                        class="buttons pt40 text-center text-xl-start d-none d-md-block sub_categ_button">
+                        <a href="/shop"
+                            class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">voir
+                            tout</a>
+                      
+                        <button type="button"
+                            class="btn btn-outline-light my-2 my-xl-0 back_to_menu">Back
+                            to menu</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</odoo>

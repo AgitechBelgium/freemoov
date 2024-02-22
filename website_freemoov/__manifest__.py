@@ -4,14 +4,13 @@
 {
     'name': 'Website Freemoov',
     'category': 'Website',
-    'version': '16.0.0.0.5',
+    'version': '16.0.0.0.6',
     'summary': 'Website Freemoov',
     'author': '',
     'website' : '',
     'sequence': 1,
     'description': """Website Freemoov""",
     'depends': [
-        'mrp',
         'website',
         'web_editor',
         'website_sale',
@@ -30,6 +29,8 @@
         'views/homepage_template.xml',
         'views/inherited_product_template_view.xml',
         'views/inherited_template.xml',
+        'views/menu_cms_views.xml',
+        'views/header_freemoov_template_1.xml',
     ],
 
     'assets': {

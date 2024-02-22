@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="menu_cms_tree_view" model="ir.ui.view">
+        <field name="name">menu.cms.tree</field>
+        <field name="model">menu.cms</field>
+        <field name="arch" type="xml">
+            <tree string="Menu CMS">
+                <field name="parent_id" />
+            </tree>
+        </field>
+    </record>
+    <record id="menu_cms_form_view" model="ir.ui.view">
+        <field name="name">menu.cms.freemov.form</field>
+        <field name="model">menu.cms</field>
+        <field name="arch" type="xml">
+            <form string="All In One Slider">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="parent_id" domain="[('parent_id','=',False)]" />
+                            <field name="child_category_ids" domain="[('parent_id','=',parent_id)]" />
+                            <field name="sub_category_ids" domain="[('parent_id','in',child_category_ids)]" />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+
+        </field>
+    </record>
+    <record id="action_menu_cms" model="ir.actions.act_window">
+        <field name="name">Menu CMS</field>
+        <field name="res_model">menu.cms</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+    <menuitem action="action_menu_cms" 
+        id="menu_menu_cms"
+        name="Menu CMS"
+        parent="ust_common_features.ust_theme_common_menu"
+        sequence="4" />
+</odoo>

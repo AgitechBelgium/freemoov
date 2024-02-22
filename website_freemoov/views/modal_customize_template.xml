@@ -8,6 +8,11 @@
                        data-customize-website-views="website_freemoov.header_freemoov"
                        data-customize-website-variable="'header-1'"
                        data-img="/website_freemoov/static/description/header_footer/header-1.png"/>
+            <we-button title="Header Freemoov Category"
+                       data-name="header_freemoov_opt2"
+                       data-customize-website-views="website_freemoov.header_freemoov_two"
+                       data-customize-website-variable="'Categorize header'"
+                       data-img="/website/static/src/img/snippets_options/header_template_magazine.svg"/>
 
         </xpath>
 

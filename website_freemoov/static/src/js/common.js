@@ -60,6 +60,7 @@ odoo.define('website_freemoov.category_script', function (require) {
         $(".back_to_menu").click(function() {
             $("#top-menu-collapse").modal("show");
             $("#top-menu-collapse-sub-category").modal("hide");
+            $(".top_menu_sub_categ").modal("hide");
         })
         $(".cat-div").parents('#ust_all_in_one_configure').css("background-color", "#fff");
         if($('div').hasClass('cat-div')) {

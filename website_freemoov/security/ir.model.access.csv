@@ -13,3 +13,4 @@ access_stock_location_public,access_stock_location,stock.model_stock_location,,1
 access_stock_move_public,access_stock_move,stock.model_stock_move,,1,0,0,0
 access_stock_quant_public,access_stock_quant,stock.model_stock_quant,,1,0,0,0
 access_mrp_bom_public,access_mrp_bom,mrp.model_mrp_bom,,1,0,0,0
+access_menu_cms_public,access_menu_cms,website_freemoov.model_menu_cms,,1,1,1,1
