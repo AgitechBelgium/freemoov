@@ -13,6 +13,11 @@ class ProductTemplate(models.Model):
 	is_dropship_product = fields.Boolean(string="Dropshipping Product?")
 	tab_ids = fields.One2many('ust.product.tabs', 'product_id',string="Tab")
 
+	def dropship_product(self) :
+		dropship_route = self.env.ref('stock_dropshipping.route_drop_shipping')
+		is_dropship = dropship_route.id in self.route_ids.ids
+		return is_dropship
+
 	def get_stock_availability(self,website=None):
 		if self.detailed_type == 'product' and not self.allow_out_of_stock_order:
 			product_variant_ids = self.product_variant_ids.ids
@@ -22,7 +27,11 @@ class ProductTemplate(models.Model):
 				qty_avail = sum(quant.quantity for quant in stock_quant_ids)
 		else :
 			qty_avail = 1
-		return qty_avail
+		
+		dropship_route = self.env.ref('stock_dropshipping.route_drop_shipping')
+		is_dropship = dropship_route.id in product_variant_id.route_ids.ids
+
+		return {'qty_avail':qty_avail, 'is_dropship' : is_dropship}
 
 class ProductCategoryTemplate(models.Model):
 	_inherit = "product.public.category"

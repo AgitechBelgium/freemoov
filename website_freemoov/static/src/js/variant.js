@@ -23,7 +23,9 @@ VariantMixin._onChangeCombinationStock = function (ev, $parent, combination) {
                 method: 'check_stock_availability',
                 args: [[],combination.product_id],
             }).then(function (data) {
-                combination.stock_availability = parseInt(data);
+                console.log("data ==== ",data)
+                combination.stock_availability = parseInt(data['qty_avail']);
+                combination.is_dropship = parseInt(data['is_dropship']);
                 messageEl.insertAdjacentHTML('afterbegin',
                     QWeb.render('website_freemoov.product_availability', combination)
                 );

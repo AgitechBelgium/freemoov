@@ -14,7 +14,12 @@ class Website(models.Model):
 			warehouse_location_id = website.warehouse_id.lot_stock_id
 			stock_quant_ids = self.env['stock.quant'].sudo().search([('product_id','=',product_variant_id.id),('location_id','=',warehouse_location_id.id),('on_hand','=',True)])
 			qty_avail = sum(quant.quantity for quant in stock_quant_ids)
-		return qty_avail
+		
+		dropship_route = self.env.ref('stock_dropshipping.route_drop_shipping')
+		is_dropship = dropship_route.id in product_variant_id.route_ids.ids
+
+
+		return {'qty_avail' : qty_avail,'is_dropship':is_dropship}
 
 		# def check_tmpl_stock_availability(self,product_tmpl_id) :
 		# qty_avail = 0

@@ -13,7 +13,7 @@
                        data-customize-website-views="website_freemoov.header_freemoov_two"
                        data-customize-website-variable="'Categorize header'"
                        data-img="/website/static/src/img/snippets_options/header_template_magazine.svg"/>
-            
+
         </xpath>
 
         <xpath expr="//we-select[@data-variable='footer-template']" position="inside">

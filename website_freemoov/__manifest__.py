@@ -4,7 +4,7 @@
 {
     'name': 'Website Freemoov',
     'category': 'Website',
-    'version': '16.0.0.0.6',
+    'version': '16.0.0.0.7',
     'summary': 'Website Freemoov',
     'author': '',
     'website' : '',
@@ -20,6 +20,7 @@
         'website_sale_comparison',
         'ust_common_features',
         'website_sale_stock',
+        'stock_dropshipping',
     ],
     'data':[
         'security/ir.model.access.csv',

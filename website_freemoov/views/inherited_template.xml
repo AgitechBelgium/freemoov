@@ -452,7 +452,7 @@
                 <div class="o_wsale_product_btn"/>
                 <div class="product_sub_detail align-items-center">
                    <t t-set="stock_available" t-value="product.get_stock_availability(website)"></t>
-                   <t t-if="stock_available &gt; 0">
+                   <t t-if="stock_available['qty_avail'] &gt; 0 and !stock_available['is_dropship']">
                         <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
                             <span>En stock</span>
                         </p>
@@ -1033,7 +1033,8 @@
         </xpath> -->
         <xpath expr="//div[@id='add_to_cart_wrap']" position="before">
             <ul class="text custom_product_list mb32">
-                <li class="mb-1">
+                <t t-set="is_dropship" t-value="product.dropship_product()" />
+                <li class="mb-1" t-if="not is_dropship">
                     <p class="label mb-1"><span class="o_ribbon bg-primary o_ribbon_left" />
                         <span> En stock</span>
                     </p>

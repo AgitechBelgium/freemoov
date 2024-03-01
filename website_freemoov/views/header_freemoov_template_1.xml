@@ -244,7 +244,7 @@
                     </h2>
                     <div class="modal-body p-0" id="subcategoryModalBody">
                     <div class="d-lg-flex cat-brand">
-                        <t t-foreach="category['line_data']" t-as="line" t-if="category['line_data']">
+                        <t t-foreach="category['line_data']" t-as="line" t-if="category and category['line_data']">
                        <t t-foreach="line" t-as="child_category">
                         <div class="category-box col-lg-3">
                                <a t-att-href="child_category.url" class="text-center text-lg-start child_cat nav-link " t-esc="child_category.name">Catégories</a>
