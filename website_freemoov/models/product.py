@@ -29,7 +29,7 @@ class ProductTemplate(models.Model):
 			qty_avail = 1
 		
 		dropship_route = self.env.ref('stock_dropshipping.route_drop_shipping')
-		is_dropship = dropship_route.id in product_variant_id.route_ids.ids
+		is_dropship = dropship_route.id in self.route_ids.ids
 
 		return {'qty_avail':qty_avail, 'is_dropship' : is_dropship}
 

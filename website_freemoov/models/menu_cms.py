@@ -3,6 +3,7 @@ from odoo import fields, models,api,_
 
 class ChildMenu(models.Model):
     _name = 'child.menu'
+    _description = "Child Menu"
 
     name = fields.Char('Name')
     url = fields.Char('URL')

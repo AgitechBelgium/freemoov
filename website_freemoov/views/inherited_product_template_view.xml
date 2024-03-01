@@ -22,7 +22,7 @@
                    <field name="delivery_return"/>
                    <field name="warranty_support"/>
                    <field name="summary" />
-                   <field name="is_dropship_product"/>
+                   <field name="is_dropship_product" invisible="1"/>
                    <field name="tab_ids" invisible="1"></field>
             </xpath>
            <xpath expr="//field[@name='attribute_line_ids']/tree/field[@name='value_ids']" position="after">
