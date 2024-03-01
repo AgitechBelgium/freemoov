@@ -83,7 +83,7 @@ class Website(models.Model):
 		for menu_cms in menu_cms_records : 
 			vals.append({
 				'menu' : menu_cms,
-				'design_type' : menu_cms.design_type,
+				'slider_type' : menu_cms.slider_type,
 				'line_data' : menu_cms.menu_details(),
 			})
 

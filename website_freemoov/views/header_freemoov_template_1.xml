@@ -114,7 +114,7 @@
 
                                         <t t-set="menu_category_ids" t-value="website.get_website_menu_data()"></t>
                                         <t t-foreach="menu_category_ids" t-as="category" t-if="menu_category_ids">
-                                            <t t-if="category['design_type']">     
+                                            <t t-if="category['slider_type'] == 'sub_menu'">     
                                                 <li class="nav-item">
                                                     <a
                                                         class="nav-link parent_categ_link"
@@ -134,7 +134,7 @@
                                             </t>  
                                        </t>
                                        <t t-foreach="menu_category_ids" t-as="category" t-if="menu_category_ids">
-                                            <t t-if="not category['design_type']">  
+                                            <t t-if="category['slider_type'] == 'main_menu'">  
                                                 <li class="nav-item">
                                                     <a class="nav-link" t-att-href="category['menu'].url">
                                                         <span t-esc="category['menu'].name"></span>

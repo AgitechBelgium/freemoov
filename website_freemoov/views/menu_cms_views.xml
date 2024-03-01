@@ -61,11 +61,10 @@
                             <field name="parent_id" domain="[('parent_id','=',False)]" invisible="1" />
                             <field name="child_category_ids" domain="[('parent_id','=',parent_id)]" invisible="1"  />
                             <field name="sub_category_ids" domain="[('parent_id','in',child_category_ids)]" invisible="1"  />
-
                             <field name="name"/>
                             <field name="slider_type"/>
                             <field name="url"/>
-                            <field name="design_type" attrs="{'invisible': [('slider_type','=', 'main_menu')]}"/>
+                            <field name="design_type" invisible="1"/>
                             <field name="child_menu_ids" attrs="{'invisible': [('slider_type','=', 'main_menu')]}" />
                         </group>
                     </group>

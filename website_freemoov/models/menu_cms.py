@@ -11,7 +11,7 @@ class ChildMenu(models.Model):
                                     string="Slider Type")
     menu_id = fields.Many2one('menu.cms',string="Parent Menu")
     child_id = fields.Many2one('child.menu',string="Child Menu")
-    slider_type = fields.Selection([('main_menu', 'Main Menu'), ('sub_menu', 'Sub menu')],
+    slider_type = fields.Selection([('main_menu', 'Main Menu'), ('sub_menu', 'Sub menu')],default="main_menu",
                                     string="Slider Type")
     child_menu_ids = fields.One2many('child.menu','child_id',string="Child menus")
 
@@ -27,7 +27,7 @@ class MenuCms(models.Model):
         'child_id', 'sub_id', string="Sub categories")
     
     design_type = fields.Selection([('1', '1'), ('2', '2'),('3', '3')],string="Design Type")
-    slider_type = fields.Selection([('main_menu', 'Main Menu'), ('sub_menu', 'Sub menu')],
+    slider_type = fields.Selection([('main_menu', 'Main Menu'), ('sub_menu', 'Sub menu')],default="main_menu",
                                     string="Slider Type")
     
     name = fields.Char('Main menu')
@@ -39,12 +39,12 @@ class MenuCms(models.Model):
         for line in self.child_menu_ids:
             lines.append(line)
         final_data = []
-        design_type = self.design_type and int(self.design_type) or 0
-        if design_type and lines:
+        slider_type = self.slider_type
+        if slider_type and lines:
             # temp = 0
             while lines:
                 x = []
-                for i in range(design_type):
+                for i in range(3):
                     if lines:
                         x.append(lines[0])
                         lines = lines[1:]
