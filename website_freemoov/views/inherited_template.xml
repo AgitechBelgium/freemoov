@@ -203,7 +203,7 @@
                     <t t-if="product.prod_label_id">
                         <t t-call="ust_common_features.ust_product_label_temp"/>
                     </t>
-                    <p class="brand" t-if="product.x_studio_marque"><t t-esc="product.x_studio_marque"/></p>
+                    <p class="brand" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
                     <h6 class="o_wsale_products_item_title mb-2">
                         <a class="text-primary text-decoration-none" itemprop="name" t-att-href="product_href" t-att-content="product.name" t-esc="product.name" />
                         <a t-if="not product.website_published" role="button" t-att-href="product_href" class="btn btn-sm btn-danger" title="This product is unpublished.">
@@ -1023,6 +1023,14 @@
                 </button>
             </div>
         </xpath>
+        <!-- <xpath expr="//div[@id='o_wsale_cta_wrapper']" position="before">
+            <t t-set="stock_available" t-value="product.get_stock_availability(website)"></t>
+            
+            <h1 t-esc="stock_available"></h1>
+        </xpath>
+        <xpath expr="//div[@id='o_wsale_cta_wrapper']" position="attributes">
+            <attribute name="t-if">stock_available &gt; 0</attribute>
+        </xpath> -->
         <xpath expr="//div[@id='add_to_cart_wrap']" position="before">
             <ul class="text custom_product_list mb32">
                 <li class="mb-1">

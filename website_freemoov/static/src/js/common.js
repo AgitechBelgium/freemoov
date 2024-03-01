@@ -1,10 +1,8 @@
 $(document).ready(function(){
     $(".nav-item.dropdown.position-static").on('click', function(event) {
-        console.log("=====================")
         $(this).closest('.dropdown-menu.o_mega_menu').modal('show');
     })
     if($('div').hasClass('cat-div')) {
-        console.log("++++++++++++++++++++ ",$('.cat-div').parent().find('#ust_all_in_one_configure'))
         $('.cat-div').parent().find('#ust_all_in_one_configure').addClass('bg-white')
       }
 });
@@ -49,6 +47,13 @@ odoo.define('website_freemoov.category_script', function (require) {
 
     $(document).ready(function () {
         $('#o_product_page_reviews_content').addClass('show')
+        $(".ust-all-slider .owl-item").each(function () {
+            var priceContainer = $(this).find(".oe_price");
+            if ($(this).find("del").length > 0) {
+                $(this).find('.oe_price').css('color', '#dc3545');
+                $(this).find('.oe_price').addClass('main_price');
+            }
+        });
         $('.product_price').each(function() {
             if ($(this).find('del').length) {
                 $(this).find('span.h6').css('color', '#dc3545');

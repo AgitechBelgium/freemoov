@@ -14,11 +14,14 @@ class ProductTemplate(models.Model):
 	tab_ids = fields.One2many('ust.product.tabs', 'product_id',string="Tab")
 
 	def get_stock_availability(self,website=None):
-		product_variant_ids = self.product_variant_ids.ids
-		if website and website.warehouse_id :
-			warehouse_location_id = website.warehouse_id.lot_stock_id
-			stock_quant_ids = self.env['stock.quant'].sudo().search([('product_id','in',product_variant_ids),('location_id','=',warehouse_location_id.id),('on_hand','=',True)])
-			qty_avail = sum(quant.quantity for quant in stock_quant_ids)
+		if self.detailed_type == 'product' and not self.allow_out_of_stock_order:
+			product_variant_ids = self.product_variant_ids.ids
+			if website and website.warehouse_id :
+				warehouse_location_id = website.warehouse_id.lot_stock_id
+				stock_quant_ids = self.env['stock.quant'].sudo().search([('product_id','in',product_variant_ids),('location_id','=',warehouse_location_id.id),('on_hand','=',True)])
+				qty_avail = sum(quant.quantity for quant in stock_quant_ids)
+		else :
+			qty_avail = 1
 		return qty_avail
 
 class ProductCategoryTemplate(models.Model):
@@ -27,4 +30,3 @@ class ProductCategoryTemplate(models.Model):
 	# category_ids = fields.Many2many('product.public.category',string="Categories")
 	brand_ids = fields.Many2many('ust.product.brand',string="Brand")
 	category_description = fields.Text(string="Category Description ")
-

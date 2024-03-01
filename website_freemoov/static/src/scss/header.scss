@@ -224,7 +224,7 @@
 		overflow: auto;
     	min-height: 0;
 	}
-	.cat-brand p {
+	.cat-brand p, .cat-brand .child_cat {
 		color: #C5DA3D;
 		text-transform: capitalize;
 		font-weight: 600;
@@ -244,5 +244,10 @@
 		a {
 			text-decoration: none;
 		}
+	}
+}
+@media (max-width: 767.98px){
+	.header_freemoov .cc_header_freemoov #top-menu-collapse {
+		height: 106vh;
 	}
 }

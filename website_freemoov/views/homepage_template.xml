@@ -6,332 +6,422 @@
 		<field name="key">website.homepage_template</field>
 		<field name="arch" type="xml">
 			<t name="Homepage" t-name="website_freemoov.homepage_template">
-				<t t-call="website.layout"> 
-	          		<div id="wrap" class="oe_structure oe_empty">
-	          			<!-- home banner -->
-	          			<div class="oe_structure oe_empty"></div>
-						
-						<section class="s_carousel_wrapper home_banner pb64 pt64 oe_structure oe_empty" data-vxml="001" data-snippet="s_carousel" data-name="Carousel" style="" id="home_banner">
-					        <div class="s_carousel carousel s_carousel_boxed carousel-fade slide px-md-0" data-bs-interval="10000" id="myCarousel1691558034203" style="background-image: none;">
-					            
-					            <ol class="carousel-indicators o_we_no_overlay">
-					                <li data-bs-slide-to="0" class="active" data-bs-target="#myCarousel1691558034203"/>
-					                <li data-bs-slide-to="1" data-bs-target="#myCarousel1691558034203"/>
-					            </ol>
-					            
-					            
-					            <div class="carousel-inner">
-					                
-					                <div class="carousel-item o_colored_level active" style="background-image: linear-gradient(#099D5D,#7AC144);" data-name="Slide" data-original-id="453" data-original-src="none" data-mimetype="image/jpeg" data-resize-width="1600">
-					                    <div class="oe_unremovable container">
-				                        	<div class="hero-img">
-				                    			<img class="img img-fluid" src="/website_freemoov/static/src/img/homepage/hero_img.png" alt="Hero Img"/>
-				                        	</div>
-				                        	<div class="row_content d-flex align-items-center">
-						                        <div class="row content w-100">
-						                            <div class="carousel-content col-lg-6 offset-lg-0 col-7 offset-5">
-						                            	<section class="hero-tag text-lg-end">
-						                            		<span class="text-uppercase">new</span>
-						                            		
-						                            	</section>
-						                            </div>
-						                            <div class="carousel-content col-lg-6 offset-lg-0 col-7 offset-5">
-						                            	<div class="hero-details text-white">
-						                            		<h1 class="text-uppercase fw-bold mb-0 text-white fst-italic">Navee S65</h1>
-						                            		<p>65 km d'autonomie de PUR plaisir</p>
-						                            		<div class="s_btn d-flex align-items-center">
-						                            			<h5 class="mb-0 me-3 fw-bold text-white">1099,00€</h5>
-						                            			<button class="btn btn-outline-light">
-																	<a role="button" href="/shop" class="">
-																		<span class="d-lg-inline-block d-none me-lg-4">Découvrir</span>
-																		<span class="fa fa-arrow-right"/>
+				<t t-call="website.layout">
+					<div id="wrap" class="oe_structure oe_empty">
+						<!-- home banner -->
+						<div class="oe_structure oe_empty"></div>
+
+						<section
+							class="s_carousel_wrapper home_banner pb64 pt64 oe_structure oe_empty"
+							data-vxml="001" data-snippet="s_carousel" data-name="Carousel" style=""
+							id="home_banner">
+							<div
+								class="s_carousel carousel s_carousel_boxed carousel-fade slide px-md-0"
+								data-bs-interval="10000" id="myCarousel1691558034203"
+								style="background-image: none;">
+
+								<ol class="carousel-indicators o_we_no_overlay">
+									<li data-bs-slide-to="0" class="active"
+										data-bs-target="#myCarousel1691558034203" />
+									<li data-bs-slide-to="1"
+										data-bs-target="#myCarousel1691558034203" />
+								</ol>
+
+
+								<div class="carousel-inner">
+
+									<div class="carousel-item o_colored_level active"
+										style="background-image: linear-gradient(#099D5D,#7AC144);"
+										data-name="Slide" data-original-id="453"
+										data-original-src="none" data-mimetype="image/jpeg"
+										data-resize-width="1600">
+										<div class="oe_unremovable container">
+											<div class="hero-img">
+												<img class="img img-fluid"
+													src="/website_freemoov/static/src/img/homepage/hero_img.png"
+													alt="Hero Img" />
+											</div>
+											<div class="row_content d-flex align-items-center">
+												<div class="row content w-100">
+													<div
+														class="carousel-content col-lg-6 offset-lg-0 col-7 offset-5">
+														<section class="hero-tag text-lg-end">
+															<span class="text-uppercase">new</span>
+
+														</section>
+													</div>
+													<div
+														class="carousel-content col-lg-6 offset-lg-0 col-7 offset-5">
+														<div class="hero-details text-white">
+															<h1
+																class="text-uppercase fw-bold mb-0 text-white fst-italic">Navee
+																S65</h1>
+															<p>65 km d'autonomie de PUR plaisir</p>
+															<div
+																class="s_btn d-flex align-items-center">
+																<h5
+																	class="mb-0 me-3 fw-bold text-white">
+																	1099,00€</h5>
+																<button
+																	class="btn btn-outline-light">
+																	<a role="button" href="/shop"
+																		class="">
+																		<span
+																			class="d-lg-inline-block d-none me-lg-4">
+																			Découvrir</span>
+																		<span
+																			class="fa fa-arrow-right" />
 																	</a>
 																</button>
-						                            		</div>
-						                            	</div>
-						                            </div>
-						                        </div>
-					                       	</div>
-					                    </div>
-					                </div>
-					                
-					                <div class="carousel-item o_colored_level" style="background-image: linear-gradient(#099D5D,#7AC144);" data-name="Slide" data-original-id="453" data-original-src="none" data-mimetype="image/jpeg" data-resize-width="1600">
-					                    <div class="oe_unremovable container">
-				                        	<div class="hero-img">
-				                    			<img class="img img-fluid" src="/website_freemoov/static/src/img/homepage/hero_img.png" alt="Hero Img"/>
-				                        	</div>
-				                        	<div class="row_content d-flex align-items-center">
-						                        <div class="row content w-100">
-						                            <div class="carousel-content col-lg-6 offset-lg-0 col-7 offset-5">
-						                            	<section class="hero-tag text-lg-end">
-						                            		<span class="text-uppercase">new</span>
-						                            	</section>
-						                            </div>
-						                            <div class="carousel-content col-lg-6 offset-lg-0 col-7 offset-5">
-						                            	<div class="hero-details text-white">
-						                            		<h1 class="text-uppercase fw-bold mb-0 text-white fst-italic">Navee S95</h1>
-						                            		<p>65 km d'autonomie de PUR plaisir</p>
-						                            		<div class="s_btn d-flex align-items-center">
-						                            			<h5 class="mb-0 me-3 fw-bold text-white">1099,00€</h5>
-						                            			<a href="/shop" class="btn btn-outline-light">
-						                            				<span class="d-lg-inline-block d-none me-lg-4">Découvrir</span>
-						                            				<span class="fa fa-arrow-right"/>
-						                            			</a>
-						                            		</div>
-						                            	</div>
-						                            </div>
-						                        </div>
-					                       	</div>
-					                    </div>
-					                </div>
-					            </div>
-					            <a class="carousel-control-prev o_not_editable o_we_no_overlay" data-bs-slide="prev" role="img" aria-label="Previous" title="Previous" href="#myCarousel1691558034203">
-					                <span class="carousel-control-prev-icon"/>
-					                <span class="visually-hidden o_default_snippet_text">Previous</span>
-					            </a>
-					            <a class="carousel-control-next o_not_editable o_we_no_overlay" data-bs-slide="next" role="img" aria-label="Next" title="Next" href="#myCarousel1691558034203">
-					                <span class="carousel-control-next-icon"/>
-					                <span class="visually-hidden o_default_snippet_text">Next</span>
-					            </a>
-					        </div>
-					    </section>
-						<div class="oe_structure oe_empty"></div>
-
-					    <section class="freemoov_details pt64 pb64 oe_structure oe_empty bg-gray" id="freemoov_details">
-					    	<div class="container">
-					    		<div class="row justify-content-around align-items-center">
-					    			<div class="col-xl-7 col-lg-8">
-					    				<div class="freemoov_text text-center">
-					    					<h6 class="mb24">Bienvenue chez Freemoov.</h6>
-					    					<h1 class="fw-bold mb24">L'expert en <span class="text-primary">trottinette  électrique</span> qui a pour objectif de chouchouter ses clients !</h1>
-					    					<div class="review">
-					    						<span class="fa fa-star"/>
-					    						<span class="fa fa-star"/>
-					    						<span class="fa fa-star"/>
-					    						<span class="fa fa-star"/>
-					    						<span class="fa fa-star-o"/>
-					    						<span> 4.2/5 (50 avis)</span>
-					    					</div>
-					    					<div class="s_btn text-center mt-4 d-none d-md-block">
-					    						<a class="btn btn-primary rounded-pill pe-5 px-5 fw-bold" href="/">Découvrez-nous</a>
-					    					</div>
-					    				</div>
-					    			</div>
-					    			<div class="col-lg-4 d-md-none">
-					    				<div class="freemoov_box">
-					    					<ul class="mb24">
-					    						<li>
-					    							<span class="fa fa-check me-2"/>
-					    							<span>Satisfaction client garanti</span>
-					    						</li>
-					    						<li>
-					    							<span class="fa fa-check me-2"/>
-					    							<span>Visite show-room et essai avant achat</span>
-					    						</li>
-					    						<li>
-					    							<span class="fa fa-check me-2"/>
-					    							<span>Équipe à votre écoute</span>
-					    						</li>
-					    					</ul>
-
-					    					<div class="s_btn text-center">
-					    						<a class="btn btn-primary rounded-pill" href="/">Découvrez-nous</a>
-					    					</div>
-					    				</div>
-					    			</div>
-					    		</div>
-					    	</div>
-					    </section>
-						<div class="oe_structure oe_empty"></div>
-
-
-					    <section class="clients pt64 pb64 oe_structure oe_empty" id="clients">
-				      		<div class="container">
-				      			<div class="row">
-				      				<div class="col-lg-12">
-				      					<h5 class="fw-bold text-uppercase mb24">Les services préférés des clients</h5>
-				      				</div>
-				      			</div>
-
-				      			<div class="row">
-				      				<div class="col-lg-4 pt8 pb8">
-				      					<section class="clients_box">
-				      						<div class="img">
-				      							<img class="img-fluid img" src="/website_freemoov/static/src/img/homepage/clients1.png" alt="client"/>
-				      						</div>
-				      						<div class="details w-75">
-				      							<h6 class="fw-bold">Réparation de pneus</h6>
-				      							<p>Crevaison , montage de pneus plein...</p>
-				      							<a class="btn btn-outline-dark"><i class="fa fa-arrow-right"></i></a>
-				      						</div>
-				      					</section>
-				      				</div>
-				      				<div class="col-lg-4 pt8 pb8">
-				      					<section class="clients_box">
-				      						<div class="img">
-				      							<img class="img-fluid img" src="/website_freemoov/static/src/img/homepage/clients2.png" alt="client"/>
-				      						</div>
-				      						<div class="details w-75">
-				      							<h6 class="fw-bold">Réglage de freins</h6>
-				      							<p>Changement de plaquettes...</p>
-				      							<a class="btn btn-outline-dark"><i class="fa fa-arrow-right"></i></a>
-				      						</div>
-				      					</section>
-				      				</div>
-				      				<div class="col-lg-4 pt8 pb8">
-				      					<section class="clients_box">
-				      						<div class="img">
-				      							<img class="img-fluid img" src="/website_freemoov/static/src/img/homepage/clients3.png" alt="client"/>
-				      						</div>
-				      						<div class="details w-75">
-				      							<h6 class="fw-bold">Test drive</h6>
-				      							<p>Essais de trottinettes électriques...</p>
-				      							<a class="btn btn-outline-dark"><i class="fa fa-arrow-right"></i></a>
-				      						</div>
-				      					</section>
-				      				</div>
-				      			</div>
-				      		</div>
-				      	</section>
-						<div class="oe_structure oe_empty"></div>
-	          			
-				      	<section class="visit pt32 pb32 oe_structure oe_empty">
-				      		<div class="container">
-				      			<div class="row">
-				      				<div class="col-lg-12">
-				      					<h5 class="fw-bold text-uppercase mb24">Visite showroom &#38; essais</h5>
-				      				</div>
-				      			</div>
-				      			<div class="row align-items-center">
-				      				<div class="col-lg-7 pt8 pb8">
-				      					<img class="img-fluid" src="/website_freemoov/static/src/img/homepage/Map.png" alt="photo"/>
-				      				</div>
-				      				<div class="col-lg-4 pt8 pb8 ms-xl-4">
-				      					<div class="title">
-				      						<h6 class="mb24 fw-bold">Freemoov Namur</h6>
-				      					</div>
-				      					<div class="detail">
-				      						<div>
-					      						<div class="d-flex">
-					      							<i class="fa fa-map-marker me-3"></i>
-					      							<p>Av. du bourgmestre Jean Materne 12 5100 Jambes</p>
-												</div>
-												<div class="d-flex">
-					      							<i class="fa fa-clock-o me-2"></i>
-					      							<div class="d-flex justify-content-between w-100">
-						      							<ul class="list-unstyled">
-						      								<li>
-						      									<span>Lundi</span>
-						      									<span>Fermé</span>
-						      								</li>
-						      								<li>
-						      									<span>Mardi</span>
-																<span>10h - 18h</span>
-						      								</li>
-						      								<li>
-						      									<span>Mercredi</span>
-							      								<span>10h - 18h</span>
-						      								</li>
-						      								<li>
-						      									<span>Jeudi</span>
-							      								<span>Fermé</span>
-						      								</li>
-						      								<li>
-						      									<span>Vendredi</span>
-							      								<span>10h - 18h</span>
-						      								</li>
-						      								<li>
-						      									<span>Samedi</span>
-							      								<span>10h - 18h</span>
-						      								</li>
-						      								<li>
-						      									<span>Dimanche</span>
-							      								<span>Fermé</span>
-						      								</li>
-						      							</ul>
-						      						</div>
+															</div>
+														</div>
+													</div>
 												</div>
 											</div>
-					      					<div class="s_btn mt32">
-				                				<a href="/" class="btn btn-primary rounded-circle">Itinéraire</a>
-				                			</div>
-				      					</div>
-				      				</div>
-				      			</div>
-				      		</div>
-				      	</section>
-						  <div class="oe_structure oe_empty"></div>
+										</div>
+									</div>
 
-				      	<section class="expert_advice pt32 pb32 oe_structure oe_empty">
-				      		<div class="container">
-				      			<div class="row">
-					        		<div class="col-lg-6">
-					        			<h5 class="text-uppercase fw-bold">Nos conseils d'experts</h5>
-					        		</div>
-					        		<div class="col-lg-6 text-end">
-					        			<a href="/blog">voir tout</a>
-					        		</div>
-					        	</div>
+									<div class="carousel-item o_colored_level"
+										style="background-image: linear-gradient(#099D5D,#7AC144);"
+										data-name="Slide" data-original-id="453"
+										data-original-src="none" data-mimetype="image/jpeg"
+										data-resize-width="1600">
+										<div class="oe_unremovable container">
+											<div class="hero-img">
+												<img class="img img-fluid"
+													src="/website_freemoov/static/src/img/homepage/hero_img.png"
+													alt="Hero Img" />
+											</div>
+											<div class="row_content d-flex align-items-center">
+												<div class="row content w-100">
+													<div
+														class="carousel-content col-lg-6 offset-lg-0 col-7 offset-5">
+														<section class="hero-tag text-lg-end">
+															<span class="text-uppercase">new</span>
+														</section>
+													</div>
+													<div
+														class="carousel-content col-lg-6 offset-lg-0 col-7 offset-5">
+														<div class="hero-details text-white">
+															<h1
+																class="text-uppercase fw-bold mb-0 text-white fst-italic">Navee
+																S95</h1>
+															<p>65 km d'autonomie de PUR plaisir</p>
+															<div
+																class="s_btn d-flex align-items-center">
+																<h5
+																	class="mb-0 me-3 fw-bold text-white">
+																	1099,00€</h5>
+																<a href="/shop"
+																	class="btn btn-outline-light">
+																	<span
+																		class="d-lg-inline-block d-none me-lg-4">
+																		Découvrir</span>
+																	<span class="fa fa-arrow-right" />
+																</a>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<a class="carousel-control-prev o_not_editable o_we_no_overlay"
+									data-bs-slide="prev" role="img" aria-label="Previous"
+									title="Previous" href="#myCarousel1691558034203">
+									<span class="carousel-control-prev-icon" />
+									<span class="visually-hidden o_default_snippet_text">Previous</span>
+								</a>
+								<a class="carousel-control-next o_not_editable o_we_no_overlay"
+									data-bs-slide="next" role="img" aria-label="Next" title="Next"
+									href="#myCarousel1691558034203">
+									<span class="carousel-control-next-icon" />
+									<span class="visually-hidden o_default_snippet_text">Next</span>
+								</a>
+							</div>
+						</section>
+						<div class="oe_structure oe_empty"></div>
 
-					        	<div class="row">
-					        		<div class="col-lg-3 col-md-6 pt8 pb8 px-3">
-							        	<section class="expert_advice_box flex-md-column" style="background-image: linear-gradient(#7AC144, #099D5D);">
-							        		<div class="expert_details">
-							        			<p>Guide d’achat</p>
-							        			<h6 class="mb-5 mb-md-0">Trouvez la trottinette électrique idéale pour vous !</h6>
-							        		</div>
-							        		<div class="expert_img">
-							        			<img class="img-fluid img" src="/website_freemoov/static/src/img/homepage/expert_advice1.png"/>
-							        			<a class="btn btn-outline-light"><i class="fa fa-arrow-right text-white"></i></a>
-							        		</div>
-							        	</section>
-							        </div>
-							        <div class="col-lg-3 col-md-6 pt8 pb8 px-3">
-							        	<section class="expert_advice_box flex-md-column" style="background-image: linear-gradient(#C5DA3D, #7AC144);">
-							        		<div class="expert_details">
-							        			<p>Guide d’achat</p>
-							        			<h6 class="mb-5 mb-md-0">Trouvez la Monoroue parfaite pour vous !</h6>
-							        		</div>
-							        		<div class="expert_img">
-							        			<img class="img-fluid img " src="/website_freemoov/static/src/img/homepage/expert_advice2.png"/>
-							        			<a class="btn btn-outline-light"><i class="fa fa-arrow-right text-white"></i></a>
-							        		</div>
-							        	</section>
-							        </div>
-							        <div class="col-lg-3 col-6 pt8 pb8 pe-1 ps-3 px-lg-3">
-							        	<section class="expert_advice_box flex-column" style="background-image: linear-gradient(#FABB05, #FABB05);">
-							        		<div class="expert_details">
-							        			<p>Astuces</p>
-							        			<h6 class="mb-0">Les bons réflexent pour votre batterie lithium...</h6>
-							        		</div>
-							        		<div class="expert_img">
-							        			<img class="img-fluid img" src="/website_freemoov/static/src/img/homepage/expert_advice3.png"/>
-							        			<a class="btn btn-outline-light"><i class="fa fa-arrow-right text-white"></i></a>
-							        		</div>
-							        	</section>
-							        </div>
-							        <div class="col-lg-3 col-6 pt8 pb8 ps-1 pe-3 px-lg-3">
-							        	<section class="expert_advice_box flex-column" style="background-image: linear-gradient(#00B6DE, #3F62AE);">
-							        		<div class="expert_details">
-							        			<p>Bon à savoir</p>
-							        			<h6 class="mb-0">La nouvelle réglementation des EDPM</h6>
-							        		</div>
-							        		<div class="expert_img">
-							        			<img class="img-fluid img" src="/website_freemoov/static/src/img/homepage/expert_advice4.png"/>
-							        			<a class="btn btn-outline-light"><i class="fa fa-arrow-right text-white"></i></a>
-							        		</div>
-							        	</section>
-							        </div>
-							    </div>
-					        </div>
-				      	</section>
-						  <div class="oe_structure oe_empty"></div>
+						<section class="freemoov_details pt64 pb64 oe_structure oe_empty bg-gray"
+							id="freemoov_details">
+							<div class="container">
+								<div class="row justify-content-around align-items-center">
+									<div class="col-xl-7 col-lg-8">
+										<div class="freemoov_text text-center">
+											<h6 class="mb24">Bienvenue chez Freemoov.</h6>
+											<h1 class="fw-bold mb24">L'expert en <span
+													class="text-primary">trottinette électrique</span>
+												qui a pour objectif de chouchouter ses clients !</h1>
+											<div class="review">
+												<span class="fa fa-star" />
+												<span class="fa fa-star" />
+												<span class="fa fa-star" />
+												<span class="fa fa-star" />
+												<span class="fa fa-star-o" />
+												<span> 4.2/5 (50 avis)</span>
+											</div>
+											<div class="s_btn text-center mt-4 d-none d-md-block">
+												<a
+													class="btn btn-primary rounded-pill pe-5 px-5 fw-bold"
+													href="/">Découvrez-nous</a>
+											</div>
+										</div>
+									</div>
+									<div class="col-lg-4 d-md-none">
+										<div class="freemoov_box">
+											<ul class="mb24">
+												<li>
+													<span class="fa fa-check me-2" />
+													<span>Satisfaction client garanti</span>
+												</li>
+												<li>
+													<span class="fa fa-check me-2" />
+													<span>Visite show-room et essai avant achat</span>
+												</li>
+												<li>
+													<span class="fa fa-check me-2" />
+													<span>Équipe à votre écoute</span>
+												</li>
+											</ul>
 
-						  <div class="oe_structure oe_empty"></div>
-	          		</div>
-	          	</t>
-	        </t>
-	    </field>
+											<div class="s_btn text-center">
+												<a class="btn btn-primary rounded-pill" href="/">
+													Découvrez-nous</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</section>
+						<div class="oe_structure oe_empty"></div>
+
+
+						<section class="clients pt64 pb64 oe_structure oe_empty" id="clients">
+							<div class="container">
+								<div class="row">
+									<div class="col-lg-12">
+										<h5 class="fw-bold text-uppercase mb24">Les services
+											préférés des clients</h5>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-lg-4 pt8 pb8">
+										<section class="clients_box">
+											<div class="img">
+												<img class="img-fluid img"
+													src="/website_freemoov/static/src/img/homepage/clients1.png"
+													alt="client" />
+											</div>
+											<div class="details w-75">
+												<h6 class="fw-bold">Réparation de pneus</h6>
+												<p>Crevaison , montage de pneus plein...</p>
+												<a href="#" type="button" class="outline_dark">
+													<i class="fa fa-arrow-right"></i>
+												</a>
+											</div>
+										</section>
+									</div>
+									<div class="col-lg-4 pt8 pb8">
+										<section class="clients_box">
+											<div class="img">
+												<img class="img-fluid img"
+													src="/website_freemoov/static/src/img/homepage/clients2.png"
+													alt="client" />
+											</div>
+											<div class="details w-75">
+												<h6 class="fw-bold">Réglage de freins</h6>
+												<p>Changement de plaquettes...</p>
+												<a href="#" type="button" class="outline_dark">
+													<i class="fa fa-arrow-right"></i>
+												</a>
+											</div>
+										</section>
+									</div>
+									<div class="col-lg-4 pt8 pb8">
+										<section class="clients_box">
+											<div class="img">
+												<img class="img-fluid img"
+													src="/website_freemoov/static/src/img/homepage/clients3.png"
+													alt="client" />
+											</div>
+											<div class="details w-75">
+												<h6 class="fw-bold">Test drive</h6>
+												<p>Essais de trottinettes électriques...</p>
+												<a href="#" type="button" class="outline_dark">
+													<i class="fa fa-arrow-right"></i>
+												</a>
+											</div>
+										</section>
+									</div>
+								</div>
+							</div>
+						</section>
+						<div class="oe_structure oe_empty"></div>
+
+						<section class="visit pt32 pb32 oe_structure oe_empty">
+							<div class="container">
+								<div class="row">
+									<div class="col-lg-12">
+										<h5 class="fw-bold text-uppercase mb24">Visite showroom
+											&#38; essais</h5>
+									</div>
+								</div>
+								<div class="row align-items-center">
+									<div class="col-lg-7 pt8 pb8">
+										<img class="img-fluid"
+											src="/website_freemoov/static/src/img/homepage/Map.png"
+											alt="photo" />
+									</div>
+									<div class="col-lg-4 pt8 pb8 ms-xl-4">
+										<div class="title">
+											<h6 class="mb24 fw-bold">Freemoov Namur</h6>
+										</div>
+										<div class="detail">
+											<div>
+												<div class="d-flex">
+													<i class="fa fa-map-marker me-3"></i>
+													<p>Av. du bourgmestre Jean Materne 12 5100
+														Jambes</p>
+												</div>
+												<div class="d-flex">
+													<i class="fa fa-clock-o me-2"></i>
+													<div
+														class="d-flex justify-content-between w-100">
+														<ul class="list-unstyled">
+															<li>
+																<span>Lundi</span>
+																<span>Fermé</span>
+															</li>
+															<li>
+																<span>Mardi</span>
+																<span>10h - 18h</span>
+															</li>
+															<li>
+																<span>Mercredi</span>
+																<span>10h - 18h</span>
+															</li>
+															<li>
+																<span>Jeudi</span>
+																<span>Fermé</span>
+															</li>
+															<li>
+																<span>Vendredi</span>
+																<span>10h - 18h</span>
+															</li>
+															<li>
+																<span>Samedi</span>
+																<span>10h - 18h</span>
+															</li>
+															<li>
+																<span>Dimanche</span>
+																<span>Fermé</span>
+															</li>
+														</ul>
+													</div>
+												</div>
+											</div>
+											<div class="s_btn mt32">
+												<a href="/" class="btn btn-primary rounded-circle">
+													Itinéraire</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</section>
+						<div class="oe_structure oe_empty"></div>
+
+						<section class="expert_advice pt32 pb32 oe_structure oe_empty">
+							<div class="container">
+								<div class="row">
+									<div class="col-lg-6">
+										<h5 class="text-uppercase fw-bold">Nos conseils d'experts</h5>
+									</div>
+									<div class="col-lg-6 text-end">
+										<a href="/blog">voir tout</a>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-lg-3 col-md-6 pt8 pb8 px-3">
+										<section class="expert_advice_box flex-md-column"
+											style="background-image: linear-gradient(#7AC144, #099D5D);">
+											<div class="expert_details">
+												<p>Guide d’achat</p>
+												<h6 class="mb-5 mb-md-0">Trouvez la trottinette
+													électrique idéale pour vous !</h6>
+											</div>
+											<div class="expert_img">
+												<img class="img-fluid img"
+													src="/website_freemoov/static/src/img/homepage/expert_advice1.png" />
+												<a href="#" type="button" class="outline_btn">
+													<i class="fa fa-arrow-right text-white"></i>
+												</a>
+											</div>
+										</section>
+									</div>
+									<div class="col-lg-3 col-md-6 pt8 pb8 px-3">
+										<section class="expert_advice_box flex-md-column"
+											style="background-image: linear-gradient(#C5DA3D, #7AC144);">
+											<div class="expert_details">
+												<p>Guide d’achat</p>
+												<h6 class="mb-5 mb-md-0">Trouvez la Monoroue
+													parfaite pour vous !</h6>
+											</div>
+											<div class="expert_img">
+												<img class="img-fluid img "
+													src="/website_freemoov/static/src/img/homepage/expert_advice2.png" />
+												<a href="#" type="button" class="outline_btn">
+													<i class="fa fa-arrow-right text-white"></i>
+												</a>
+											</div>
+										</section>
+									</div>
+									<div class="col-lg-3 col-6 pt8 pb8 pe-1 ps-3 px-lg-3">
+										<section class="expert_advice_box flex-column"
+											style="background-image: linear-gradient(#FABB05, #FABB05);">
+											<div class="expert_details">
+												<p>Astuces</p>
+												<h6 class="mb-0">Les bons réflexent pour votre
+													batterie lithium...</h6>
+											</div>
+											<div class="expert_img">
+												<img class="img-fluid img"
+													src="/website_freemoov/static/src/img/homepage/expert_advice3.png" />
+												<a href="#" type="button" class="outline_btn">
+													<i class="fa fa-arrow-right text-white"></i>
+												</a>
+											</div>
+										</section>
+									</div>
+									<div class="col-lg-3 col-6 pt8 pb8 ps-1 pe-3 px-lg-3">
+										<section class="expert_advice_box flex-column"
+											style="background-image: linear-gradient(#00B6DE, #3F62AE);">
+											<div class="expert_details">
+												<p>Bon à savoir</p>
+												<h6 class="mb-0">La nouvelle réglementation des EDPM</h6>
+											</div>
+											<div class="expert_img">
+												<img class="img-fluid img"
+													src="/website_freemoov/static/src/img/homepage/expert_advice4.png" />
+												<a href="#" type="button" class="outline_btn">
+													<i class="fa fa-arrow-right text-white"></i>
+												</a>
+											</div>
+										</section>
+									</div>
+								</div>
+							</div>
+						</section>
+						<div class="oe_structure oe_empty"></div>
+
+						<div class="oe_structure oe_empty"></div>
+					</div>
+				</t>
+			</t>
+		</field>
 	</record>
 	<record id="homepage_template_menu" model="website.page">
 		<field name="website_published">True</field>

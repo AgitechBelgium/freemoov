@@ -1,11 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <record id="child_menu_tree_view" model="ir.ui.view">
+        <field name="name">child.menu.tree</field>
+        <field name="model">child.menu</field>
+        <field name="arch" type="xml">
+            <tree string="Child Menu">
+                <field name="name" />
+                <field name="url" />
+                <field name="slider_type"/>
+            </tree>
+        </field>
+    </record>
+    <record id="child_menu_form_view" model="ir.ui.view">
+        <field name="name">child.menu.form</field>
+        <field name="model">child.menu</field>
+        <field name="arch" type="xml">
+            <form string="Child Menu">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name" />
+                            <field name="url" />
+                            <field name="slider_type"/>
+                            <field name="child_menu_ids" attrs="{'invisible': [('slider_type','=', 'main_menu')]}">
+                                <form>
+                                    <sheet>
+                                        <group>
+                                            <field name="name" />
+                                            <field name="url" />
+                                            </group>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+   
+
     <record id="menu_cms_tree_view" model="ir.ui.view">
         <field name="name">menu.cms.tree</field>
         <field name="model">menu.cms</field>
         <field name="arch" type="xml">
             <tree string="Menu CMS">
-                <field name="parent_id" />
+                <field name="name" />
+                <field name="url" />
             </tree>
         </field>
     </record>
@@ -17,9 +58,15 @@
                 <sheet>
                     <group>
                         <group>
-                            <field name="parent_id" domain="[('parent_id','=',False)]" />
-                            <field name="child_category_ids" domain="[('parent_id','=',parent_id)]" />
-                            <field name="sub_category_ids" domain="[('parent_id','in',child_category_ids)]" />
+                            <field name="parent_id" domain="[('parent_id','=',False)]" invisible="1" />
+                            <field name="child_category_ids" domain="[('parent_id','=',parent_id)]" invisible="1"  />
+                            <field name="sub_category_ids" domain="[('parent_id','in',child_category_ids)]" invisible="1"  />
+
+                            <field name="name"/>
+                            <field name="slider_type"/>
+                            <field name="url"/>
+                            <field name="design_type" attrs="{'invisible': [('slider_type','=', 'main_menu')]}"/>
+                            <field name="child_menu_ids" attrs="{'invisible': [('slider_type','=', 'main_menu')]}" />
                         </group>
                     </group>
                 </sheet>

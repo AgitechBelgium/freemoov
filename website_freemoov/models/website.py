@@ -72,26 +72,14 @@ class Website(models.Model):
 		return category_vals
 
 
-		
+	def get_website_menu_data(self):
+		menu_cms_records = self.env['menu.cms'].search([])
+		vals = []
+		for menu_cms in menu_cms_records : 
+			vals.append({
+				'menu' : menu_cms,
+				'design_type' : menu_cms.design_type,
+				'line_data' : menu_cms.menu_details(),
+			})
 
-		# if left_category_ids:
-			# for category in left_category_ids:
-			# 	category_count = 1
-			# 	no_parent_found = 0
-			# 	comp_category = category
-			# 	categories = []
-			# 	while no_parent_found != 1:
-			# 		if comp_category.parent_id:
-			# 			category_count += 1
-			# 			comp_category = comp_category.parent_id
-			# 			categories.append(comp_category.id)
-			# 		else:
-			# 			no_parent_found = 1
-			# 	if category_count not in list(category_vals.keys()):
-			# 		category_vals.update({category_count:[category]})
-			# 	elif category_count in list(category_vals.keys()):
-			# 		category_value = category_vals[category_count]
-			# 		category_value.append(category)
-			# 		category_vals[category_count] = category_value
-		
-
+		return vals

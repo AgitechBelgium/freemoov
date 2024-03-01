@@ -112,42 +112,36 @@
                                         <t t-set="category_ids"
                                             t-value="website.get_ust_cat_data() if website else None" />
 
-                                        <t t-set="menu_category_ids" t-value="request.env['menu.cms'].sudo().search([])"></t>
-                                       
-                                        <t t-if="menu_category_ids">
-                                            <t t-foreach="menu_category_ids" t-as="parent_category">
+                                        <t t-set="menu_category_ids" t-value="website.get_website_menu_data()"></t>
+                                        <t t-foreach="menu_category_ids" t-as="category" t-if="menu_category_ids">
+                                            <t t-if="category['design_type']">     
                                                 <li class="nav-item">
                                                     <a
-                                                    class="nav-link parent_categ_link"
-                                                    href="#"
-                                                    t-attf-data-category-id="#{parent_category.id}"
-                                                    t-attf-data-category-name="#{parent_category.parent_id.name}"
-                                                    t-attf-onclick="$('#top-menu-collapse-second-category_#{parent_category.id}').modal('show');">
-                                                    <t t-set="record"
-                                                        t-value="parent_category"></t>
-                                                    <span
-                                                        t-esc="parent_category.parent_id.name" />
-                                                </a>
+                                                        class="nav-link parent_categ_link"
+                                                        href="#"
+                                                        t-attf-data-category-id="#{category['menu'].id}"
+                                                        t-attf-data-category-name="#{category['menu'].name}"
+                                                        t-attf-onclick="$('#top-menu-collapse-second-category_#{category['menu'].id}').modal('show');">
+                                                        <t t-set="record"
+                                                            t-value="cat"></t>
+                                                        <span
+                                                            t-esc="category['menu'].name" />
+                                                    </a>
                                                 </li>
-                                                <t
-                                                    t-call="website_freemoov.subcategoryscond_template">
-                                                    <t t-set="record"
-                                                        t-value="parent_category" />
+                                                <t t-call="website_freemoov.subcategoryscond_template">
+                                                    <t t-set="record" t-value="category['menu']" />
                                                 </t>
+                                            </t>  
+                                       </t>
+                                       <t t-foreach="menu_category_ids" t-as="category" t-if="menu_category_ids">
+                                            <t t-if="not category['design_type']">  
+                                                <li class="nav-item">
+                                                    <a class="nav-link" t-att-href="category['menu'].url">
+                                                        <span t-esc="category['menu'].name"></span>
+                                                    </a>
+                                                </li>
                                             </t>
-                                        </t>
-
-                                       
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="/blog">
-                                                <span>Blog</span>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="/contactus">
-                                                <span>Contact</span>
-                                            </a>
-                                        </li>
+                                       </t>
                                     </ul>
                                     <div class="login-buttons pt40 text-center text-xl-start">
                                         <a href="/web/login?"
@@ -246,42 +240,28 @@
                             class="img img-fluid" />
                     </div>
                     <h2 class="modal-title pb40 text-center text-md-start" id="subcategoryModalTitle1">
-                        <a class="nav_link"><a class="nav_link text-white" t-att-href="'/shop/category/%s' % slug(record.parent_id)" t-esc="record.parent_id.name"></a></a>
+                        <a class="nav_link"><a class="nav_link text-white" t-att-href="record.url" t-esc="record.name"></a></a>
                     </h2>
                     <div class="modal-body p-0" id="subcategoryModalBody">
-                    
                     <div class="d-lg-flex cat-brand">
-                        <t t-set="category_levels"
-                                t-value="website.category_levels() if website else None" />
+                        <t t-foreach="category['line_data']" t-as="line" t-if="category['line_data']">
+                       <t t-foreach="line" t-as="child_category">
                         <div class="category-box col-lg-3">
-                            <p class="text-center text-lg-start">Catégories</p>
-                            <t t-foreach="record.child_category_ids" t-as="child_category">
+                               <a t-att-href="child_category.url" class="text-center text-lg-start child_cat nav-link " t-esc="child_category.name">Catégories</a>
+                                <t t-foreach="child_category.child_menu_ids" t-as="sub_category" t-if="child_category.child_menu_ids">
                                 <ul class="list-unstyled">
                                     <li class="nav-item">
                                         <a class="nav-link fw-bold p-0"
-                                            t-att-href="'/shop/category/%s' % slug(child_category)">
-                                            <t t-esc="child_category.name" />
-                                            <br />
-                                        </a>
-                                    </li>
-                                </ul>
-                            </t>
-                        </div>
-                        <div class="brand-box col-lg-3  mt-4 mt-lg-0">
-                            <p class="text-center text-lg-start">Marques</p>
-                            <t t-foreach="record.sub_category_ids" t-as="sub_category">
-                                <ul class="list-unstyled">
-                                    <li class="nav-item">
-                                        <a class="nav-link fw-bold p-0"
-                                            t-att-href="'/shop/category/%s' % slug(sub_category)">
+                                            t-att-href="sub_category.url">
                                             <t t-esc="sub_category.name" />
                                             <br />
                                         </a>
                                     </li>
                                 </ul>
-                            </t>
-                        </div>
-                      
+                                </t>
+                            </div>
+                        </t>
+                        </t>
                     </div>
                     </div>
                     <div

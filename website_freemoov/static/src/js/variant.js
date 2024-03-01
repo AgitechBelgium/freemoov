@@ -3,6 +3,7 @@
 import VariantMixin from "website_sale_stock.VariantMixin";
 import "website_sale.website_sale";
 import { qweb as QWeb } from "web.core";
+const {Markup} = require('web.utils');
 var rpc = require('web.rpc');
 
 const oldChangeCombinationStock = VariantMixin._onChangeCombinationStock;
@@ -14,8 +15,7 @@ const oldChangeCombinationStock = VariantMixin._onChangeCombinationStock;
  */
 VariantMixin._onChangeCombinationStock = function (ev, $parent, combination) {
     oldChangeCombinationStock.apply(this, arguments);
-    if (this.el.querySelector('.o_add_wishlist_dyn')) {
-        const messageEl = this.el.querySelector('div.availability_messages');
+    const messageEl = this.el.querySelector('div.availability_messages');
         if (messageEl) {
             combination.stock_availability = 0
             rpc.query({
@@ -29,5 +29,4 @@ VariantMixin._onChangeCombinationStock = function (ev, $parent, combination) {
                 );
             });
         }
-    }
 };

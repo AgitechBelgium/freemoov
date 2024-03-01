@@ -15,6 +15,7 @@
         'web_editor',
         'website_sale',
         'website_sale_wishlist',
+        'website_sale_stock_wishlist',
         'website_blog',
         'website_sale_comparison',
         'ust_common_features',
