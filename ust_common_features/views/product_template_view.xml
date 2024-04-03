@@ -6,7 +6,7 @@
             <field name="name">product.template.inherit.form</field>
             <field name="model">product.template</field>
             <field name="type">form</field>
-            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            <field name="inherit_id" ref="product.product_template_form_view"/>
             <field name="arch" type="xml">
                 <xpath expr="//group[@name='shop']" position="inside">
                     <group string="Configuration">
@@ -14,31 +14,6 @@
                         <field name="prod_label_id"/> 
                         <field name="is_available_trial"/> 
                     </group>
-                </xpath>
-                <xpath expr="//page[@name='sales']" position="after">
-                    <page name="product_tabs" string="Product Tabs">
-                        <field name="tab_ids" mode="kanban">
-                            <kanban>
-                                <templates>
-                                    <t t-name="kanban-box">
-                                        <div class="oe_kanban_details oe_kanban_global_click">
-                                            <field name="name"/>
-                                        </div>
-                                    </t>
-                                </templates>
-                            </kanban>
-                            <form string="Product Tab">
-                                <sheet>
-                                    <group>
-                                        <field name="name"/>
-                                        <field name="tab_description"/>
-                                        <field name="website_ids" options="{'no_create': True}" widget="many2many_tags"/>
-                                        <field name="sequence"/>
-                                    </group>
-                                </sheet>
-                            </form>
-                        </field>
-                    </page>
                 </xpath>
             </field>
         </record>

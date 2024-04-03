@@ -24,7 +24,6 @@ class ProductTemplate(models.Model):
     _inherit = "product.template"
 
     brand_id = fields.Many2one("ust.product.brand", string="Brand Name")
-    tab_ids = fields.One2many('ust.product.tabs', 'product_id',string="Tab")
     prod_label_id = fields.Many2one('ust.product_label',string="Label")
     is_available_trial = fields.Boolean(string="Is available for trial?")
 

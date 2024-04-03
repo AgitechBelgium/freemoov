@@ -59,9 +59,11 @@ odoo.define('ust_common_features.ust_all_in_one_slider_frontend', function(requi
                 autoplay: ust_slider.slider_auto_slide,
                 loop: false,
                 autoplayTimeout:ust_slider.slider_auto_play_time,
+                mouseDrag : true,
+                touchDrag : true,
                 responsive: {
                     0: {
-                        items: 1.5,
+                        items: 2,
                     },
                     420: {
                         items: 2,
