@@ -143,7 +143,7 @@
                                             </t>
                                        </t>
                                     </ul>
-                                    <div class="login-buttons pt40 text-center text-xl-start">
+                                    <div class="login-buttons pt40 pb40-2 text-center text-xl-start">
                                         <a href="/web/login?"
                                             class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">se
                                             connecter</a>

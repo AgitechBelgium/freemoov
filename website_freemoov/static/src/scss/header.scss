@@ -45,7 +45,11 @@
 		.o_wsale_my_cart{
 	    	align-self: unset !important;
 		}
-
+		
+		.pb40-2{
+			padding-bottom: 40px !important;
+		}
+		
 		#top-menu-collapse {
 			height: 100vh;
 			top: -28px;
@@ -113,6 +117,13 @@
 					}
 				}
 			}
+		}
+		
+		.btn-fill-light, .btn-light {
+			color: #212529;
+			background-color: white;
+			border-color: #f7f8f7;
+			border-radius: 1rem;
 		}
 
 		#top-menu-collapse-sub-category {
