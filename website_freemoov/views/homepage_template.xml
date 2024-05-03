@@ -12,7 +12,7 @@
 						<div class="oe_structure oe_empty"></div>
 
 						<section
-							class="s_carousel_wrapper home_banner pb64 pt64 oe_structure oe_empty"
+							class="s_carousel_wrapper home_banner pt64 oe_structure oe_empty"
 							data-vxml="001" data-snippet="s_carousel" data-name="Carousel" style=""
 							id="home_banner">
 							<div
