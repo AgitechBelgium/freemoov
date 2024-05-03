@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="layout" name="Website Cookies Consent Manager" inherit_id="website.layout">
+        <xpath expr="//body" position="attributes">
+            <attribute name="t-att-data-cookies-consent-manager">website.cookies_consent_manager</attribute>
+            <attribute name="t-att-data-cookies-consent-debug-logging">website.cookies_consent_is_logged</attribute>
+        </xpath>
+    </template>
+</odoo>
