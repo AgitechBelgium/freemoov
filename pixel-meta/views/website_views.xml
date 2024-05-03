@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="view_website_form" model="ir.ui.view">
+        <field name="name">model.name.inherit.website_facebook_pixel</field>
+        <field name="model">website</field>
+        <field name="inherit_id" ref="website_cookies_consent.view_website_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='cookies_consent']" position="inside">
+                <group string="Facebook Consent">
+                    <field name="fbp_cookies_consent_is_revoked" string="Is Revoked by Default"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+
+</odoo>
