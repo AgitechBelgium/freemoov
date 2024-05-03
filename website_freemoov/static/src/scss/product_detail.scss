@@ -572,7 +572,7 @@
 .carousel_product_num {
 	position: absolute;
     left: 50%;
-    bottom: 30%;
+    bottom: auto;
     background-color: #F5F6F7;
     padding: 2px 17px;
     border-radius: 20px;
@@ -580,7 +580,7 @@
 .download_product_img {
 	position: absolute;
     right: 60px;
-    bottom: 31%;
+    bottom: auto;
     color: #000;	
 	a {
 		color: #000;
