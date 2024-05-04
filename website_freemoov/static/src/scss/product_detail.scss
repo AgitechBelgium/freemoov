@@ -462,12 +462,7 @@
 					width: 85%;
 					span{
 						font-size: 14px;
-					}
-					@media (max-width: 767.98px){
-					.compare-box{
-					width: 100%;
-								}
-					}					
+					}				
 				}
 			}
 			.product_price{
@@ -522,6 +517,9 @@
 	}
 	@media (max-width: 767.98px){
 		.top-line{
+			width: 100%;
+		}
+		.compare-box{
 			width: 100%;
 		}
 		#product_details{
