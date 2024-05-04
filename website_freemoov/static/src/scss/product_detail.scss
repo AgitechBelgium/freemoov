@@ -463,6 +463,11 @@
 					span{
 						font-size: 14px;
 					}
+					@media (max-width: 767.98px){
+					.compare-box{
+					width: 100%;
+								}
+					}					
 				}
 			}
 			.product_price{
