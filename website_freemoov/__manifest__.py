@@ -21,6 +21,7 @@
         'ust_common_features',
         'website_sale_stock',
         'stock_dropshipping',
+        'mrp'
     ],
     'data':[
         'security/ir.model.access.csv',
