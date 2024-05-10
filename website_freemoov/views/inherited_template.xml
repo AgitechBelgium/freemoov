@@ -203,7 +203,7 @@
                     <t t-if="product.prod_label_id">
                         <t t-call="ust_common_features.ust_product_label_temp"/>
                     </t>
-                    <p class="brand" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
+                    <p class="brand" t-if="product.x_studio_marque"><t t-esc="product.x_studio_marque"/></p>
                     <h6 class="o_wsale_products_item_title mb-2">
                         <a class="text-primary text-decoration-none" itemprop="name" t-att-href="product_href" t-att-content="product.name" t-esc="product.name" />
                         <a t-if="not product.website_published" role="button" t-att-href="product_href" class="btn btn-sm btn-danger" title="This product is unpublished.">
@@ -449,7 +449,9 @@
             </div> -->
             <div class="o_wsale_product_sub d-flex align-items-end pb-1">                
                 <t t-set="template_price_vals" t-value="get_product_prices(product)"/>
+                
                 <div class="o_wsale_product_btn"/>
+                
                 <div class="product_sub_detail align-items-center">
                    <t t-set="stock_available" t-value="product.get_stock_availability(website)"></t>
                    <t t-if="not stock_available['is_dropship']">
@@ -507,6 +509,18 @@
                 <a t-if="product._website_show_quick_add()"
                    href="#" role="button" class="btn btn-outline-primary a-submit" aria-label="Shopping cart" title="Shopping cart">
                     <span class="icon-shopping-cart"/>
+                </a>
+            </t>
+        </xpath>
+    </template>
+    <template id="products_add_to_cart" inherit_id="website_sale.products_item" active="True" name="Add to Cart" >
+        <xpath expr="//div[hasclass('o_wsale_product_btn')]" position="inside">
+            <t t-set="product_variant_id" t-value="product._get_first_possible_variant_id()"/>
+            <input name="product_id" t-att-value="product_variant_id" type="hidden"/>
+            <t t-if="product_variant_id and template_price_vals['price_reduce'] or not website.prevent_zero_price_sale">
+                <a t-if="product._website_show_quick_add()"
+                   href="#" role="button" class="btn btn-primary a-submit" aria-label="Shopping cart" title="Shopping cart">
+                    <span class="fa fa-shopping-cart"/>
                 </a>
             </t>
         </xpath>
@@ -850,6 +864,14 @@
                                         </a>
                                     </t>
                                 </div>
+                                <div class="review_product_detail1" data-oe-id="2971" data-oe-xpath="/data/xpath[3]/div" data-oe-model="ir.ui.view" data-oe-field="arch">
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star"></span>
+                                    <span class="fa fa-star-o"></span>
+                                    <span> 4.2/5 (50 avis)</span>
+                                </div>
                                 <div class="s_btn text-lg-center ms-lg-4">
                                     <a class="btn btn-primary rounded-pill text-white fw-bold" href="/">Laisser votre avis</a>
                                 </div>
@@ -1011,6 +1033,18 @@
         </xpath>
         <xpath expr="//t[@t-placeholder='select']" position="after">
             <t t-call="website_sale.product_price"/>
+            <t t-if="not product.is_dropship_product">
+                <t t-if="product.virtual_available &gt; 0">
+                    <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
+                        <span> En stock</span>
+                    </p>
+                </t>
+                <t t-if="product.virtual_available &lt;= 0">
+                    <p class="label"><span class="o_ribbon bg-danger o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
+                        <span> Out of stock </span>
+                    </p>
+                </t>
+            </t>
 
         </xpath>
         <xpath expr="//div[@id='product_option_block']" position="after">

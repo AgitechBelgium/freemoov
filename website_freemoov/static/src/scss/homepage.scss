@@ -322,6 +322,18 @@
 
 	}
 }
+
+.btn-fill-light, .btn-light {
+	color: #212529;
+	background-color: white!important;
+	border-color: #f7f8f7;
+	border-radius: 1rem!important;
+}
+
+.pb40-2{
+	padding-bottom: 40px !important;
+}
+
 .btn.btn-outline-light:hover {
 	color: #212529 !important;
 	background-color: #f7f8f7;

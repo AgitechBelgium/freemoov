@@ -3,7 +3,7 @@
 
     <template id="ust_all_in_one_slider"
 		name="All In One Slider">
-		<section id="ust_all_in_one_configure" class="ust_all_in_one_configure_slider ust_all_in_one_slider pt32 pb32 oe_structure oe_empty" contentEditable="false" data-all_slider_s_id="">
+		<section id="ust_all_in_one_configure" class="ust_all_in_one_configure_slider ust_all_in_one_slider pt32 pb32" contentEditable="false" data-all_slider_s_id="">
 			<div class="container">
 				<div class="all-slider-header-title text-center">
 					<h3 class="filter">All In One Slider</h3>

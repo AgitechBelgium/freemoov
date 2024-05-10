@@ -104,7 +104,7 @@
                                             </a>
                                         </li>
                                     </ul>
-                                    <div class="login-buttons pt40 text-center text-xl-start">
+                                    <div class="login-buttons pt40 text-center text-xl-start pb40-2">
                                         <a href="/web/login?" class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">se connecter</a>
                                         <a href="/web/signup?" class="btn btn-outline-light my-2 my-xl-0">créer un compte</a>
                                     </div>

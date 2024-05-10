@@ -462,7 +462,7 @@
 					width: 85%;
 					span{
 						font-size: 14px;
-					}
+					}				
 				}
 			}
 			.product_price{
@@ -519,6 +519,9 @@
 		.top-line{
 			width: 100%;
 		}
+		.compare-box{
+			width: 100%!important;
+		}
 		#product_details{
 			.js_product{
 				#o_wsale_cta_wrapper{
@@ -572,7 +575,7 @@
 .carousel_product_num {
 	position: absolute;
     left: 50%;
-    bottom: 30%;
+    bottom: auto;
     background-color: #F5F6F7;
     padding: 2px 17px;
     border-radius: 20px;
@@ -580,7 +583,7 @@
 .download_product_img {
 	position: absolute;
     right: 60px;
-    bottom: 31%;
+    bottom: auto;
     color: #000;	
 	a {
 		color: #000;
@@ -679,7 +682,7 @@
     	bottom: 2%;
 	}
 	#product_detail #o-carousel-product .carousel-control-prev, #product_detail #o-carousel-product .carousel-control-next {
-		opacity: 0;
+		opacity: 1;
 	}
 	.header_freemoov {
 		.search_bar_1 {

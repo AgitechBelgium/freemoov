@@ -45,7 +45,11 @@
 		.o_wsale_my_cart{
 	    	align-self: unset !important;
 		}
-
+		
+		.pb40-2{
+			padding-bottom: 40px !important;
+		}
+		
 		#top-menu-collapse {
 			height: 100vh;
 			top: -28px;
@@ -98,6 +102,7 @@
 						}
 					}
 					.login-buttons{
+						padding-bottom: 50px!important;
 						.btn{
 							font-size: 16px;
 						    text-transform: lowercase;
