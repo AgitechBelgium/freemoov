@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--  Inherited auth signup template  -->
+    <template id="inherited_auth_signup" name="Inherited Sign up login" inherit_id="auth_signup.signup">
+        <xpath expr="//input[@name='token']" position="after">
+            <t t-if="request.env.company.enable_recaptcha_validation">
+                <small class="o_recaptcha_legal_terms">
+                    Protected by reCAPTCHA,
+                    <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a>
+                    &amp;
+                    <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a>
+                    apply.
+                </small>
+            </t>
+        </xpath>
+    </template>
+</odoo>
