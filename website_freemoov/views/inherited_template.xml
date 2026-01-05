@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+    <!-- Odoo 17 adapted templates - icons are now inside a div wrapper -->
 	<template id="inherit_header_cart_link" inherit_id="website_sale.header_cart_link" name="Inherit Header Cart Link">
-        <xpath expr="//li/a/i" position="replace">
-            <img t-if="_icon" class="img img-fluid" src="/website_freemoov/static/src/img/shopping-cart.png"/>
+        <xpath expr="//li[hasclass('o_wsale_my_cart')]//a//div/i[hasclass('fa-shopping-cart')]" position="replace">
+            <img t-if="_icon" class="img img-fluid fa-stack" src="/website_freemoov/static/src/img/shopping-cart.png" style="width: 24px; height: 24px;"/>
         </xpath>
     </template>
 
     <template id="inherit_user_dropdown" inherit_id="portal.user_dropdown" name="Inherit User Dropdown">
-        <xpath expr="//li/a/i" position="replace">
-            <img t-if="_icon" t-attf-class="img img-fluid #{_icon_class}" src="/website_freemoov/static/src/img/user.png"/>
+        <xpath expr="//li//a//div/i[hasclass('fa-user')]" position="replace">
+            <img t-attf-class="img img-fluid #{_icon_class}" src="/website_freemoov/static/src/img/user.png" style="width: 24px; height: 24px;"/>
         </xpath>
     </template>
 
     <template id="inherit_header_wishlist_link" inherit_id="website_sale_wishlist.header_wishlist_link" name="Inherit Header Wishlist Link">
-        <xpath expr="//li/a/i" position="replace">
-            <img t-if="_icon" class="img img-fluid" src="/website_freemoov/static/src/img/wishlist.png"/>
+        <xpath expr="//li[hasclass('o_wsale_my_wish')]//a//div/i[hasclass('fa-heart')]" position="replace">
+            <img t-if="_icon" class="img img-fluid fa-stack" src="/website_freemoov/static/src/img/wishlist.png" style="width: 24px; height: 24px;"/>
         </xpath>
     </template>
 
@@ -67,7 +68,7 @@
     </template>
 
     <template id="inherit_pager" inherit_id="website_sale.products" name="Inherit Pager">
-        <xpath expr="//div[hasclass('oe_website_sale')]" position="before">
+        <xpath expr="//div[@id='oe_structure_website_sale_products_1']" position="after">
             <t t-if="category">
                <section class="shop_banner pt40 pb40 bg-white">
                     <div class="container">
@@ -120,7 +121,7 @@
                 </section>
             </t>
         </xpath>
-        <xpath expr="//div[hasclass('o_wsale_products_page')]" position="after">
+        <xpath expr="//div[@id='oe_structure_website_sale_products_2']" position="after">
             <section class="faqs pt64 pb32">
                 <div class="container">
                     <div class="row justify-content-center">
@@ -168,18 +169,22 @@
         </xpath>
 
         <xpath expr="//div[hasclass('products_header')]" position="replace">
-            <div class="products_header btn-toolbar flex-nowrap align-items-baseline mb-3">
+            <div class="products_header btn-toolbar flex-nowrap align-items-center justify-content-between gap-3 mb-3">
+                <t t-if="is_view_active('website_sale.search')" t-call="website_sale.search">
+                    <t t-set="search" t-value="original_search or search"/>
+                    <t t-set="_form_classes" t-valuef="d-lg-inline {{'d-inline' if not category else 'd-none'}}"/>
+                </t>
                 <t t-if="is_view_active('website_sale.add_grid_or_list_option')" t-call="website_sale.add_grid_or_list_option">
-                    <t t-set="_classes" t-valuef="d-flex me-3"/>
+                    <t t-set="_classes" t-valuef="d-flex"/>
                 </t>
                 <button t-if="is_view_active('website_sale.sort') or opt_wsale_categories or opt_wsale_attributes or opt_wsale_attributes_top"
-                        t-attf-class="btn btn-{{navClass}} position-relative me-3 w-100 {{not opt_wsale_attributes_top and 'd-lg-none'}}"
+                        t-attf-class="btn btn-{{navClass}} position-relative {{not opt_wsale_attributes_top and 'd-lg-none'}}"
                         data-bs-toggle="offcanvas"
                         data-bs-target="#o_wsale_offcanvas">
-                    <i class="fa fa-sliders me-3"/><span class="fw-bold">Tous les filtres</span>
-                    <span t-if="isFilteringByPrice or attrib_set" t-attf-class="position-absolute top-0 start-100 translate-middle badge border border-{{navClass}} rounded-circle bg-danger p-1"><span class="visually-hidden">filters active</span></span>
+                    <i class="fa fa-sliders me-2"/><span class="fw-bold">Tous les filtres</span>
+                    <span t-if="isFilteringByPrice or attrib_set or tags" t-attf-class="position-absolute top-0 start-100 translate-middle badge border border-{{navClass}} rounded-circle bg-danger p-1"><span class="visually-hidden">filters active</span></span>
                 </button>
-                <div class="d-flex">
+                <div class="d-flex align-items-center">
                     <t t-esc="len(products)"/><p class="ps-1 mb-0">produits trouvés</p>
                 </div>
             </div>
@@ -487,7 +492,7 @@
         </xpath>
     </template>
     <template id="inherit_wishlist_button" inherit_id="website_sale_wishlist.add_to_wishlist" name="Inherit Wishlist Button">
-        <xpath expr="//t//button" position="replace">
+        <xpath expr="//button[hasclass('o_add_wishlist')]" position="replace">
             <button t-if="product_variant_id" type="button" role="button" class="btn btn-outline-primary bg-white o_add_wishlist" t-att-disabled='in_wish or None' title="Add to Wishlist" t-att-data-product-template-id="product.id" t-att-data-product-product-id="product_variant_id" data-action="o_wishlist">
                 <span class="icon-heart"/>
             </button>
@@ -501,19 +506,7 @@
          </a>
         </xpath>
     </template> -->
-    <template id="products_add_to_cart" inherit_id="website_sale.products_item" active="True" name="Add to Cart" >
-        <xpath expr="//div[hasclass('o_wsale_product_btn')]" position="inside">
-            <t t-set="product_variant_id" t-value="product._get_first_possible_variant_id()"/>
-            <input name="product_id" t-att-value="product_variant_id" type="hidden"/>
-            <t t-if="product_variant_id and template_price_vals['price_reduce'] or not website.prevent_zero_price_sale">
-                <a t-if="product._website_show_quick_add()"
-                   href="#" role="button" class="btn btn-outline-primary a-submit" aria-label="Shopping cart" title="Shopping cart">
-                    <span class="icon-shopping-cart"/>
-                </a>
-            </t>
-        </xpath>
-    </template>
-    <template id="products_add_to_cart" inherit_id="website_sale.products_item" active="True" name="Add to Cart" >
+    <template id="products_add_to_cart" inherit_id="website_sale.products_item" active="True" name="Add to Cart">
         <xpath expr="//div[hasclass('o_wsale_product_btn')]" position="inside">
             <t t-set="product_variant_id" t-value="product._get_first_possible_variant_id()"/>
             <input name="product_id" t-att-value="product_variant_id" type="hidden"/>
@@ -528,11 +521,11 @@
 
 
     <template id="inherit_compare_button" inherit_id="website_sale_comparison.add_to_compare" name="Inherit Compare Button">
-        <xpath expr="//t//button[hasclass('o_add_compare')]" position="replace">
-            <button t-if="product_variant_id and categories" type="button" role="button" class="d-md-inline-block btn o_add_compare p-0" title="Compare" aria-label="Compare" t-att-data-product-product-id="product_variant_id" data-action="o_comparelist">
+        <xpath expr="//button[hasclass('o_add_compare')]" position="replace">
+            <button t-if="product_variant_id and categories" type="button" role="button" class="d-none d-md-inline-block btn o_add_compare p-0" title="Compare" aria-label="Compare" t-att-data-product-product-id="product_variant_id" data-action="o_comparelist">
                 Comparez
                 <i class="icon-circle-plus"></i>
-                </button>
+            </button>
         </xpath>
     </template>
     
@@ -994,7 +987,8 @@
             <div class="oe_structure oe_empty"></div>
 
         </xpath>
-        <xpath expr="//section//div[hasclass('col-lg-6', 'd-flex', 'align-items-center')]" position="replace">
+        <!-- Odoo 17: The first row structure changed, adapting xpath to target the row with breadcrumb -->
+        <xpath expr="//section[@id='product_detail']//div[hasclass('row', 'align-items-center')]/div[hasclass('col-lg-6')][1]" position="replace">
             <div class="col-lg-6 d-flex order-2 top-line">
                 <div>
                     <p class="brand mb-0" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
@@ -1014,14 +1008,14 @@
             </div>
         </xpath>
         
-        <xpath expr="//div//h1" position="after">
+        <xpath expr="//div[@id='product_details']//h1" position="after">
             <div class="product_tags_block">
                 <t t-foreach="product.product_tag_ids" t-as="product_tag">
                     <span t-attf-class="product_tag_span o_colorlist_item_color_{{ product_tag.color }}" t-att-data-color="product_tag.color" class="tag" t-esc="product_tag.name"></span>
                 </t>
             </div>
         </xpath>
-        <xpath expr="//t[@t-call='website_sale.shop_product_images']" position="after">
+        <xpath expr="//div[hasclass('o_wsale_product_images')]" position="inside">
             <div class="carousel_product_num"></div>
             <div class="download_product_img">
                 <a class="download_img" href="#" >
@@ -1131,7 +1125,8 @@
         </xpath>
     </template>
 
-    <template id="alternative_product_inherited" inherit_id="website_sale.dynamic_filter_template_product_product_borderless_1" name="Alternative Products Inherit">
+    <!-- TODO: Verify if this template exists in Odoo 17 and adapt if needed -->
+    <template id="alternative_product_inherited" inherit_id="website_sale.dynamic_filter_template_product_product_borderless_1" name="Alternative Products Inherit" active="False">
         <xpath expr="//div[hasclass('card-title')]" position="before">
             <p class="brand" t-if="record.brand_id"><t t-esc="record.brand_id.name"/></p>
         </xpath>
