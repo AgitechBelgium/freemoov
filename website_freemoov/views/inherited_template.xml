@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
-    <!-- Odoo 17 adapted templates - icons are now inside a div wrapper -->
-	<template id="inherit_header_cart_link" inherit_id="website_sale.header_cart_link" name="Inherit Header Cart Link">
-        <xpath expr="//li[hasclass('o_wsale_my_cart')]//a//div/i[hasclass('fa-shopping-cart')]" position="replace">
+    <!-- 
+        TODO Odoo 17: Ces templates sont désactivés car la structure des vues parentes a changé.
+        Pour les réactiver, il faudra inspecter la structure exacte des templates parents sur l'instance
+        et adapter les xpath en conséquence. Les icônes personnalisées du header (panier, utilisateur, wishlist)
+        utiliseront les icônes par défaut d'Odoo 17 en attendant.
+    -->
+	<template id="inherit_header_cart_link" inherit_id="website_sale.header_cart_link" name="Inherit Header Cart Link" active="False">
+        <xpath expr="//i[hasclass('fa-shopping-cart')]" position="replace">
             <img t-if="_icon" class="img img-fluid fa-stack" src="/website_freemoov/static/src/img/shopping-cart.png" style="width: 24px; height: 24px;"/>
         </xpath>
     </template>
 
-    <template id="inherit_user_dropdown" inherit_id="portal.user_dropdown" name="Inherit User Dropdown">
-        <xpath expr="//li//a//div/i[hasclass('fa-user')]" position="replace">
+    <template id="inherit_user_dropdown" inherit_id="portal.user_dropdown" name="Inherit User Dropdown" active="False">
+        <xpath expr="//i[hasclass('fa-user')]" position="replace">
             <img t-attf-class="img img-fluid #{_icon_class}" src="/website_freemoov/static/src/img/user.png" style="width: 24px; height: 24px;"/>
         </xpath>
     </template>
 
-    <template id="inherit_header_wishlist_link" inherit_id="website_sale_wishlist.header_wishlist_link" name="Inherit Header Wishlist Link">
-        <xpath expr="//li[hasclass('o_wsale_my_wish')]//a//div/i[hasclass('fa-heart')]" position="replace">
+    <template id="inherit_header_wishlist_link" inherit_id="website_sale_wishlist.header_wishlist_link" name="Inherit Header Wishlist Link" active="False">
+        <xpath expr="//i[hasclass('fa-heart')]" position="replace">
             <img t-if="_icon" class="img img-fluid fa-stack" src="/website_freemoov/static/src/img/wishlist.png" style="width: 24px; height: 24px;"/>
         </xpath>
     </template>
