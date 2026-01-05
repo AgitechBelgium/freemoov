@@ -1,28 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <!-- 
-        TODO Odoo 17: Ces templates sont désactivés car la structure des vues parentes a changé.
-        Pour les réactiver, il faudra inspecter la structure exacte des templates parents sur l'instance
-        et adapter les xpath en conséquence. Les icônes personnalisées du header (panier, utilisateur, wishlist)
-        utiliseront les icônes par défaut d'Odoo 17 en attendant.
+        Odoo 17 Migration: Ces templates héritent de vues dont la structure a changé.
+        Ils sont désactivés (active="False") et leur contenu est vidé pour éviter les erreurs xpath.
+        Les icônes personnalisées du header utiliseront les icônes par défaut d'Odoo 17.
     -->
-	<template id="inherit_header_cart_link" inherit_id="website_sale.header_cart_link" name="Inherit Header Cart Link" active="False">
-        <xpath expr="//i[hasclass('fa-shopping-cart')]" position="replace">
-            <img t-if="_icon" class="img img-fluid fa-stack" src="/website_freemoov/static/src/img/shopping-cart.png" style="width: 24px; height: 24px;"/>
-        </xpath>
-    </template>
+    
+    <!-- Template désactivé - la structure de website_sale.header_cart_link a changé en Odoo 17 -->
+    <record id="inherit_header_cart_link" model="ir.ui.view">
+        <field name="name">Inherit Header Cart Link (Disabled for Odoo 17)</field>
+        <field name="inherit_id" ref="website_sale.header_cart_link"/>
+        <field name="active" eval="False"/>
+        <field name="arch" type="xml">
+            <data/>
+        </field>
+    </record>
 
-    <template id="inherit_user_dropdown" inherit_id="portal.user_dropdown" name="Inherit User Dropdown" active="False">
-        <xpath expr="//i[hasclass('fa-user')]" position="replace">
-            <img t-attf-class="img img-fluid #{_icon_class}" src="/website_freemoov/static/src/img/user.png" style="width: 24px; height: 24px;"/>
-        </xpath>
-    </template>
+    <!-- Template désactivé - la structure de portal.user_dropdown a changé en Odoo 17 -->
+    <record id="inherit_user_dropdown" model="ir.ui.view">
+        <field name="name">Inherit User Dropdown (Disabled for Odoo 17)</field>
+        <field name="inherit_id" ref="portal.user_dropdown"/>
+        <field name="active" eval="False"/>
+        <field name="arch" type="xml">
+            <data/>
+        </field>
+    </record>
 
-    <template id="inherit_header_wishlist_link" inherit_id="website_sale_wishlist.header_wishlist_link" name="Inherit Header Wishlist Link" active="False">
-        <xpath expr="//i[hasclass('fa-heart')]" position="replace">
-            <img t-if="_icon" class="img img-fluid fa-stack" src="/website_freemoov/static/src/img/wishlist.png" style="width: 24px; height: 24px;"/>
-        </xpath>
-    </template>
+    <!-- Template désactivé - la structure de website_sale_wishlist.header_wishlist_link a changé en Odoo 17 -->
+    <record id="inherit_header_wishlist_link" model="ir.ui.view">
+        <field name="name">Inherit Header Wishlist Link (Disabled for Odoo 17)</field>
+        <field name="inherit_id" ref="website_sale_wishlist.header_wishlist_link"/>
+        <field name="active" eval="False"/>
+        <field name="arch" type="xml">
+            <data/>
+        </field>
+    </record>
 
     <template id="inherit_dynamic_filter_template_blog_post_card" name="Inherit Card layout" inherit_id="website_blog.dynamic_filter_template_blog_post_card">
         <xpath expr="//div[hasclass('s_blog_posts_post')]" position="replace">
