@@ -13,7 +13,7 @@
                         <div class="text-muted">
                             Specify what Consent Manager should be used on the current website
                         </div>
-                        <div class="content-group" attrs="{'invisible': [('website_cookies_consent_manager', '=', False)]}">
+                        <div class="content-group" invisible="not website_cookies_consent_manager">
                             <div class="row mt16">
                                 <field name="website_cookies_consent_manager" string="Consent Manager" widget="radio" options="{'horizontal': true}"/>
                             </div>

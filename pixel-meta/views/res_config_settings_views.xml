@@ -17,10 +17,10 @@
                         <div class="text-muted">
                             Track website Activities, Improve your return on Advertising, Reach New and Existing Customers in Facebook Advertising
                         </div>
-                        <div class="content-group" attrs="{'invisible': [('has_facebook_pixel', '=', False)]}" name="facebook_pixel_key_setting">
+                        <div class="content-group" invisible="not has_facebook_pixel" name="facebook_pixel_key_setting">
                             <div class="row mt16">
                                 <label class="col-lg-3 o_light_label" string="Tracking ID" for="facebook_pixel_key"/>
-                                <field name="facebook_pixel_key" placeholder="XXXXXXXXXXXXXXX" attrs="{'required': [('has_facebook_pixel', '=', True)]}"/>
+                                <field name="facebook_pixel_key" placeholder="XXXXXXXXXXXXXXX" required="has_facebook_pixel"/>
                             </div>
                         </div>
                     </div>

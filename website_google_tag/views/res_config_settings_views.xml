@@ -17,10 +17,10 @@
                         <div class="text-muted">
                             Configure and deploy tags from Google products and third parties
                         </div>
-                        <div class="content-group" attrs="{'invisible': [('has_google_tag_manager', '=', False)]}" name="gtm_key_setting">
+                        <div class="content-group" invisible="not has_google_tag_manager" name="gtm_key_setting">
                             <div class="row mt16">
                                 <label class="col-lg-3 o_light_label" string="Container ID" for="gtm_container_key"/>
-                                <field name="gtm_container_key" placeholder="GTM-XXXXXXXXXX" attrs="{'required': [('has_google_tag_manager', '=', True)]}"/>
+                                <field name="gtm_container_key" placeholder="GTM-XXXXXXXXXX" required="has_google_tag_manager"/>
                             </div>
                         </div>
                     </div>
