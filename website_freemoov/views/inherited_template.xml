@@ -1020,6 +1020,10 @@
                 </t>
             </div>
         </xpath>
+        <!-- 
+        TODO Odoo 17: This xpath cannot work because o_wsale_product_images is inside a t-if condition.
+        The carousel_product_num and download_product_img features need to be added via JavaScript or 
+        a different approach. Commenting out for now.
         <xpath expr="//div[hasclass('o_wsale_product_images')]" position="inside">
             <div class="carousel_product_num"></div>
             <div class="download_product_img">
@@ -1028,6 +1032,7 @@
                 </a>
             </div>
         </xpath>
+        -->
         <xpath expr="//t[@t-call='website_sale.product_price']" position="replace">
         </xpath>
         <xpath expr="//t[@t-placeholder='select']" position="after">

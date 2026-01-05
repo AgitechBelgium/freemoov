@@ -6,7 +6,8 @@
         <field name="priority" eval="35"/>
         <field name="inherit_id" ref="google_recaptcha.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[@id='website_recaptcha_settings']" position="after">
+            <!-- Odoo 17: Structure changed, using reacaptcha_configuration_settings instead of website_recaptcha_settings -->
+            <xpath expr="//div[@id='reacaptcha_configuration_settings']" position="after">
                 <div class="col-12 col-lg-12 o_setting_box mt-4" id="sky_recaptcha">
                     <div class="o_setting_left_pane">
                         <field name="enable_recaptcha_validation"/>

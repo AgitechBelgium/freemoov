@@ -6,20 +6,11 @@
         <field name="model">res.config.settings</field>
         <field name="inherit_id" ref="website.res_config_settings_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//div[@id='website_cookies_bar_setting']" position="before">
-                <div class="col-12 col-lg-6 o_setting_box" id="cookies_consent_manager_setting">
-                    <div class="o_setting_right_pane">
-                        <label for="website_cookies_consent_manager"/>
-                        <div class="text-muted">
-                            Specify what Consent Manager should be used on the current website
-                        </div>
-                        <div class="content-group" invisible="not website_cookies_consent_manager">
-                            <div class="row mt16">
-                                <field name="website_cookies_consent_manager" string="Consent Manager" widget="radio" options="{'horizontal': true}"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <!-- Odoo 17: Structure changed from div to setting element -->
+            <xpath expr="//setting[@id='website_cookies_bar_setting']" position="before">
+                <setting id="cookies_consent_manager_setting" help="Specify what Consent Manager should be used on the current website">
+                    <field name="website_cookies_consent_manager" string="Consent Manager" widget="radio" options="{'horizontal': true}"/>
+                </setting>
             </xpath>
         </field>
     </record>
