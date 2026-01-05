@@ -7,7 +7,7 @@
 
 {
     'name': 'Odoo Facebook Pixel Integration',
-    'version': '16.0.3.1.0',
+    'version': '17.0.3.1.0',
     'category': 'Website',
     'author': 'Garazd Creation',
     'website': 'https://garazd.biz/shop',

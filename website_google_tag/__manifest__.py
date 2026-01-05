@@ -5,7 +5,7 @@
 
 {
     'name': 'Odoo Google Tag Manager | Odoo GTM',
-    'version': '16.0.1.1.0',
+    'version': '17.0.1.1.0',
     'category': 'Website',
     'author': 'Garazd Creation',
     'website': 'https://garazd.biz/shop',
