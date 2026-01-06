@@ -1,0 +1,25 @@
+.all-slider-header-title {
+	.filter {
+		h5{
+			text-transform: uppercase;
+	    	font-weight: 600;
+		}
+		.other-title{
+			color: #7F7F7F;
+    		font-size: 14px;
+		}
+    	margin-bottom: 32px;
+    	@media (max-width: 767.98px) {
+    		margin-bottom: 16px;
+    	}
+	}
+}
+
+.ust-product-label {
+	.ust-main-prod-label {
+		.ust-prod-label {
+			padding: 0.0625rem 0.3125rem;
+    		font-size: 0.75rem;
+		}
+	}
+}

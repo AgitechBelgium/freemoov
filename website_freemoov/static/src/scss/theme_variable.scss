@@ -1,0 +1,70 @@
+$primarycolor: #099D5D !default;
+$secondarycolor: #7AC144 !default;
+
+$o-color-palettes: map-merge($o-color-palettes,
+    (
+        'freemove-1': (
+            'o-color-1': $primarycolor, /* 4 */
+            'o-color-2': $secondarycolor, /* 3 */
+            'o-color-3': #000000, /* 2 */
+            'o-color-4': #FFFFFF, /* 1 */
+            'o-color-5': #414042, /* 5 */
+
+            'body': 'o-color-1',
+            'o-cc1-headings': #000000,
+            'o-cc1-text': #000000,
+            'menu': 1,
+            'footer': 5,
+            'copyright':5,
+        ),
+    )
+);
+
+/* -------------------------- fonts -----------------------------*/
+
+$o-theme-font-configs: (
+    'Noto Sans': (
+        'family': ('Noto Sans', sans),
+        'url': 'Noto+Sans:300,300i,400,400i,700,700i',
+    ),
+    'Raleway': (
+        'family': ('Raleway'),
+        'url': 'Raleway:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i',
+    ),
+    'Noto Serif': (
+        'family': ('Noto Serif', serif),
+        'url': 'Noto+Serif:300,300i,400,400i,700,700i',
+    ),
+    'Lato': (
+        'family': ('Lato'),
+        'url': 'Lato:100,100!,200,200!,300,300i,400,400i,500,500!,600,600!,700,700i,800,800!,900,900!',
+    ),
+    'Playfair Display': (
+        'family': ('Playfair Display'),
+        'url': 'Playfair Display:300,300i,400,400i,700,700i',
+    ),
+    'Source Sans Pro': (
+        'family': ('Source Sans Pro', sans-serif),
+        'url': 'Source+Sans+Pro:300,300i,400,400i,700,700i',
+    ),
+    'Poppins': (
+        'family': ('Poppins', sans-serif),
+        'url': 'Poppins:300,300i,400,400i,700,700i',
+    ),
+    'Arvo': (
+        'family': ('Arvo', Times, serif),
+        'url': 'Arvo:300,300i,400,400i,700,700i',
+    ),
+);
+
+
+$o-website-values-palettes: (
+    (
+        'color-palettes-name': 'freemove-1',
+        'headings-font': 'Noto Sans',
+        'navbar-font': 'Noto Sans',
+        'buttons-font': 'Noto Sans',
+    ),
+);
+
+$o-selected-color-palettes-names: append($o-selected-color-palettes-names, 'freemove-1');

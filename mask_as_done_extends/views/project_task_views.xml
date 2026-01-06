@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_task_form2_inherit" model="ir.ui.view">
+        <field name="name">view.task.form2.inherit</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="timesheet_grid.project_task_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_fsm_validate'][hasclass('btn-secondary')]" position='attributes'>
+                    <attribute name="context">{'is_fsm_picking': True}</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_fsm_validate'][hasclass('btn-primary')]" position='attributes'>
+                    <attribute name="context">{'is_fsm_picking': True}</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

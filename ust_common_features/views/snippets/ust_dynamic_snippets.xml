@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<!-- snippets  -->
+	<template id="ust_slider_snnipets" inherit_id="website.snippets" priority="1">
+        <xpath expr="//div[@id='snippet_structure']" position="before">
+        	<!-- snippet Common Future start-->
+              <div id="snippet_fashico_homepage_one" class="o_panel">
+                  <div class="o_panel_header">
+                      Dynamic Future
+                  </div>
+                  <div class="o_panel_body">
+                		<t t-snippet="ust_common_features.ust_all_in_one_slider" t-thumbnail="/ust_common_features/static/src/img/s_sliders.png"/>
+                  </div>
+              </div>
+          <!-- snippet Common Future end-->
+		</xpath>
+  </template>
+</odoo>

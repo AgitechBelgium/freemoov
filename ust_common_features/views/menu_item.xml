@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+
+    <menuitem id="ust_theme_common_menu"
+              name="Theme Configuration"
+              action="sale.product_template_action"
+              groups="base.group_system"
+              parent="website.menu_website_configuration"
+              sequence="100"/>
+
+        <menuitem action="action_ust_all_in_one_slider" 
+            id="menu_ust_all_in_one_slider"
+            name="All In One Slider"
+            parent="ust_theme_common_menu"
+            sequence="1" />
+
+        <menuitem action="ust_product_brand_action" 
+            id="menu_ust_product_brand"
+            name="Product Brand"
+            parent="ust_theme_common_menu"
+            sequence="3" />
+</odoo>

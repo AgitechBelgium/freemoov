@@ -1,0 +1,70 @@
+.ust-cat-slider, .ust-brand-slider {
+	text-align: center;
+    border-radius: 16px;
+    background-color: #fff;
+	.slider-img {
+		padding: 15px 10px;
+		img {
+			margin: 0 auto 12px auto;
+			width: auto;
+		}
+		p{
+			margin-bottom: 0;
+			color: #000000;
+		}
+	}
+}
+
+.ust-cat-grid, .ust-brand-grid {
+	text-align: center;
+    border-radius: 8px;
+    background-color: #F5F6F7;
+
+    .grid-img {
+		padding: 15px 10px;
+		img {
+			margin: 0 auto 12px auto;
+			max-height: 180px;
+		}
+		p{
+			margin-bottom: 0;
+			color: #000000;
+		}
+	}
+}
+
+
+#ust-product-grid, #ust-product-slider{
+
+	.oe_product_cart{
+		background-color: #fff;
+	    border-radius: 16px;
+	    overflow: hidden;
+	    padding: 15px;
+	    border: 0;
+	
+		.product_bottom {
+			.product_price_div {
+				.product_price {
+					margin-bottom: 0rem !important;
+					margin-top: 0rem !important;
+					h3 {
+						font-size: 13px;
+						font-weight: bold;
+						margin-bottom: 0rem;
+					}
+				}
+			}
+		}
+
+		.o_wsale_product_information {
+			.brand {
+				font-size: 10px;
+			}
+			.o_wsale_products_item_title {
+				font-size: 13px;
+				font-weight: bold;
+			}
+		}
+	}
+}

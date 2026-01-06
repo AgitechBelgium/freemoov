@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="website_config_settings_view_form" model="ir.ui.view">
+        <field name="name">website.config.settings.view.form.inherit.website_facebook_pixel</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="website.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <!-- Odoo 17: Structure changed from div to setting element -->
+            <xpath expr="//setting[@id='google_analytics_setting']" position="after">
+                <setting id="facebook_pixel_setting" 
+                         help="Track website Activities, Improve your return on Advertising, Reach New and Existing Customers in Facebook Advertising"
+                         documentation="https://www.facebook.com/business/help/952192354843755">
+                    <field name="has_facebook_pixel"/>
+                    <div class="content-group" invisible="not has_facebook_pixel" name="facebook_pixel_key_setting">
+                        <div class="row mt16">
+                            <label class="col-lg-3 o_light_label" string="Tracking ID" for="facebook_pixel_key"/>
+                            <field name="facebook_pixel_key" placeholder="XXXXXXXXXXXXXXX" required="has_facebook_pixel"/>
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+            <xpath expr="//setting[@id='website_cookies_bar_setting']" position="after">
+                <setting id="facebook_pixel_consent_setting" 
+                         help="The cookie consent for Facebook tracking is revoked by default for new visitors to the website, in case, when the Consent Manager is specified.">
+                    <field name="fbp_cookies_consent_is_revoked" string="Facebook Pixel - Consent is revoked by default"/>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

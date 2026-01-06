@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_attribute_form_view_freemov" model="ir.ui.view">
+        <field name="name">product.attribute.freemov.form</field>
+        <field name="model">product.attribute</field>
+        <field name="type">form</field>
+        <field name="inherit_id" ref="product.product_attribute_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group" position="before">
+                <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'image_128'}"/>
+            </xpath>
+            
+        </field>
+    </record>
+</odoo>
+    

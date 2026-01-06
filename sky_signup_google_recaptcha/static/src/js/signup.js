@@ -1,0 +1,33 @@
+/** @odoo-module **/
+
+import publicWidget from "@web/legacy/js/public/public_widget";
+import { ReCaptcha } from "@google_recaptcha/js/recaptcha";
+
+if (publicWidget.registry.SignUpForm) {
+    publicWidget.registry.SignUpForm.include({
+        init: function () {
+            this._super.apply(this, arguments);
+            this._recaptcha = new ReCaptcha();
+        },
+
+        willStart: async function () {
+            await this._super.apply(this, arguments);
+            await this._recaptcha.loadLibs();
+        },
+
+        _onSubmit: async function (ev) {
+            ev.preventDefault();
+            this._super.apply(this, arguments);
+
+            const tokenObj = await this._recaptcha.getToken("oe_signup_form");
+            const recaptchaInput = document.createElement("input");
+
+            recaptchaInput.type = "hidden";
+            recaptchaInput.name = "recaptcha_token_response";
+            recaptchaInput.value = tokenObj.token;
+
+            this.el.appendChild(recaptchaInput);
+            this.el.submit();
+        },
+    });
+}
