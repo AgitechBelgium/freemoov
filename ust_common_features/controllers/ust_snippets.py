@@ -91,7 +91,8 @@ class CustomWebsiteSale(WebsiteSale):
         now = datetime.timestamp(datetime.now())
         pricelist = request.env['product.pricelist'].browse(request.session.get('website_sale_current_pl'))
         if not pricelist or request.session.get('website_sale_pricelist_time', 0) < now - 60*60: # test: 1 hour in session
-            pricelist = website.get_current_pricelist()
+            # Odoo 17: get_current_pricelist() replaced by pricelist_id
+            pricelist = website.pricelist_id
             request.session['website_sale_pricelist_time'] = now
             request.session['website_sale_current_pl'] = pricelist.id
 
