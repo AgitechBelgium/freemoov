@@ -56,15 +56,15 @@
                             <li class="o_wsale_my_cart nav-item">
                                 <a href="/shop/cart" class="nav-link">
                                     <img class="img img-fluid" src="/website_freemoov/static/src/img/shopping-cart.png" loading="lazy" alt="Panier"/>
-                                    <sup class="my_cart_quantity badge text-bg-primary" t-esc="website_sale_order and website_sale_order.cart_quantity or 0"/>
+                                    <sup class="my_cart_quantity badge text-bg-primary">0</sup>
                                 </a>
                             </li>
                             
                             <!-- Wishlist - Custom icon -->
-                            <li class="o_wsale_my_wish nav-item" t-att-class="'' if wishlist_count else 'o_wsale_my_wish_hide_empty d-none'">
+                            <li class="o_wsale_my_wish nav-item">
                                 <a href="/shop/wishlist" class="nav-link">
                                     <img class="img img-fluid" src="/website_freemoov/static/src/img/wishlist.png" loading="lazy" alt="Wishlist"/>
-                                    <sup class="my_wish_quantity badge text-bg-primary" t-esc="wishlist_count or 0"/>
+                                    <sup class="my_wish_quantity badge text-bg-primary">0</sup>
                                 </a>
                             </li>
 
