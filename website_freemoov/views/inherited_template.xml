@@ -265,7 +265,7 @@
                                                 t-att-data-is_single="single"
                                                 t-att-data-is_single_and_custom="single_and_custom">
                                                 <span t-field="ptav.name"/>
-                                                <t t-call="sale.badge_extra_price"/>
+                                                <span t-if="ptav.price_extra" class="badge rounded-pill text-bg-light border" t-esc="ptav.price_extra" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
                                             </option>
                                         </t>
                                     </select>
@@ -288,7 +288,7 @@
                                                             t-att-data-is_single_and_custom="single_and_custom" />
                                                         <div class="radio_input_value form-check-label">
                                                             <span t-field="ptav.name"/>
-                                                            <t t-call="sale.badge_extra_price"/>
+                                                            <span t-if="ptav.price_extra" class="badge rounded-pill text-bg-light border" t-esc="ptav.price_extra" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
                                                         </div>
                                                     </div>
                                                 </label>
@@ -317,7 +317,7 @@
                                                 <label class="radio_input_value o_variant_pills_input_value"
                                                        t-att-for="ptav.id">
                                                     <span t-field="ptav.name"/>
-                                                    <t t-call="sale.badge_extra_price"/>
+                                                    <span t-if="ptav.price_extra" class="badge rounded-pill text-bg-light border" t-esc="ptav.price_extra" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
                                                 </label>
                                             </li>
                                         </t>
@@ -375,7 +375,7 @@
                                                 t-att-data-is_single="single"
                                                 t-att-data-is_single_and_custom="single_and_custom">
                                                 <span t-field="ptav.name"/>
-                                                <t t-call="sale.badge_extra_price"/>
+                                                <span t-if="ptav.price_extra" class="badge rounded-pill text-bg-light border" t-esc="ptav.price_extra" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
                                             </option>
                                         </t>
                                     </select>
@@ -399,7 +399,7 @@
                                                             t-att-data-is_single_and_custom="single_and_custom" />
                                                         <div class="radio_input_value form-check-label">
                                                             <span t-field="ptav.name"/>
-                                                            <t t-call="sale.badge_extra_price"/>
+                                                            <span t-if="ptav.price_extra" class="badge rounded-pill text-bg-light border" t-esc="ptav.price_extra" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
                                                         </div>
                                                     </div>
                                                 </label>
@@ -428,7 +428,7 @@
                                                 <label class="radio_input_value o_variant_pills_input_value"
                                                        t-att-for="ptav.id">
                                                     <span t-field="ptav.name"/>
-                                                    <t t-call="sale.badge_extra_price"/>
+                                                    <span t-if="ptav.price_extra" class="badge rounded-pill text-bg-light border" t-esc="ptav.price_extra" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
                                                 </label>
                                             </li>
                                         </t>
