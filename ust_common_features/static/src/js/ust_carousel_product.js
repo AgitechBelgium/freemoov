@@ -4,19 +4,23 @@ import publicWidget from "@web/legacy/js/public/public_widget";
 
 // Initialize carousel counter on DOM ready
 document.addEventListener('DOMContentLoaded', function() {
-    const totalItems = document.querySelectorAll('.carousel-item').length;
-    const activeItem = document.querySelector('.carousel-item.active');
-    var currentIndex = activeItem ? Array.from(document.querySelectorAll('.carousel-item')).indexOf(activeItem) + 1 : 1;
-    
-    const carouselNum = document.querySelector('.carousel_product_num');
-    if (carouselNum) {
-        carouselNum.innerHTML = '' + currentIndex + '/' + totalItems + '';
+    var carousel = document.getElementById('o-carousel-product');
+    if (carousel) {
+        var items = carousel.querySelectorAll('.carousel-item');
+        var totalItems = items.length;
+        var activeItem = carousel.querySelector('.carousel-item.active');
+        var currentIndex = activeItem ? Array.from(items).indexOf(activeItem) + 1 : 1;
+        
+        var carouselNum = document.querySelector('.carousel_product_num');
+        if (carouselNum) {
+            carouselNum.innerHTML = '' + currentIndex + '/' + totalItems + '';
+        }
     }
 });
 
 // Download image functionality
 document.addEventListener('click', function(e) {
-    if (e.target && e.target.classList.contains('download_img')) {
+    if (e.target && (e.target.classList.contains('download_img') || e.target.closest('.download_img'))) {
         var carousel = document.getElementById('o-carousel-product');
         if (carousel) {
             var activeItem = carousel.querySelector('.carousel-item.active');
@@ -24,8 +28,9 @@ document.addEventListener('click', function(e) {
                 var product_img = activeItem.querySelector('.product_detail_img');
                 if (product_img) {
                     var img_src = product_img.getAttribute("src");
-                    e.target.setAttribute("download", img_src);
-                    e.target.setAttribute("href", img_src);
+                    var downloadLink = e.target.classList.contains('download_img') ? e.target : e.target.closest('.download_img');
+                    downloadLink.setAttribute("download", img_src);
+                    downloadLink.setAttribute("href", img_src);
                 }
             }
         }
@@ -42,29 +47,41 @@ if (publicWidget.registry.websiteSaleCarouselProduct) {
         }),
 
         _onNextClick: function (ev) {
-            var totalItems = document.querySelectorAll('.carousel-item').length;
-            var activeItem = document.querySelector('.carousel-item.active');
-            var currentIndex_active = activeItem ? Array.from(document.querySelectorAll('.carousel-item')).indexOf(activeItem) + 2 : 2;
+            var carousel = document.getElementById('o-carousel-product');
+            if (!carousel) return;
             
-            if (totalItems >= currentIndex_active) {
-                var carouselNum = document.querySelector('.carousel_product_num');
-                if (carouselNum) {
-                    carouselNum.innerHTML = '' + currentIndex_active + '/' + totalItems + '';
-                }
-            }
-        },
-        
-        _onPrevClick: function (ev) {
-            var totalItems = document.querySelectorAll('.carousel-item').length;
-            var activeItem = document.querySelector('.carousel-item.active');
-            var currentIndex = activeItem ? Array.from(document.querySelectorAll('.carousel-item')).indexOf(activeItem) + 1 : 1;
+            var items = carousel.querySelectorAll('.carousel-item');
+            var totalItems = items.length;
             
-            if (currentIndex >= 1) {
+            // Wait a bit for Bootstrap to update the active class
+            setTimeout(function() {
+                var activeItem = carousel.querySelector('.carousel-item.active');
+                var currentIndex = activeItem ? Array.from(items).indexOf(activeItem) + 1 : 1;
+                
                 var carouselNum = document.querySelector('.carousel_product_num');
                 if (carouselNum) {
                     carouselNum.innerHTML = '' + currentIndex + '/' + totalItems + '';
                 }
-            }
+            }, 100);
+        },
+        
+        _onPrevClick: function (ev) {
+            var carousel = document.getElementById('o-carousel-product');
+            if (!carousel) return;
+            
+            var items = carousel.querySelectorAll('.carousel-item');
+            var totalItems = items.length;
+            
+            // Wait a bit for Bootstrap to update the active class
+            setTimeout(function() {
+                var activeItem = carousel.querySelector('.carousel-item.active');
+                var currentIndex = activeItem ? Array.from(items).indexOf(activeItem) + 1 : 1;
+                
+                var carouselNum = document.querySelector('.carousel_product_num');
+                if (carouselNum) {
+                    carouselNum.innerHTML = '' + currentIndex + '/' + totalItems + '';
+                }
+            }, 100);
         },
     });
 }
