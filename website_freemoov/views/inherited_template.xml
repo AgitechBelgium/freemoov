@@ -6,20 +6,15 @@
         Les icônes personnalisées du header utiliseront les icônes par défaut d'Odoo 17.
     -->
 
-    <!-- Override badge_extra_price to completely replace it and handle None combination_info -->
-    <!-- The original template calls ptav._get_extra_price(combination_info) which fails when combination_info is None -->
-    <template id="badge_extra_price_fix" inherit_id="website_sale.badge_extra_price" name="Fix Badge Extra Price" priority="99">
-        <xpath expr="//t" position="replace">
-            <t t-if="price_extra">
-                <t t-if="combination_info">
-                    <span class="badge rounded-pill text-bg-light border">
-                        <t t-out="ptav._get_extra_price(combination_info)"/>
-                    </span>
-                </t>
-                <t t-else="">
-                    <span class="badge rounded-pill text-bg-light border" t-esc="price_extra" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
-                </t>
-            </t>
+    <!-- Override badge_extra_price to handle None combination_info -->
+    <!-- The original template has: <span t-if="price_extra" ...><t t-out="ptav._get_extra_price(combination_info)"/></span> -->
+    <!-- We need to wrap the content in a condition that checks combination_info first -->
+    <template id="badge_extra_price_fix" inherit_id="website_sale.badge_extra_price" name="Fix Badge Extra Price">
+        <xpath expr="//span[@t-if='price_extra']" position="attributes">
+            <attribute name="t-if">price_extra and combination_info</attribute>
+        </xpath>
+        <xpath expr="//span[@t-if='price_extra and combination_info']" position="after">
+            <span t-if="price_extra and not combination_info" class="badge rounded-pill text-bg-light border" t-esc="price_extra" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
         </xpath>
     </template>
     
