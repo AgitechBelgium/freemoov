@@ -179,7 +179,8 @@
 	<template id="product_grid" name="Product Grid">
 		<t t-as="product" t-foreach="tab_d.product_ids">
 			<div class="col-lg-3 col-md-6" id="ust-product-grid">
-				<t t-set="combination_info" t-value="product._get_combination_info(only_template=True, add_qty=add_qty or 1)" />
+				<!-- Odoo 17: Simplified price display without _get_combination_info -->
+			<t t-set="combination_info" t-value="{'price': product.list_price, 'list_price': product.list_price, 'has_discounted_price': product.compare_list_price and product.compare_list_price > product.list_price}" />
 				<form action="/shop/cart/update" method="post" class="oe_product_cart h-100 d-flex"
 		            t-att-data-publish="product.website_published and 'on' or 'off'"
 		            itemscope="itemscope" itemtype="http://schema.org/Product">
@@ -267,7 +268,8 @@
 	<template id="product_slider" name="Product Slider">
 		<t t-as="product" t-foreach="tab_d.product_ids">
 			<div id="ust-product-slider">
-				<t t-set="combination_info" t-value="product._get_combination_info(only_template=True, add_qty=add_qty or 1)" />
+				<!-- Odoo 17: Simplified price display without _get_combination_info -->
+			<t t-set="combination_info" t-value="{'price': product.list_price, 'list_price': product.list_price, 'has_discounted_price': product.compare_list_price and product.compare_list_price > product.list_price}" />
 				<form action="/shop/cart/update" method="post" class="oe_product_cart h-100 d-flex"
 		            t-att-data-publish="product.website_published and 'on' or 'off'"
 		            itemscope="itemscope" itemtype="http://schema.org/Product">
