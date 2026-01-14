@@ -5,6 +5,20 @@
         Ils sont désactivés (active="False") et leur contenu est vidé pour éviter les erreurs xpath.
         Les icônes personnalisées du header utiliseront les icônes par défaut d'Odoo 17.
     -->
+
+    <!-- Override badge_extra_price to handle None combination_info in shop listing context -->
+    <template id="badge_extra_price_fix" inherit_id="website_sale.badge_extra_price" name="Fix Badge Extra Price">
+        <xpath expr="//span[@t-if='price_extra']" position="replace">
+            <t t-if="price_extra and combination_info">
+                <span class="badge rounded-pill text-bg-light border">
+                    <t t-out="ptav._get_extra_price(combination_info)"/>
+                </span>
+            </t>
+            <t t-elif="price_extra">
+                <span class="badge rounded-pill text-bg-light border" t-esc="price_extra" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
+            </t>
+        </xpath>
+    </template>
     
     <!-- Template désactivé - la structure de website_sale.header_cart_link a changé en Odoo 17 -->
     <record id="inherit_header_cart_link" model="ir.ui.view">
