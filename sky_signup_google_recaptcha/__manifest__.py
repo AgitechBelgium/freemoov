@@ -8,7 +8,7 @@
 
 {
     'name': 'Sky SingUp Google reCAPTCHA integration',
-    'version': '16.0.1.1.0',
+    'version': '17.0.1.1.0',
     'license': 'AGPL-3',
     'description': """
      Adds Google reCAPTCHA validation to Odoo signup form for enhanced security.       

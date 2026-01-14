@@ -1,23 +1,21 @@
-odoo.define('website_cookies_consent.cookies_consent', function (require) {
-    "use strict";
+/** @odoo-module **/
 
-    const publicWidget = require('web.public.widget');
+import publicWidget from "@web/legacy/js/public/public_widget";
 
-    publicWidget.registry.cookies_consent = publicWidget.Widget.extend({
+publicWidget.registry.cookies_consent = publicWidget.Widget.extend({
 
-        _getCookieConsentManager: function() {
-            return document.querySelector('body').getAttribute('data-cookies-consent-manager');
-        },
+    _getCookieConsentManager: function() {
+        return document.querySelector('body').getAttribute('data-cookies-consent-manager');
+    },
 
-        _isCookieConsentLogged: function() {
-            return document.querySelector('body').getAttribute('data-cookies-consent-debug-logging');
-        },
+    _isCookieConsentLogged: function() {
+        return document.querySelector('body').getAttribute('data-cookies-consent-debug-logging');
+    },
 
-        _updateCookieConsent: function() {
-            if (this._isCookieConsentLogged()) { console.log(`[Cookie Consent | Base] _updateCookieConsent`) }
-        },
+    _updateCookieConsent: function() {
+        if (this._isCookieConsentLogged()) { console.log(`[Cookie Consent | Base] _updateCookieConsent`) }
+    },
 
-    });
-
-    return publicWidget.registry.cookies_consent;
 });
+
+export default publicWidget.registry.cookies_consent;

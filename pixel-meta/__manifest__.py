@@ -7,7 +7,7 @@
 
 {
     'name': 'Odoo Facebook Pixel Integration',
-    'version': '16.0.3.1.0',
+    'version': '17.0.3.1.0',
     'category': 'Website',
     'author': 'Garazd Creation',
     'website': 'https://garazd.biz/shop',
@@ -25,7 +25,7 @@
     ],
     'assets': {
         'web.assets_frontend': [
-            'website_facebook_pixel/static/src/js/cookies_bar.js',
+            'pixel-meta/static/src/js/cookies_bar.js',
         ],
     },
     'price': 10.00,

@@ -28,21 +28,21 @@
                         </group>
                         <group>
                             <field name="sub_title"/>
-                            <field name="item_each_slide" attrs="{'invisible': [('style_type','=', 'grid')]}"/>
-                            <field name="slider_auto_slide" attrs="{'invisible': [('style_type','=', 'grid')]}"/>
-                            <field name="speed_of_slider" attrs="{'invisible': [('style_type','=', 'grid')]}"/>
+                            <field name="item_each_slide" invisible="style_type == 'grid'"/>
+                            <field name="slider_auto_slide" invisible="style_type == 'grid'"/>
+                            <field name="speed_of_slider" invisible="style_type == 'grid'"/>
                         </group>
                     </group>
-                    <group string="Select Brands" attrs="{'invisible': [('slider_type','!=', 'brand')]}">
+                    <group string="Select Brands" invisible="slider_type != 'brand'">
                         <field name="brand_ids" widget="many2many_tags"/>
                     </group>
-                    <group string="Select Blogs" attrs="{'invisible': [('slider_type','!=', 'blog')]}">
+                    <group string="Select Blogs" invisible="slider_type != 'blog'">
                         <field name="blog_ids" widget="many2many_tags"/>
                     </group>
-                    <group string="Select Categories" attrs="{'invisible': [('slider_type','!=', 'category')]}">
+                    <group string="Select Categories" invisible="slider_type != 'category'">
                         <field name="category_ids" widget="many2many_tags"/>
                     </group>
-                    <notebook attrs="{'invisible': [('slider_type','!=', 'product')]}">
+                    <notebook invisible="slider_type != 'product'">
                         <page name="Tabs" string="Tabs and Products">
                             <field name="tabs_line_ids" widget="one2many_list">
                                 <tree string="Tabs">

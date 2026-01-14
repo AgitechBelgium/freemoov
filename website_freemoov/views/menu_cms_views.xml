@@ -22,7 +22,7 @@
                             <field name="name" />
                             <field name="url" />
                             <field name="slider_type"/>
-                            <field name="child_menu_ids" attrs="{'invisible': [('slider_type','=', 'main_menu')]}">
+                            <field name="child_menu_ids" invisible="slider_type == 'main_menu'">
                                 <form>
                                     <sheet>
                                         <group>
@@ -65,7 +65,7 @@
                             <field name="slider_type"/>
                             <field name="url"/>
                             <field name="design_type" invisible="1"/>
-                            <field name="child_menu_ids" attrs="{'invisible': [('slider_type','=', 'main_menu')]}" />
+                            <field name="child_menu_ids" invisible="slider_type == 'main_menu'" />
                         </group>
                     </group>
                 </sheet>

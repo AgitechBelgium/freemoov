@@ -38,22 +38,35 @@
                                 <a t-attf-href="/web/login" class="nav-link"><img class="img img-fluid" src="/website_freemoov/static/src/img/user.png"/><span t-if="request.session.profile_session" class="text-danger fa fa-circle"/></a>
                             </li>
 
-                            <!-- User Dropdown -->
-                            <t t-call="portal.user_dropdown">
-                                <t t-set="_icon" t-value="True"/>
-                                <t t-set="_item_class" t-valuef="nav-item dropdown"/>
-                                <t t-set="_link_class" t-valuef="nav-link"/>
-                            </t>
-                            <t t-call="website_sale.header_cart_link">
-                                <t t-set="_icon" t-value="True"/>
-                                <t t-set="_item_class" t-value="'nav-item'"/>
-                                <t t-set="_link_class" t-value="'nav-link'"/>
-                            </t>
-                            <t t-call="website_sale_wishlist.header_wishlist_link">
-                                <t t-set="_icon" t-value="True"/>
-                                <t t-set="_item_class" t-value="'nav-item'"/>
-                                <t t-set="_link_class" t-value="'nav-link'"/>
-                            </t>
+                            <!-- User Dropdown - Custom icon -->
+                            <li t-nocache="Profile session and user group can change unrelated to parent caches."
+                                groups="base.group_user,base.group_portal" class="nav-item dropdown o_no_autohide_item">
+                                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                                    <img class="img img-fluid" src="/website_freemoov/static/src/img/user.png" loading="lazy" alt="User"/>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end" role="menu">
+                                    <a href="/my/home" class="dropdown-item" role="menuitem">Mon compte</a>
+                                    <a href="/my/orders" class="dropdown-item" role="menuitem">Mes commandes</a>
+                                    <div class="dropdown-divider"/>
+                                    <a href="/web/session/logout?redirect=/" class="dropdown-item" role="menuitem">Déconnexion</a>
+                                </div>
+                            </li>
+                            
+                            <!-- Cart - Custom icon -->
+                            <li class="o_wsale_my_cart nav-item">
+                                <a href="/shop/cart" class="nav-link">
+                                    <img class="img img-fluid" src="/website_freemoov/static/src/img/shopping-cart.png" loading="lazy" alt="Panier"/>
+                                    <sup class="my_cart_quantity badge text-bg-primary">0</sup>
+                                </a>
+                            </li>
+                            
+                            <!-- Wishlist - Custom icon -->
+                            <li class="o_wsale_my_wish nav-item">
+                                <a href="/shop/wishlist" class="nav-link">
+                                    <img class="img img-fluid" src="/website_freemoov/static/src/img/wishlist.png" loading="lazy" alt="Wishlist"/>
+                                    <sup class="my_wish_quantity badge text-bg-primary">0</sup>
+                                </a>
+                            </li>
 
                             <!-- Navbar Toggler -->
                             <li class="nav-item">

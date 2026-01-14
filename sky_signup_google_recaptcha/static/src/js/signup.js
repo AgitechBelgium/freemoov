@@ -1,19 +1,18 @@
-odoo.define('sky_signup_google_recaptcha.signup_inherit', function (require) {
-    'use strict';
+/** @odoo-module **/
 
-    var publicWidget = require('web.public.widget');
-    var SignUpForm = publicWidget.registry.SignUpForm;
-    const { ReCaptcha } = require('google_recaptcha.ReCaptchaV3');
+import publicWidget from "@web/legacy/js/public/public_widget";
+import { ReCaptcha } from "@google_recaptcha/js/recaptcha";
 
-    SignUpForm.include({
+if (publicWidget.registry.SignUpForm) {
+    publicWidget.registry.SignUpForm.include({
         init: function () {
-            this._super.apply(this, arguments); // Call the original init method
+            this._super.apply(this, arguments);
             this._recaptcha = new ReCaptcha();
         },
 
         willStart: async function () {
-            await this._super.apply(this, arguments); // Call the original willStart method
-            await this._recaptcha.loadLibs(); // Ensure ReCaptcha libraries are loaded
+            await this._super.apply(this, arguments);
+            await this._recaptcha.loadLibs();
         },
 
         _onSubmit: async function (ev) {
@@ -31,4 +30,4 @@ odoo.define('sky_signup_google_recaptcha.signup_inherit', function (require) {
             this.el.submit();
         },
     });
-});
+}
