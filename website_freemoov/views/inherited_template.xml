@@ -7,20 +7,13 @@
     -->
 
     <!-- Override badge_extra_price to handle None combination_info -->
-    <!-- The original template has: <span t-if="price_extra" ...><t t-out="ptav._get_extra_price(combination_info)"/></span> -->
-    <!-- We replace the entire span with a safe version that checks combination_info first -->
+    <!-- We completely replace the span to avoid calling _get_extra_price when combination_info is None -->
     <template id="badge_extra_price_fix" inherit_id="website_sale.badge_extra_price" name="Fix Badge Extra Price">
         <xpath expr="//span[@t-if='price_extra']" position="replace">
-            <t t-if="price_extra">
-                <t t-if="combination_info">
-                    <span class="badge rounded-pill text-bg-light border">
-                        <t t-out="ptav._get_extra_price(combination_info)"/>
-                    </span>
-                </t>
-                <t t-else="">
-                    <span class="badge rounded-pill text-bg-light border" t-esc="price_extra" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
-                </t>
-            </t>
+            <span t-if="price_extra and combination_info" class="badge rounded-pill text-bg-light border">
+                <t t-out="ptav._get_extra_price(combination_info)"/>
+            </span>
+            <span t-if="price_extra and not combination_info" class="badge rounded-pill text-bg-light border" t-esc="price_extra" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
         </xpath>
     </template>
     
