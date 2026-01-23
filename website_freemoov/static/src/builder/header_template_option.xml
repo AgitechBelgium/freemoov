@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<!-- Freemoov Header Template Options - Extension du sélecteur de header Odoo 19 -->
+<t t-name="website_freemoov.headerTemplateOption" t-inherit="website.HeaderTemplateOption" t-inherit-mode="extension">
+    <xpath expr="//BuilderSelect[@action=&quot;'reloadComposite'&quot;]" position="inside">
+        <!-- Header Freemoov Standard -->
+        <BuilderSelectItem 
+            id="'header_freemoov_opt'"
+            title.translate="Header Freemoov"
+            actionParam="[
+                {
+                    action: 'websiteConfig',
+                    actionParam: {
+                        views: ['website_freemoov.header_freemoov'],
+                        vars: { 'header-template': 'freemoov' },
+                        checkVars: false,
+                    }
+                }
+            ]">
+            <Img attrs="{ style: 'width: calc(100% - 0.5rem);' }" src="'/website_freemoov/static/description/header_footer/header-1.png'"/>
+        </BuilderSelectItem>
+        
+        <!-- Header Freemoov avec Catégories -->
+        <BuilderSelectItem 
+            id="'header_freemoov_opt2'"
+            title.translate="Header Freemoov Category"
+            actionParam="[
+                {
+                    action: 'websiteConfig',
+                    actionParam: {
+                        views: ['website_freemoov.header_freemoov_two'],
+                        vars: { 'header-template': 'freemoov-category' },
+                        checkVars: false,
+                    }
+                }
+            ]">
+            <Img attrs="{ style: 'width: calc(100% - 0.5rem);' }" src="'/website/static/src/img/snippets_options/header_template_magazine.svg'"/>
+        </BuilderSelectItem>
+    </xpath>
+</t>
+
+</templates>

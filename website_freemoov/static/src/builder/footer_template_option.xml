@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<!-- Freemoov Footer Template Options - Extension du sélecteur de footer Odoo 19 -->
+<t t-name="website_freemoov.FooterTemplateOption" t-inherit="website.FooterTemplateOption" t-inherit-mode="extension">
+    <xpath expr="//BuilderSelect[@action=&quot;'websiteConfigFooter'&quot;]" position="inside">
+        <!-- Footer Freemoov -->
+        <BuilderSelectItem 
+            title.translate="Freemoov Footer"
+            actionParam="{ view: 'website_freemoov.footer', vars: { 'footer-template': 'freemoov' } }">
+            <Img attrs="{ style: 'width: calc(100% - 0.5rem);' }" src="'/website_freemoov/static/description/footer-1.png'"/>
+        </BuilderSelectItem>
+    </xpath>
+</t>
+
+</templates>
