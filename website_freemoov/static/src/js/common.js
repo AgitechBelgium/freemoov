@@ -1,7 +1,5 @@
 /** @odoo-module **/
 
-import { jsonrpc } from "@web/core/network/rpc_service";
-
 $(document).ready(function(){
     $(".nav-item.dropdown.position-static").on('click', function(event) {
         $(this).closest('.dropdown-menu.o_mega_menu').modal('show');
@@ -71,16 +69,26 @@ $(document).ready(function(){
         event.preventDefault();
         var categoryId = $(this).data("category-id");
         var categoryName = $(this).data("category-name");
-        jsonrpc('/fetch_subcategories', {category_id: categoryId})
-            .then(function (data) {
-                console.log('>>>>>>>>>categoryId>>>>>>>>>>', data['sub_catg']);
-                var category_html = "<a class='nav_link text-white' href='/shop/category/" + data['category'] + "'>" + categoryName + "</a>";
-                $("#subcategoryModalTitle").find('a').html(category_html);
-                var link = "/shop/category/" + data['category'];
-                $(".sub_categ_button").find('a').attr('href', link);
-                $("#subcategoryModalBody").html(data['sub_catg']);
-                $("#top-menu-collapse-sub-category").modal("show");
-            });
+        fetch('/fetch_subcategories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                jsonrpc: '2.0',
+                method: 'call',
+                params: { category_id: categoryId }
+            })
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+            var data = result.result;
+            console.log('>>>>>>>>>categoryId>>>>>>>>>>', data['sub_catg']);
+            var category_html = "<a class='nav_link text-white' href='/shop/category/" + data['category'] + "'>" + categoryName + "</a>";
+            $("#subcategoryModalTitle").find('a').html(category_html);
+            var link = "/shop/category/" + data['category'];
+            $(".sub_categ_button").find('a').attr('href', link);
+            $("#subcategoryModalBody").html(data['sub_catg']);
+            $("#top-menu-collapse-sub-category").modal("show");
+        });
     });
 });
 
