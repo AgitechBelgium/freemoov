@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<!-- Template pour l'option de configuration du slider All-in-One -->
+<t t-name="ust_common_features.UstAllInOneSliderOption">
+    <BuilderRow label.translate="Slider">
+        <div class="w-100">
+            <t t-if="state.loading">
+                <span class="text-muted">Chargement...</span>
+            </t>
+            <t t-else="">
+                <select class="form-select form-select-sm" 
+                        t-on-change="onSliderChange"
+                        t-att-value="state.selectedSliderId">
+                    <option value="">-- Sélectionner un slider --</option>
+                    <t t-foreach="state.sliders" t-as="slider" t-key="slider.id">
+                        <option t-att-value="slider.id" 
+                                t-att-selected="slider.id === state.selectedSliderId">
+                            <t t-esc="slider.name"/> 
+                            <t t-if="slider.slider_name">(<t t-esc="slider.slider_name"/>)</t>
+                        </option>
+                    </t>
+                </select>
+                <small class="text-muted d-block mt-1">
+                    Configurez vos sliders dans le menu Website > Configuration > All In One Slider
+                </small>
+            </t>
+        </div>
+    </BuilderRow>
+</t>
+
+</templates>
