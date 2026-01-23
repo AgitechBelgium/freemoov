@@ -1,7 +1,5 @@
 /** @odoo-module **/
 
-import { renderToElement } from "@web/core/utils/render";
-import { rpc } from "@web/core/network/rpc";
 import VariantMixin from "@website_sale_stock/js/variant_mixin";
 
 const oldChangeCombinationStock = VariantMixin._onChangeCombinationStock;
@@ -18,17 +16,28 @@ VariantMixin._onChangeCombinationStock = async function (ev, $parent, combinatio
     if (messageEl) {
         combination.stock_availability = 0;
         try {
-            const data = await rpc('/web/dataset/call_kw/website/check_stock_availability', {
-                model: 'website',
-                method: 'check_stock_availability',
-                args: [[], combination.product_id],
-                kwargs: {},
+            const response = await fetch('/web/dataset/call_kw/website/check_stock_availability', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'call',
+                    params: {
+                        model: 'website',
+                        method: 'check_stock_availability',
+                        args: [[], combination.product_id],
+                        kwargs: {},
+                    },
+                }),
             });
-            console.log("data ==== ", data);
-            combination.stock_availability = parseInt(data['qty_avail']);
-            combination.is_dropship = parseInt(data['is_dropship']);
-            const html = renderToElement('website_freemoov.product_availability', combination);
-            messageEl.insertAdjacentElement('afterbegin', html);
+            const result = await response.json();
+            if (result && result.result) {
+                const data = result.result;
+                combination.stock_availability = parseInt(data['qty_avail'] || 0);
+                combination.is_dropship = parseInt(data['is_dropship'] || 0);
+            }
         } catch (e) {
             console.warn("Error fetching stock availability:", e);
         }
