@@ -2,3 +2,18 @@
 __pycache__/
 *.pyc
 
+.DS_Store
+docker-compose*
+odoo-migration.conf
+*.csv
+*.mdt
+
+# Documentation
+*.md
+
+# Scripts locaux
+scripts/
+odoo.conf
+
+# Dossiers temporaires
+docs/
