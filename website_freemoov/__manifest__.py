@@ -33,6 +33,7 @@
         'views/inherited_template.xml',
         'views/menu_cms_views.xml',
         'views/header_freemoov_template_1.xml',
+        'views/cart_popover_template.xml',
     ],
 
     'assets': {
@@ -47,6 +48,11 @@
             'website_freemoov/static/src/js/common.js',
             'website_freemoov/static/src/js/variant.js',
             'website_freemoov/static/src/xml/stock_availability.xml',
+        ],
+
+        'website.assets_wysiwyg': [
+            'website_freemoov/static/src/builder/header_template_option.xml',
+            'website_freemoov/static/src/builder/footer_template_option.xml',
         ],
         
         'web._assets_primary_variables': [

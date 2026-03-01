@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Cart Popover Template (rendered server-side) -->
+    <template id="cart_popover" name="Cart Popover">
+        <t t-set="order" t-value="website_sale_order"/>
+        <div t-if="not order or not order.website_order_line" class="alert alert-info mb-0">
+            Votre panier est vide !
+        </div>
+        <t t-if="order and order.website_order_line">
+            <t t-foreach="order.website_order_line[:5]" t-as="line">
+                <div class="row mb-2 cart_line">
+                    <div class="col-3 text-center">
+                        <t t-if="line.product_id.image_128">
+                            <img t-att-src="'/web/image/product.product/%s/image_128' % line.product_id.id" 
+                                 class="img img-fluid rounded o_image_64_max" 
+                                 t-att-alt="line.name_short"/>
+                        </t>
+                    </div>
+                    <div class="col-9">
+                        <div>
+                            <a t-att-href="line.product_id.website_url">
+                                <span class="h6" t-esc="line.name_short"/>
+                            </a>
+                        </div>
+                        <small class="text-muted">
+                            Qté : <t t-esc="int(line.product_uom_qty) if int(line.product_uom_qty) == line.product_uom_qty else line.product_uom_qty"/>
+                        </small>
+                    </div>
+                </div>
+            </t>
+            <t t-if="len(order.website_order_line) > 5">
+                <div class="text-muted small text-center mb-2">
+                    + <t t-esc="len(order.website_order_line) - 5"/> autre(s) article(s)
+                </div>
+            </t>
+            <hr class="my-2"/>
+            <div class="text-center">
+                <table class="table table-sm mb-2">
+                    <tbody>
+                        <tr>
+                            <td class="text-end border-0 py-1">Sous-total :</td>
+                            <td class="text-end border-0 py-1">
+                                <span t-esc="order.amount_untaxed" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-end border-0 py-1">Taxes :</td>
+                            <td class="text-end border-0 py-1">
+                                <span t-esc="order.amount_tax" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-end border-top py-1"><strong>Total :</strong></td>
+                            <td class="text-end border-top py-1">
+                                <strong t-esc="order.amount_total" t-options="{'widget': 'monetary', 'display_currency': order.currency_id}"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <a role="button" class="btn btn-primary btn-sm w-100" href="/shop/cart">
+                    Voir le panier (<span class="o_wsale_cart_quantity" t-esc="order.cart_quantity"/> article(s))
+                </a>
+            </div>
+        </t>
+    </template>
+
+    <!-- Inject cart popover script into website layout -->
+    <template id="cart_popover_assets" inherit_id="website.layout" name="Cart Popover Script">
+        <xpath expr="//body" position="inside">
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    var cartEl = document.querySelector('.o_wsale_my_cart');
+                    if (!cartEl) return;
+                    
+                    var popover = null;
+                    var hideTimeout = null;
+                    var isPopoverHovered = false;
+                    
+                    function showPopover() {
+                        if (popover) return;
+                        
+                        fetch('/shop/cart/popover', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ jsonrpc: '2.0', method: 'call', params: {} })
+                        })
+                        .then(function(response) { return response.json(); })
+                        .then(function(data) {
+                            if (data &amp;&amp; data.result &amp;&amp; data.result.html) {
+                                createPopover(data.result.html);
+                            }
+                        })
+                        .catch(function(err) { console.error('Cart popover error:', err); });
+                    }
+                    
+                    function createPopover(content) {
+                        if (popover) popover.dispose();
+                        
+                        var linkEl = cartEl.querySelector('a') || cartEl;
+                        popover = new bootstrap.Popover(linkEl, {
+                            trigger: 'manual',
+                            placement: 'bottom',
+                            html: true,
+                            content: content,
+                            customClass: 'mycart-popover',
+                            container: 'body',
+                            sanitize: false
+                        });
+                        popover.show();
+                        
+                        setTimeout(function() {
+                            var popoverEl = document.querySelector('.mycart-popover');
+                            if (popoverEl) {
+                                popoverEl.addEventListener('mouseenter', function() {
+                                    isPopoverHovered = true;
+                                    clearTimeout(hideTimeout);
+                                });
+                                popoverEl.addEventListener('mouseleave', function() {
+                                    isPopoverHovered = false;
+                                    hideTimeout = setTimeout(hidePopover, 300);
+                                });
+                            }
+                        }, 100);
+                    }
+                    
+                    function hidePopover() {
+                        if (popover) {
+                            popover.dispose();
+                            popover = null;
+                        }
+                        isPopoverHovered = false;
+                    }
+                    
+                    cartEl.addEventListener('mouseenter', function() {
+                        clearTimeout(hideTimeout);
+                        showPopover();
+                    });
+                    
+                    cartEl.addEventListener('mouseleave', function() {
+                        hideTimeout = setTimeout(function() {
+                            if (!isPopoverHovered) hidePopover();
+                        }, 300);
+                    });
+                });
+            </script>
+        </xpath>
+    </template>
+</odoo>
