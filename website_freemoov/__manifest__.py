@@ -50,11 +50,6 @@
             'website_freemoov/static/src/xml/stock_availability.xml',
         ],
 
-        'website.assets_wysiwyg': [
-            'website_freemoov/static/src/builder/header_template_option.xml',
-            'website_freemoov/static/src/builder/footer_template_option.xml',
-        ],
-        
         'web._assets_primary_variables': [
             'website_freemoov/static/src/scss/theme_variable.scss',
         ],
