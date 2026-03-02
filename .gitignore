@@ -17,3 +17,10 @@ odoo.conf
 
 # Dossiers temporaires
 docs/
+
+# Environnement local
+odoo-v17.conf
+filestore/
+staging_backup/
+staging_dump.*
+*.zip
