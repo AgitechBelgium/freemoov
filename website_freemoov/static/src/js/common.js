@@ -39,7 +39,6 @@ $(document).ready(function(){
     $('#o_product_page_reviews_content').addClass('show');
     
     $(".ust-all-slider .owl-item").each(function () {
-        var priceContainer = $(this).find(".oe_price");
         if ($(this).find("del").length > 0) {
             $(this).find('.oe_price').css('color', '#dc3545');
             $(this).find('.oe_price').addClass('main_price');
@@ -65,6 +64,45 @@ $(document).ready(function(){
         $('.cat-div').parent().find('#ust_all_in_one_configure').addClass('bg-white');
     }
     
+    // Replace download button with share button on product page
+    var $downloadBtn = $('.download_product_img');
+    if ($downloadBtn.length) {
+        var $shareBtn = $(
+            '<div class="share_product_link">' +
+                '<a class="share_link_btn" href="#" title="Copier le lien">' +
+                    '<i class="fa fa-share-alt"></i>' +
+                '</a>' +
+                '<span class="share_tooltip">Lien copié !</span>' +
+            '</div>'
+        );
+        $downloadBtn.after($shareBtn);
+        $downloadBtn.hide();
+    }
+
+    $(document).on('click', '.share_link_btn', function(e) {
+        e.preventDefault();
+        var url = window.location.href;
+        var $tooltip = $(this).siblings('.share_tooltip');
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function() {
+                $tooltip.addClass('show');
+                setTimeout(function() { $tooltip.removeClass('show'); }, 2000);
+            });
+        } else {
+            var $temp = $('<input>');
+            $('body').append($temp);
+            $temp.val(url).select();
+            document.execCommand('copy');
+            $temp.remove();
+            $tooltip.addClass('show');
+            setTimeout(function() { $tooltip.removeClass('show'); }, 2000);
+        }
+    });
+
+    
+    // Product detail: ensure no ancestor has overflow:hidden that would break sticky
+    // CSS handles sticky via position:sticky on .o_wsale_product_images (desktop only)
+
     $(".category-link").click(function (event) {
         event.preventDefault();
         var categoryId = $(this).data("category-id");
@@ -81,7 +119,6 @@ $(document).ready(function(){
         .then(function(response) { return response.json(); })
         .then(function(result) {
             var data = result.result;
-            console.log('>>>>>>>>>categoryId>>>>>>>>>>', data['sub_catg']);
             var category_html = "<a class='nav_link text-white' href='/shop/category/" + data['category'] + "'>" + categoryName + "</a>";
             $("#subcategoryModalTitle").find('a').html(category_html);
             var link = "/shop/category/" + data['category'];
