@@ -761,10 +761,10 @@
 	    }
 	}
 }
-.availability_messages {
-	#out_of_stock_message {
-		display: none;
-	}
+// Hide Odoo native availability text on shop cards — we use our own .stock_badge
+.availability_messages,
+.availability_message_sell {
+	display: none !important;
 }
 
 /* Monthly payment badge — product cards (grid + list) */

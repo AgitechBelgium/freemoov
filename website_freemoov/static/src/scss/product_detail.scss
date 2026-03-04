@@ -372,15 +372,29 @@
 
 	// Remove extra whitespace below the carousel
 	#o-carousel-product {
+		// Override Odoo's o_carousel_product_left_indicators layout:
+		// Force column direction so indicators go BELOW the images, not beside them
+		flex-direction: column !important;
+		overflow: visible !important;
+
 		// The carousel inner should fit its images tightly
 		.carousel-inner {
 			.carousel-item {
+				min-height: unset !important; // Remove Odoo's 500px min-height
+				height: auto !important;
 				img {
 					width: 100%;
 					height: auto;
+					max-height: 500px;
 					object-fit: contain;
 				}
 			}
+		}
+
+		// Images area should take full width (not flex-grow beside indicators)
+		.o_carousel_product_outer {
+			width: 100% !important;
+			order: 1;
 		}
 
 		// Carousel arrows: clean white circles
@@ -390,40 +404,47 @@
 			height: 40px;
 			top: 50%;
 			transform: translateY(-50%);
-			background-color: rgba(255, 255, 255, 0.85);
+			background: rgba(255, 255, 255, 0.85) !important;
+			background-image: none !important; // Kill any BS SVG icon
 			border-radius: 50%;
 			display: flex !important;
 			align-items: center;
 			justify-content: center;
 			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 			transition: background-color 0.2s ease;
+			z-index: 5;
 			&:hover {
-				background-color: rgba(255, 255, 255, 1);
+				background: rgba(255, 255, 255, 1) !important;
 			}
-			// Hide default Bootstrap SVG icons
-			span, [class*="carousel-control"] {
-				background-image: none !important;
+			// Hide ALL child elements (Odoo FA spans, BS icon spans, etc.)
+			> * {
 				display: none !important;
+				visibility: hidden !important;
 			}
-			// Custom FontAwesome arrows
+			// Clear any ::before pseudo-element from Odoo/BS
+			&::before {
+				display: none !important;
+				content: "" !important;
+			}
+			// Single custom arrow via ::after
 			&::after {
 				font-family: FontAwesome;
 				font-size: 18px;
 				color: #000;
-				display: block;
+				display: block !important;
 			}
 		}
 		.carousel-control-prev {
-			left: 8px;
+			left: 12px;
 			&::after { content: "\f104"; }
 		}
 		.carousel-control-next {
-			right: 8px;
+			right: 12px;
 			&::after { content: "\f105"; }
 		}
 
 		// ============================================================
-		// Thumbnail indicators → centered dots (not thumbnails)
+		// Thumbnail indicators → centered dots BELOW the image
 		// ============================================================
 		.o_carousel_product_indicators {
 			display: flex !important;
@@ -432,20 +453,25 @@
 			width: 100% !important;
 			padding: 12px 0 4px !important;
 			margin: 0 !important;
-			// Reset any Odoo absolute positioning
+			order: 2; // Place below the images
+			// Reset any Odoo positioning (left-side thumbnail layout)
 			position: relative !important;
 			bottom: auto !important;
 			left: auto !important;
 			right: auto !important;
+			top: auto !important;
 			transform: none !important;
 			text-align: center !important;
 			float: none !important;
+			flex: none !important; // Don't grow/shrink in flex context
+			max-width: 100% !important;
+			height: auto !important;
 
-			// The <ol> inside
+			// The <ol> inside — override d-lg-block and inline justify-content:start
 			ol.carousel-indicators,
 			.carousel-indicators {
-				display: flex !important;
-				justify-content: center !important;
+				display: flex !important; // Override d-lg-block
+				justify-content: center !important; // Override inline style
 				align-items: center !important;
 				gap: 8px;
 				padding: 0 !important;
@@ -458,6 +484,7 @@
 				width: auto !important;
 				flex-wrap: wrap;
 				list-style: none;
+				text-align: center !important;
 
 				li, [data-bs-target] {
 					width: 10px !important;
@@ -476,6 +503,8 @@
 					transition: background-color 0.2s ease;
 					text-indent: -9999px;
 					overflow: hidden;
+					float: none !important;
+					display: inline-block !important;
 
 					// Hide thumbnail images inside indicators
 					div, img, span {
@@ -1076,9 +1105,14 @@
 	.carousel_product_num {
 		display: none !important;
 	}
-	#product_detail #o-carousel-product .carousel-control-prev, #product_detail #o-carousel-product .carousel-control-next {
-		opacity: 1;
+	#product_detail #o-carousel-product .carousel-control-prev,
+	#product_detail #o-carousel-product .carousel-control-next {
+		width: 32px;
+		height: 32px;
+		&::after { font-size: 14px; }
 	}
+	#product_detail #o-carousel-product .carousel-control-prev { left: 4px; }
+	#product_detail #o-carousel-product .carousel-control-next { right: 4px; }
 	#product_detail {
 		// Mobile: never sticky
 		.o_wsale_product_images {
