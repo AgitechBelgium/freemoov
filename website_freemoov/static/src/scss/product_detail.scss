@@ -377,15 +377,19 @@
 		flex-direction: column !important;
 		overflow: visible !important;
 
-		// The carousel inner should fit its images tightly
+		// The carousel inner should fit its images — no height constraints
 		.carousel-inner {
+			height: auto !important; // Override h-100
 			.carousel-item {
 				min-height: unset !important; // Remove Odoo's 500px min-height
-				height: auto !important;
+				height: auto !important; // Override h-100
+				> div {
+					height: auto !important; // Override h-100 on image wrapper
+				}
 				img {
 					width: 100%;
-					height: auto;
-					max-height: 500px;
+					height: auto !important;
+					max-height: none !important; // Remove mh-100 that crops images
 					object-fit: contain;
 				}
 			}
