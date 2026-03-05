@@ -31,6 +31,13 @@
 		}
 	}
 }
+// Prevent horizontal scroll on mobile (category cards overflowing)
+.js_sale.o_wsale_products_page,
+.oe_website_sale {
+	overflow-x: hidden !important;
+	max-width: 100vw;
+}
+
 .js_sale.o_wsale_products_page{
 	background-color: #F5F6F7;
 	.oe_website_sale{
@@ -246,9 +253,11 @@
 				.o_wsale_product_grid_wrapper{
 					height: auto !important;
 					min-height: 320px;
+					overflow: hidden;
 				}
 				.oe_product_cart{
 					padding: 12px;
+					overflow: hidden;
 				}
 			.oe_product_image{
 				.oe_product_image_link{
@@ -258,6 +267,11 @@
 				}
 			}
 				.o_wsale_product_information{
+					.o_wsale_product_information_text{
+						.product_info h6 a {
+							font-size: 14px;
+						}
+					}
 					.o_wsale_product_sub{
 						flex-direction: column;
 						align-items: flex-start;
@@ -284,6 +298,21 @@
 #products_grid.o_wsale_layout_list{
 	.o_wsale_products_grid_table_wrapper{
 		.oe_product{
+			// Larger product image in list view
+			.oe_product_image {
+				min-width: 200px;
+				width: 200px;
+				.oe_product_image_link {
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					min-height: 180px;
+					img {
+						object-fit: contain;
+						max-height: 180px;
+					}
+				}
+			}
 			.oe_product_cart{
 				padding: 20px;
 				background-color: #fff;
@@ -411,6 +440,7 @@
 						display: flex;
 						flex-wrap: wrap;
 						align-items: center;
+						justify-content: flex-start;
 						margin-top: 14px;
 						padding-top: 14px;
 						border-top: 1px solid #f0f0f0;
@@ -543,23 +573,38 @@
 	@media (max-width: 767.98px){
 		.o_wsale_products_grid_table_wrapper{
 			.oe_product{
+				// Smaller image on mobile list
+				.oe_product_image {
+					min-width: 120px;
+					width: 120px;
+					.oe_product_image_link {
+						min-height: 120px;
+						img { max-height: 120px; }
+					}
+				}
 				.oe_product_cart{
 					padding: 14px;
+					overflow: hidden;
 					.o_wsale_product_information{
 						padding-right: 0;
+						overflow: hidden;
 						.o_wsale_product_information_text{
 							display: flex;
 							flex-direction: column;
 							gap: 10px;
+							overflow: hidden;
 							.product_info, .product_variant{
 								width: 100%;
+								overflow: hidden;
 							}
 							.product_variant{
 								.js_add_cart_variants{
 									grid-template-columns: 1fr 1fr;
 									gap: 5px;
+									overflow: hidden;
 									.variant_attribute{
 										padding: 6px 8px;
+										overflow: hidden;
 										.attribute_name{
 											font-size: 8px;
 										}

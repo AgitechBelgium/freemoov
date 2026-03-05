@@ -377,7 +377,7 @@
 		flex-direction: column !important;
 		overflow: visible !important;
 
-		// The carousel inner should fit its images — no height constraints
+		// The carousel inner should fit its images — constrained height, no crop
 		.carousel-inner {
 			height: auto !important; // Override h-100
 			.carousel-item {
@@ -385,12 +385,17 @@
 				height: auto !important; // Override h-100
 				> div {
 					height: auto !important; // Override h-100 on image wrapper
+					display: flex;
+					align-items: center;
+					justify-content: center;
 				}
 				img {
-					width: 100%;
+					width: auto;
+					max-width: 100%;
 					height: auto !important;
-					max-height: none !important; // Remove mh-100 that crops images
+					max-height: 500px; // Prevent images from being too tall
 					object-fit: contain;
+					margin: 0 auto;
 				}
 			}
 		}
@@ -1118,9 +1123,14 @@
 	#product_detail #o-carousel-product .carousel-control-prev { left: 4px; }
 	#product_detail #o-carousel-product .carousel-control-next { right: 4px; }
 	#product_detail {
+		padding-top: 8px;
 		// Mobile: never sticky
 		.o_wsale_product_images {
 			position: relative !important;
+		}
+		// Mobile: constrain image height
+		#o-carousel-product .carousel-inner .carousel-item img {
+			max-height: 350px;
 		}
 		// Mobile: indicators always visible + centered
 		#o-carousel-product .o_carousel_product_indicators {

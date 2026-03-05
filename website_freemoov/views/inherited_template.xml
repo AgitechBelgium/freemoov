@@ -517,7 +517,7 @@
                     <t t-set="stock_available" t-value="product.get_stock_availability(website)"/>
                     <t t-if="not stock_available['is_dropship']">
                         <t t-if="stock_available['qty_avail'] &gt; 0">
-                            <span class="stock_badge stock_available"><span class="stock_dot"/>En stock</span>
+                            <span class="stock_badge stock_available"><span class="stock_dot"/>Disponible en ligne</span>
                         </t>
                         <t t-else="">
                             <span class="stock_badge stock_unavailable"><span class="stock_dot"/>Rupture de stock</span>
@@ -1076,7 +1076,7 @@
             <t t-if="not product.is_dropship_product">
                 <t t-if="product.virtual_available &gt; 0">
                     <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
-                        <span> En stock</span>
+                        <span> Disponible en ligne</span>
                     </p>
                 </t>
                 <t t-if="product.virtual_available &lt;= 0">
