@@ -1,5 +1,35 @@
 /** @odoo-module **/
 
+import publicWidget from "@web/legacy/js/public/public_widget";
+
+// Override Odoo's product carousel widget:
+// - Update CSS variable for sticky top instead of setting inline style
+// - Disable _onMouseWheel (scroll should scroll the page, not cycle slides)
+if (publicWidget.registry.websiteSaleCarouselProduct) {
+    publicWidget.registry.websiteSaleCarouselProduct.include({
+        _updateCarouselPosition() {
+            // Set sticky top on parent based on fixed header height
+            let size = 5;
+            // When affixed, header loses o_top_fixed_element — check both
+            const header = document.querySelector('header.o_header_affixed');
+            if (header) {
+                size += $(header).outerHeight();
+            } else {
+                for (const el of document.querySelectorAll('.o_top_fixed_element')) {
+                    size += $(el).outerHeight();
+                }
+            }
+            const parent = this.$el.closest('.o_wsale_product_images')[0];
+            if (parent) {
+                parent.style.setProperty('top', size + 'px');
+            }
+        },
+        _onMouseWheel() {
+            // No-op: let page scroll normally
+        },
+    });
+}
+
 $(document).ready(function(){
     $(".nav-item.dropdown.position-static").on('click', function(event) {
         $(this).closest('.dropdown-menu.o_mega_menu').modal('show');

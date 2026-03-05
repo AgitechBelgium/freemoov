@@ -1,3 +1,10 @@
+// Keep header always visible — prevent Odoo 17's hide-on-scroll-down animation
+header.o_header_standard {
+	&.o_header_affixed {
+		transform: translate(0, 0) !important;
+	}
+}
+
 .header_freemoov{
 	.btn_cta {
 		display: none;

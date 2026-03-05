@@ -359,14 +359,13 @@
 	padding-top: 16px;
 
 	.o_wsale_product_images {
-		// Desktop: always sticky — top accounts for sticky header (~140px)
+		// Desktop: sticky — top is set dynamically by JS based on header state
 		@media (min-width: 992px) {
 			position: sticky !important;
-			top: 160px;
+			top: 5px; // Default; JS updates this when header becomes fixed
 			align-self: flex-start !important;
 			z-index: 2;
-			// Limit max-height to viewport minus header, prevent giant whitespace
-			max-height: calc(100vh - 180px);
+			transition: top 200ms ease;
 		}
 	}
 
@@ -376,15 +375,33 @@
 		// Force column direction so indicators go BELOW the images, not beside them
 		flex-direction: column !important;
 		overflow: visible !important;
+		// Neutralize inner position-sticky (HTML class) — only parent .o_wsale_product_images should be sticky
+		position: relative !important;
+		// Neutralize inline top set by Odoo JS (_updateCarouselPosition) — causes jump
+		top: 0 !important;
+		// Kill Odoo core's "transition: top 200ms" that causes the jump animation
+		transition: none !important;
+		// Keep carousel below sticky header
+		z-index: 1;
 
-		// The carousel inner should fit its images — constrained height, no crop
+		.o_carousel_product_outer {
+			width: 100% !important;
+			// Override Odoo core's fixed height (400px / max-height: 90vh) that crops images
+			height: auto !important;
+			max-height: none !important;
+			order: 1;
+			overflow: visible !important;
+		}
+
+		// Let carousel height be driven by image content, not fixed h-100
 		.carousel-inner {
-			height: auto !important; // Override h-100
+			height: auto !important;
+			overflow: visible !important;
 			.carousel-item {
-				min-height: unset !important; // Remove Odoo's 500px min-height
-				height: auto !important; // Override h-100
+				min-height: unset !important; // Override inline min-height: 605px
+				height: auto !important;
 				> div {
-					height: auto !important; // Override h-100 on image wrapper
+					height: auto !important;
 					display: flex;
 					align-items: center;
 					justify-content: center;
@@ -393,17 +410,11 @@
 					width: auto;
 					max-width: 100%;
 					height: auto !important;
-					max-height: 500px; // Prevent images from being too tall
+					max-height: none !important; // Override mh-100 (max-height:100%)
 					object-fit: contain;
 					margin: 0 auto;
 				}
 			}
-		}
-
-		// Images area should take full width (not flex-grow beside indicators)
-		.o_carousel_product_outer {
-			width: 100% !important;
-			order: 1;
 		}
 
 		// Carousel arrows: clean white circles
@@ -527,6 +538,9 @@
 		}
 	}
 	.breadcrumb{
+		position: relative;
+		z-index: 10;
+		margin-bottom: 16px !important;
 		li{
 			a, span{
 				font-size: 12px;
@@ -673,11 +687,16 @@
 			#product_option_block {
 				display: none !important;
 			}
+			// Hide native duplicate product tags (already shown as badges above)
+			.o_product_tags {
+				display: none !important;
+			}
 			// Unified actions bar: wishlist + compare + store
 			.product-actions-bar {
 				display: flex;
 				align-items: center;
 				justify-content: center;
+				width: 100%;
 				gap: 0;
 				margin-top: 16px;
 				padding-bottom: 16px;
@@ -1127,10 +1146,6 @@
 		// Mobile: never sticky
 		.o_wsale_product_images {
 			position: relative !important;
-		}
-		// Mobile: constrain image height
-		#o-carousel-product .carousel-inner .carousel-item img {
-			max-height: 350px;
 		}
 		// Mobile: indicators always visible + centered
 		#o-carousel-product .o_carousel_product_indicators {

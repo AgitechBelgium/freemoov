@@ -1074,17 +1074,24 @@
         <xpath expr="//t[@t-placeholder='select']" position="after">
             <t t-call="website_sale.product_price"/>
             <t t-if="not product.is_dropship_product">
-                <t t-if="product.virtual_available &gt; 0">
+                <t t-set="p_avail" t-value="product.sudo().virtual_available"/>
+                <t t-if="p_avail &gt; 0">
                     <p class="label"><span class="o_ribbon bg-primary o_ribbon_left" />
                         <span> Disponible en ligne</span>
                     </p>
                 </t>
-                <t t-if="product.virtual_available &lt;= 0">
+                <t t-if="p_avail &lt;= 0">
                     <p class="label"><span class="o_ribbon bg-danger o_ribbon_left" t-attf-style="#{text_color and ('color: %s; ' % text_color)}#{bg_color and 'background-color:' + bg_color}"/>
                         <span> Rupture de stock </span>
                     </p>
                 </t>
             </t>
+            <!-- Badge "Payez en 3x ou 24x" below price -->
+            <div class="installment-badge-inline mt-1 mb-3">
+                <a href="/payez-par-mois" class="btn btn-sm btn-dark rounded-pill px-3 py-1" style="font-size: 10px;">
+                    Payez en 3x ou 24x
+                </a>
+            </div>
 
         </xpath>
         <!-- Hide the native product_option_block (wishlist is moved into our unified actions bar) -->
@@ -1139,6 +1146,11 @@
             </div>
         </xpath>
         <xpath expr="//div[@id='o_product_terms_and_share']" position="after">
+            <div class="custom-text"><div data-oe-expression="//player.vimeo.com/video/1074934588?autoplay=1&amp;muted=1&amp;autopause=0&amp;controls=0&amp;loop=1" class="media_iframe_video">
+                <div class="css_editable_mode_display"/>
+                <div class="media_iframe_video_size"/>
+                <iframe src="//player.vimeo.com/video/1074934588?autoplay=1&amp;muted=1&amp;autopause=0&amp;controls=0&amp;loop=1" frameborder="0" allowfullscreen="allowfullscreen"/>
+            </div></div>
             <div class="trust-block">
                 <!-- Payer en plusieurs fois -->
                 <div class="installment-block">
