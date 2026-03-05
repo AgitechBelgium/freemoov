@@ -98,6 +98,37 @@
 	    padding: 45px;
 	    border-radius: 20px;
 	}
+	// Two-column layout: accordion left, stats right (desktop)
+	// Mobile: stats first, accordion second (via order classes)
+	.properties-layout {
+		align-items: flex-start;
+	}
+	.properties-stats-banner {
+		.propertie-box {
+			transition: transform 0.15s ease;
+			&:hover { transform: translateY(-2px); }
+			img {
+				max-height: 40px;
+				margin-bottom: 8px;
+			}
+			.name {
+				font-size: 12px;
+				color: #7F7F7F;
+			}
+			p.fw-bold {
+				font-size: 14px;
+			}
+		}
+	}
+	.properties-content-block {
+		.data {
+			margin-bottom: 16px;
+			p {
+				font-size: 14px;
+				line-height: 1.6;
+			}
+		}
+	}
 	.s_faq_collapse{
 		.accordion{
 			.card{
@@ -298,35 +329,218 @@
 		}
 	}
 }
-#product_detail{
-	#o-carousel-product{
-		position: unset !important;
-		.carousel-control-prev, .carousel-control-next{
-			opacity: 1;
-			span{
-				border: 0;
-				font-size: 24px;
-			}
+// ============================================================
+// PRODUCT DETAIL PAGE — Layout & Sticky
+// ============================================================
+
+// Force overflow visible on ALL ancestors up to #product_detail
+// Required for position:sticky to work
+#product_detail,
+#product_detail > .container,
+#product_detail > div > .container,
+#product_detail .row,
+#product_detail > div > .row {
+	overflow: visible !important;
+}
+
+// Force the main row to flex-start (Odoo sets align-items-center which breaks sticky)
+#product_detail {
+	// Override Odoo's align-items-center on the product row
+	> div > .row,
+	> .row,
+	.row.align-items-center {
+		align-items: flex-start !important;
+	}
+
+	// ============================================================
+	// LEFT COLUMN — Product Images (sticky on desktop)
+	// ============================================================
+	// Add padding-top so the image starts below the sticky header
+	padding-top: 16px;
+
+	.o_wsale_product_images {
+		// Desktop: sticky — top is set dynamically by JS based on header state
+		@media (min-width: 992px) {
+			position: sticky !important;
+			top: 5px; // Default; JS updates this when header becomes fixed
+			align-self: flex-start !important;
+			z-index: 2;
+			transition: top 200ms ease;
 		}
-		.carousel-control-prev{
-			span{
-				&:before{
-					content: "\f104";
+	}
+
+	// Remove extra whitespace below the carousel
+	#o-carousel-product {
+		// Override Odoo's o_carousel_product_left_indicators layout:
+		// Force column direction so indicators go BELOW the images, not beside them
+		flex-direction: column !important;
+		overflow: visible !important;
+		// Neutralize inner position-sticky (HTML class) — only parent .o_wsale_product_images should be sticky
+		position: relative !important;
+		// Neutralize inline top set by Odoo JS (_updateCarouselPosition) — causes jump
+		top: 0 !important;
+		// Kill Odoo core's "transition: top 200ms" that causes the jump animation
+		transition: none !important;
+		// Keep carousel below sticky header
+		z-index: 1;
+
+		.o_carousel_product_outer {
+			width: 100% !important;
+			// Override Odoo core's fixed height (400px / max-height: 90vh) that crops images
+			height: auto !important;
+			max-height: none !important;
+			order: 1;
+			overflow: visible !important;
+		}
+
+		// Let carousel height be driven by image content, not fixed h-100
+		.carousel-inner {
+			height: auto !important;
+			overflow: visible !important;
+			.carousel-item {
+				min-height: unset !important; // Override inline min-height: 605px
+				height: auto !important;
+				> div {
+					height: auto !important;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+				}
+				img {
+					width: auto;
+					max-width: 100%;
+					height: auto !important;
+					max-height: none !important; // Override mh-100 (max-height:100%)
+					object-fit: contain;
+					margin: 0 auto;
 				}
 			}
 		}
-		.carousel-control-next{
-			span{
-				&:before{
-					content: "\f105";
-				}
+
+		// Carousel arrows: clean white circles
+		.carousel-control-prev, .carousel-control-next {
+			opacity: 1 !important;
+			width: 40px;
+			height: 40px;
+			top: 50%;
+			transform: translateY(-50%);
+			background: rgba(255, 255, 255, 0.85) !important;
+			background-image: none !important; // Kill any BS SVG icon
+			border-radius: 50%;
+			display: flex !important;
+			align-items: center;
+			justify-content: center;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+			transition: background-color 0.2s ease;
+			z-index: 5;
+			&:hover {
+				background: rgba(255, 255, 255, 1) !important;
+			}
+			// Hide ALL child elements (Odoo FA spans, BS icon spans, etc.)
+			> * {
+				display: none !important;
+				visibility: hidden !important;
+			}
+			// Clear any ::before pseudo-element from Odoo/BS
+			&::before {
+				display: none !important;
+				content: "" !important;
+			}
+			// Single custom arrow via ::after
+			&::after {
+				font-family: FontAwesome;
+				font-size: 18px;
+				color: #000;
+				display: block !important;
 			}
 		}
-		.o_carousel_product_indicators{
-			display: none;
+		.carousel-control-prev {
+			left: 12px;
+			&::after { content: "\f104"; }
+		}
+		.carousel-control-next {
+			right: 12px;
+			&::after { content: "\f105"; }
+		}
+
+		// ============================================================
+		// Thumbnail indicators → centered dots BELOW the image
+		// ============================================================
+		.o_carousel_product_indicators {
+			display: flex !important;
+			justify-content: center !important;
+			overflow: visible !important;
+			width: 100% !important;
+			padding: 12px 0 4px !important;
+			margin: 0 !important;
+			order: 2; // Place below the images
+			// Reset any Odoo positioning (left-side thumbnail layout)
+			position: relative !important;
+			bottom: auto !important;
+			left: auto !important;
+			right: auto !important;
+			top: auto !important;
+			transform: none !important;
+			text-align: center !important;
+			float: none !important;
+			flex: none !important; // Don't grow/shrink in flex context
+			max-width: 100% !important;
+			height: auto !important;
+
+			// The <ol> inside — override d-lg-block and inline justify-content:start
+			ol.carousel-indicators,
+			.carousel-indicators {
+				display: flex !important; // Override d-lg-block
+				justify-content: center !important; // Override inline style
+				align-items: center !important;
+				gap: 8px;
+				padding: 0 !important;
+				margin: 0 auto !important;
+				position: relative !important;
+				bottom: auto !important;
+				left: auto !important;
+				right: auto !important;
+				transform: none !important;
+				width: auto !important;
+				flex-wrap: wrap;
+				list-style: none;
+				text-align: center !important;
+
+				li, [data-bs-target] {
+					width: 10px !important;
+					height: 10px !important;
+					min-width: 10px !important;
+					min-height: 10px !important;
+					max-width: 10px !important;
+					max-height: 10px !important;
+					border-radius: 50% !important;
+					background-color: #BABABA !important;
+					opacity: 1 !important;
+					padding: 0 !important;
+					margin: 0 !important;
+					border: none !important;
+					cursor: pointer;
+					transition: background-color 0.2s ease;
+					text-indent: -9999px;
+					overflow: hidden;
+					float: none !important;
+					display: inline-block !important;
+
+					// Hide thumbnail images inside indicators
+					div, img, span {
+						display: none !important;
+					}
+					&.active {
+						background-color: #099D5D !important;
+					}
+				}
+			}
 		}
 	}
 	.breadcrumb{
+		position: relative;
+		z-index: 10;
+		margin-bottom: 16px !important;
 		li{
 			a, span{
 				font-size: 12px;
@@ -354,7 +568,8 @@
 	
 	#product_details{
 		h1{
-		    font-size: 28px;
+		    font-size: 26px;
+		    letter-spacing: -0.5px;
 		    margin-bottom: 20px;
 		    text-transform: uppercase;
 			font-style: italic;
@@ -416,59 +631,114 @@
 					}
 				}
 			}
-			.custom_product_list {
-				li span {
+			.trust-features {
+				display: grid;
+				grid-template-columns: 1fr 1fr;
+				gap: 10px;
+				margin-bottom: 20px;
+				padding: 16px;
+				background-color: #F5F6F7;
+				border-radius: 12px;
+				.trust-feature-item {
+					display: flex;
+					align-items: center;
+					gap: 8px;
 					font-size: 12px;
+					color: #333;
+					.fa {
+						font-size: 14px;
+						color: #099D5D;
+						width: 16px;
+						text-align: center;
+						flex-shrink: 0;
+					}
 				}
 			}
-			#o_wsale_cta_wrapper{
-				.css_quantity{
+			#o_wsale_cta_wrapper {
+				.css_quantity {
 					display: none !important;
 				}
-				#add_to_cart_wrap{
+				#add_to_cart_wrap {
 					width: 100%;
 					display: unset !important;
-					#add_to_cart{
-						width: 80%;
+					#add_to_cart {
+						width: 100%;
 						display: block;
-						padding: 15px 0;
-						background-image: linear-gradient(rgb(9, 157, 93), rgb(122, 193, 68));
+						padding: 16px 0;
+						background-image: linear-gradient(135deg, #099D5D, #7AC144);
+						font-size: 16px;
+						font-weight: 700;
+						letter-spacing: 0.5px;
+						text-transform: uppercase;
+						border-radius: 12px;
+						border: none;
+						transition: all 0.2s ease;
+						&:hover {
+							transform: translateY(-1px);
+							box-shadow: 0 4px 16px rgba(9,157,93,0.35);
+						}
 					}
-					.o_we_buy_now{
+					.o_we_buy_now {
 						display: none;
 					}
 				}
-				#product_option_block{
-					justify-content: center;
-					width: 80% !important;
-					.o_add_wishlist_dyn{
-						position: absolute;
-					    left: 60px;
-						top :67%;
-					    padding: 0;
-						.fa{
-							font-size: 24px;
-    						color: #000;
-						}
+			}
+			// Hide native product_option_block (moved to actions bar)
+			#product_option_block {
+				display: none !important;
+			}
+			// Hide native duplicate product tags (already shown as badges above)
+			.o_product_tags {
+				display: none !important;
+			}
+			// Unified actions bar: wishlist + compare + store
+			.product-actions-bar {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				width: 100%;
+				gap: 0;
+				margin-top: 16px;
+				padding-bottom: 16px;
+				border-bottom: 1px solid #eee;
+				.action-item {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					gap: 4px;
+					flex: 1;
+					padding: 10px 8px;
+					background: none;
+					border: none;
+					border-right: 1px solid #eee;
+					color: #555;
+					font-size: 11px;
+					cursor: pointer;
+					text-decoration: none;
+					transition: color 0.2s ease;
+					&:last-child { border-right: none; }
+					&:hover { color: #099D5D; }
+					.fa {
+						font-size: 18px;
 					}
-					@media (max-width: 767.98px){
-						.o_add_wishlist_dyn{
-							left: 35px;
-					    	top: 30%;
-						}
+					// Wishlist button: reset Odoo's absolute positioning
+					&.o_add_wishlist_dyn {
+						position: relative !important;
+						left: auto !important;
+						top: auto !important;
+						width: auto !important;
+						height: auto !important;
+						opacity: 1 !important;
+						transform: none !important;
+						&:hover { color: #dc3545 !important; }
 					}
-				}
-				.compare-box{
-					width: 85%;
-					span{
-						font-size: 14px;
-					}				
 				}
 			}
 			.product_price{
 				h3{
-					font-size: 24px;
-					font-weight: 700;
+					font-size: 28px;
+					font-weight: 900;
+					color: #000;
 				}
 			}
 			.label{
@@ -485,6 +755,7 @@
 				    border-radius: 50%;
 				    margin-right: 8px;
     			}
+				&.bg-primary { background-color: #099D5D !important; }
 			}
 			.text{
 				li{
@@ -497,21 +768,150 @@
 		.o_product_page_reviews_link{
 			display: none;
 		}
-		.custom-text{
-			.payment-method{
-				background-color: #F5F6F7;
-			    padding: 20px 0 20px 30px;
-			    border-radius: 10px;
-			    margin: 32px 0;
+		// Hide Odoo native duplicate stock message (OWL component)
+		// Our custom .label already shows stock status
+		.availability_messages,
+		[id^="stock_freemoov_message"],
+		.css_not_available_msg,
+		.o_not_available_warn {
+			display: none !important;
+		}
+		// Hide native "Enregistrer pour plus tard" / "Save for later" button
+		.o_wsale_save_for_later_btn {
+			display: none !important;
+		}
+		// Hide native "Payer en plusieurs fois" since we have it in trust-block
+		#o_product_terms_and_share {
+			display: none;
+		}
+		// Override Odoo's native wishlist button positioning
+		// Odoo might set position:absolute via JS on ALL .o_add_wishlist_dyn
+		.product-actions-bar .o_add_wishlist_dyn {
+			position: relative !important;
+			left: auto !important;
+			top: auto !important;
+			right: auto !important;
+			bottom: auto !important;
+			width: auto !important;
+			height: auto !important;
+			opacity: 1 !important;
+			visibility: visible !important;
+			transform: none !important;
+			display: flex !important;
+		}
+			.trust-block {
+			margin-top: 24px;
+			border-top: 1px solid #eee;
+			padding-top: 20px;
+
+			.trust-title {
+				font-size: 14px;
+				font-weight: 700;
+				text-transform: uppercase;
+				color: #000;
+				margin-bottom: 10px;
+				.fa { margin-right: 6px; color: #099D5D; }
 			}
-			.advantages{
-				ul{
-					li{
-						span{
-							font-size: 14px;
-						}
+
+			.installment-block {
+				padding: 14px 16px;
+				background-color: #F5F6F7;
+				border-radius: 12px;
+				margin-bottom: 16px;
+				.fa-credit-card { color: #099D5D; margin-right: 8px; }
+				p { font-size: 13px; color: #333; }
+				.installment-link {
+					color: #099D5D;
+					text-decoration: none;
+					&:hover { text-decoration: underline; }
+				}
+				.installment-note { font-size: 11px; color: #7F7F7F; margin-top: 4px; }
+			}
+
+			.payment-secure-block {
+				margin-bottom: 16px;
+				p { font-size: 13px; color: #555; }
+				.payment-logos { max-height: 32px; opacity: 0.85; }
+			}
+
+			.confidence-block {
+				margin-bottom: 16px;
+				.confidence-badges {
+					display: flex;
+					flex-direction: column;
+					gap: 8px;
+				}
+				.trust-badge-link {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					padding: 10px 14px;
+					background-color: #F5F6F7;
+					border-radius: 10px;
+					color: #333;
+					font-size: 13px;
+					font-weight: 600;
+					text-decoration: none;
+					transition: all 0.2s ease;
+					.fa-check { color: #099D5D; font-size: 12px; }
+					&:hover {
+						background-color: #eef9f3;
+						color: #099D5D;
 					}
 				}
+			}
+
+			.contact-block {
+				margin-bottom: 16px;
+				padding: 14px 16px;
+				background-color: #F5F6F7;
+				border-radius: 12px;
+				p { font-size: 13px; color: #555; }
+				.phone-number {
+					font-size: 20px;
+					font-weight: 700;
+					color: #099D5D;
+					text-decoration: none;
+					display: block;
+					margin-top: 4px;
+					&:hover { text-decoration: underline; }
+				}
+			}
+
+			.reviews-block {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				padding: 12px 16px;
+				background-color: #F5F6F7;
+				border-radius: 12px;
+				margin-bottom: 16px;
+				.reviews-score {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					.score {
+						font-size: 20px;
+						font-weight: 900;
+						color: #000;
+					}
+					.stars .fa { color: #f5a623; font-size: 14px; }
+					.reviews-label {
+						font-size: 12px;
+						color: #7F7F7F;
+					}
+				}
+				.reviews-link {
+					font-size: 12px;
+					color: #099D5D;
+					text-decoration: none;
+					font-weight: 600;
+					&:hover { text-decoration: underline; }
+				}
+			}
+
+			.about-block {
+				p { font-size: 13px; color: #555; line-height: 1.6; }
 			}
 		}
 	}
@@ -519,22 +919,42 @@
 		.top-line{
 			width: 100%;
 		}
-		.compare-box{
-			width: 100%!important;
-		}
 		#product_details{
+			h1{
+				font-size: 22px;
+			}
 			.js_product{
+				.trust-features {
+					grid-template-columns: 1fr;
+					gap: 8px;
+					padding: 12px;
+				}
 				#o_wsale_cta_wrapper{
 					#add_to_cart_wrap{
 						#add_to_cart{
 							width: 100%;
+							padding: 16px 0;
+							font-size: 16px;
 						}
 					}
 				}
+				.product-actions-bar {
+					gap: 0;
+					.action-item {
+						font-size: 10px;
+						padding: 8px 4px;
+						.fa { font-size: 16px; }
+					}
+				}
 			}
-			.custom-text{
-				.payment-method{
-					padding: 20px 0 20px 0px;
+			.trust-block {
+				.reviews-block {
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 8px;
+				}
+				.contact-block .phone-number {
+					font-size: 18px;
 				}
 			}
 		}
@@ -573,20 +993,51 @@
     transform: translate(-50%, -50%);
 }
 .carousel_product_num {
-	position: absolute;
-    left: 50%;
-    bottom: auto;
-    background-color: #F5F6F7;
-    padding: 2px 17px;
-    border-radius: 20px;
+	display: none !important;
 }
 .download_product_img {
+	display: none;
+}
+.share_product_link {
 	position: absolute;
-    right: 60px;
-    bottom: auto;
-    color: #000;	
+    right: 16px;
+    bottom: 16px;
+    color: #000;
+    z-index: 5;
+    cursor: pointer;
 	a {
 		color: #000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 36px;
+		height: 36px;
+		background-color: #F5F6F7;
+		border-radius: 50%;
+		transition: background-color 0.2s ease;
+		&:hover {
+			background-color: #e8e9ea;
+		}
+	}
+	.share_tooltip {
+		position: absolute;
+		bottom: 100%;
+		right: 0;
+		background-color: #099D5D;
+		color: #fff;
+		padding: 4px 12px;
+		border-radius: 6px;
+		font-size: 12px;
+		white-space: nowrap;
+		opacity: 0;
+		transform: translateY(4px);
+		transition: opacity 0.3s ease, transform 0.3s ease;
+		pointer-events: none;
+		margin-bottom: 6px;
+		&.show {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 }
 .product_tags_block {
@@ -654,15 +1105,17 @@
 			display: none;
 		}
 	}
-	.download_product_img {
-		bottom: 2%;
+	.share_product_link, .download_product_img {
+		bottom: 8px;
+		right: 16px;
 	}
 	.s_btn.d-flex.align-items-center {
-		display: block !important;
+		display: flex !important;
+		justify-content: center;
 
 		a.btn {
 			position: relative;
-    		left: 37%;
+    		left: auto;
 		}
 	}
 	
@@ -678,11 +1131,41 @@
 		height: 348px !important;
 	}
 	.carousel_product_num {
-		left: 38%;
-    	bottom: 2%;
+		display: none !important;
 	}
-	#product_detail #o-carousel-product .carousel-control-prev, #product_detail #o-carousel-product .carousel-control-next {
-		opacity: 1;
+	#product_detail #o-carousel-product .carousel-control-prev,
+	#product_detail #o-carousel-product .carousel-control-next {
+		width: 32px;
+		height: 32px;
+		&::after { font-size: 14px; }
+	}
+	#product_detail #o-carousel-product .carousel-control-prev { left: 4px; }
+	#product_detail #o-carousel-product .carousel-control-next { right: 4px; }
+	#product_detail {
+		padding-top: 8px;
+		// Mobile: never sticky
+		.o_wsale_product_images {
+			position: relative !important;
+		}
+		// Mobile: indicators always visible + centered
+		#o-carousel-product .o_carousel_product_indicators {
+			display: flex !important;
+			justify-content: center !important;
+		}
+		#product_details {
+			.js_product {
+				#o_wsale_cta_wrapper {
+					#add_to_cart_wrap {
+						text-align: center;
+					}
+				}
+			}
+		}
+	}
+	.properties {
+		.bg-color {
+			padding: 20px;
+		}
 	}
 	.header_freemoov {
 		.search_bar_1 {
@@ -709,16 +1192,87 @@
 		}
 	}
 }
+/* ==========================================
+   Cart page + Cart popover styling
+   ========================================== */
 .oe_cart, #o_cart_summary {
 	.btn-secondary {
 		background-color: #099D5D !important;
 		color: #fff !important;
 	}
+	.btn-primary {
+		background-image: linear-gradient(135deg, #099D5D, #7AC144);
+		border: none;
+		border-radius: 10px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.3px;
+		&:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba(9,157,93,0.3);
+		}
+	}
 }
+
+/* Cart page products */
+#cart_products {
+	.o_cart_product {
+		padding: 16px 0;
+		border-bottom: 1px solid #f0f0f0;
+		img.o_image_64_max {
+			border-radius: 10px;
+		}
+		h6 { font-weight: 700; }
+		.js_delete_product {
+			color: #dc3545;
+			font-size: 12px;
+			&:hover { text-decoration: underline; }
+		}
+		.css_quantity {
+			border-radius: 10px;
+			overflow: hidden;
+			.btn-link { color: #099D5D; }
+			.form-control {
+				border: 1px solid #e8e9ea;
+				text-align: center;
+			}
+		}
+	}
+}
+
+/* Cart summary card */
+.o_total_card {
+	border-radius: 16px !important;
+	border: none !important;
+	box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+	overflow: hidden;
+	.card-body, .accordion-body {
+		padding: 20px;
+	}
+	#order_total {
+		.h4 { font-weight: 900; color: #000; }
+	}
+	a.btn-primary, a.a-submit, button.btn-primary {
+		background-image: linear-gradient(135deg, #099D5D, #7AC144) !important;
+		border: none !important;
+		border-radius: 10px !important;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.3px;
+		padding: 14px 24px;
+		transition: all 0.2s ease;
+		&:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba(9,157,93,0.3);
+		}
+	}
+}
+
 #add_to_cart_button {
 	background-color: #099D5D !important;
 	color: #fff !important;
 }
+
 #products_grid:not(.o_wsale_layout_list) .o_wsale_products_grid_table_wrapper .oe_product .o_wsale_product_grid_wrapper {
 	.prod_desc_div {
 		display: none;

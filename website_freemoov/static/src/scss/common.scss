@@ -49,19 +49,23 @@ a.btn {
         .oe_product_cart{
             height: 360px !important;
             .oe_product_image{
+                // Allow badge to be visible outside image area
+                overflow: visible !important;
                 .oe_product_image_link{
                     height: 160px !important;
+                    overflow: hidden;
                     img{
                         height: 160px !important;
                         object-fit: contain;
                     }
                 }
                 .ust-product-label{
+                    position: relative;
+                    z-index: 2;
                     .ust-main-prod-label{
                         span{
                             text-transform: capitalize;
                             border-radius: 15px !important;
-                            // background-color: #233E8D !important;
                             letter-spacing: 0.2px;
                         }
                     }
