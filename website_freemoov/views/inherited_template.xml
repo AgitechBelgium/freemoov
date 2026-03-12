@@ -551,173 +551,148 @@
             <section class="properties mt32 mb40">
                 <div class="container">
                     <div class="bg-color">
-                        <div class="row properties-layout">
-                            <!-- Stats icons: mobile FIRST (order-1), desktop RIGHT (order-md-2) -->
-                            <div class="col-lg-6 pt16 pb16 order-1 order-md-2">
-                                <div class="properties-stats-banner">
-                                    <t t-set="count" t-value="0"></t>
-                                    <div class="d-flex justify-content-around align-items-center mb24">
-                                        <div class="row">
-                                            <t t-foreach="product.attribute_line_ids" t-as="attribute" t-if="count &lt; 6">
-                                                <t t-set="count" t-value="count + 1"></t>
-                                                <div class="col-4 mb24">
-                                                    <div class="propertie-box text-center">
-                                                        <div t-if="attribute.attribute_id.image_1920 or editable"
-                                                        t-field="attribute.attribute_id.image_1920" t-options="{'widget': 'image', 'preview_image': 'image_256'}" />
-                                                        <p class="name mb-0" t-esc="attribute.attribute_id.name"></p>
-                                                        <t t-if="attribute.attribute_default_val">
-                                                            <p class="fw-bold mb-0" t-esc="attribute.attribute_default_val.name"></p>
-                                                        </t>
+                        <!-- Stats badges: full-width banner at top -->
+                        <div class="properties-stats-banner">
+                            <t t-set="count" t-value="0"></t>
+                            <div class="stats-grid">
+                                <t t-foreach="product.attribute_line_ids" t-as="attribute" t-if="count &lt; 6">
+                                    <t t-set="count" t-value="count + 1"></t>
+                                    <div class="propertie-box text-center">
+                                        <div t-if="attribute.attribute_id.image_1920 or editable"
+                                        t-field="attribute.attribute_id.image_1920" t-options="{'widget': 'image', 'preview_image': 'image_256'}" />
+                                        <p class="name mb-0" t-esc="attribute.attribute_id.name"></p>
+                                        <t t-if="attribute.attribute_default_val">
+                                            <p class="fw-bold mb-0" t-esc="attribute.attribute_default_val.name"></p>
+                                        </t>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                        <!-- Content: full-width below stats -->
+                        <div class="properties-content-block">
+                            <div class="data" t-if="product.summary">
+                                <span t-esc="product.summary" style=""/>
+                            </div>
+                            <section class="s_faq_collapse o_colored_level" data-snippet="s_faq_collapse" data-name="Accordion" style="background-image: none;">
+                                <div class="container">
+                                    <div id="myCollapse" class="accordion accordion-grid" role="tablist">
+                                        <div class="card bg-white" data-name="Item" t-if="product.pro_description">
+                                            <a href="#" role="tab" data-bs-toggle="modal" aria-expanded="false" class="card-header py-3 collapsed s_faq_collapse_right_icon" data-bs-target="#descriptionmodel">Description</a>
+                                        </div>
+                                        <div t-if="product.pro_description" class="modal modal-fullscreen fade" id="descriptionmodel" tabindex="-1" aria-labelledby="descriptionmodelLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header border-bottom-0 mx-auto">
+                                                        <h3 class="modal-title text-uppercase fw-bold" id="descriptionmodelLabel">Description &amp; images</h3>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-lg-12">
+                                                                <p class="card-text pro-desc o_default_snippet_text"><t t-esc="product.pro_description"/></p>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </t>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Accordion: mobile SECOND (order-2), desktop LEFT (order-md-1) -->
-                            <div class="col-lg-6 pt16 pb16 order-2 order-md-1">
-                                <div class="properties-content-block">
-                                <div class="data" t-if="product.summary">
-                                    <p>
-                                        <span t-esc="product.summary" style=""/>
-                                    </p>
-                                </div>
-                                <section class="s_faq_collapse o_colored_level" data-snippet="s_faq_collapse" data-name="Accordion" style="background-image: none;">
-                                    <div class="container">
-                                        <div id="myCollapse" class="accordion" role="tablist">
-                                            <div class="card bg-white" data-name="Item" t-if="product.pro_description">
-                                                <a href="#" role="tab" data-bs-toggle="modal" aria-expanded="false" class="card-header py-3 collapsed s_faq_collapse_right_icon" data-bs-target="#descriptionmodel">Description</a>
                                             </div>
-                                            <div t-if="product.pro_description" class="modal modal-fullscreen fade" id="descriptionmodel" tabindex="-1" aria-labelledby="descriptionmodelLabel" aria-hidden="true">
+                                        </div>
+                                        <t t-set="category_ids" t-value="product.attribute_line_ids.attribute_id.mapped('category_id')"/>
+                                        <t t-if="product.attribute_line_ids and len(product.attribute_line_ids) &gt; 5">
+                                            <div class="card bg-white" data-name="Item">
+                                                <a type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" aria-expanded="false" class="py-3 btn collapsed card-header s_faq_collapse_right_icon text-start">Caractéristiques techniques</a>
+                                            </div>
+                                            <div class="modal modal-fullscreen fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                                 <div class="modal-dialog">
                                                     <div class="modal-content">
                                                         <div class="modal-header border-bottom-0 mx-auto">
-                                                            <h3 class="modal-title text-uppercase fw-bold" id="descriptionmodelLabel">Description &amp; images</h3>
+                                                            <h3 class="modal-title text-uppercase fw-bold" id="exampleModalLabel">Caractéristiques techniques</h3>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            <div class="row">
-                                                                <div class="col-lg-12">
-                                                                    <p class="card-text pro-desc o_default_snippet_text"><t t-esc="product.pro_description"/></p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <t t-set="category_ids" t-value="product.attribute_line_ids.attribute_id.mapped('category_id')"/>
-                                            
-                                            <t t-if="product.attribute_line_ids and len(product.attribute_line_ids) &gt; 5">
-                                                <div class="card bg-white" data-name="Item">
-                                                    <a type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" aria-expanded="false" class="py-3 btn collapsed card-header s_faq_collapse_right_icon text-start">Caractéristiques techniques</a>
-                                                </div>
-                                                <div class="modal modal-fullscreen fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                                    <div class="modal-dialog">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header border-bottom-0 mx-auto">
-                                                                <h3 class="modal-title text-uppercase fw-bold" id="exampleModalLabel">Technical characteristics</h3>
-                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="modal-body">
-                                                                <div class="row justify-content-between">
-                                                                    <t t-set="category_ids" t-value="product.attribute_line_ids.attribute_id.mapped('category_id')"/>
-                                                                    <t t-foreach="category_ids" t-as="category_id">
-                                                                        <div class="col-md-5 pt16 pb16 col-12 px-3 me-lg-3 column">
-                                                                            <table>
-                                                                                <div class="row">
-                                                                                    <h6 class="title fw-bold px-0" t-esc="category_id.name">Batterie</h6>
-                                                                                </div>
-                                                                            </table>
-                                                                            <t t-set="attributes" t-value="product.attribute_line_ids.filtered(lambda r: r.attribute_id.category_id == category_id)"/>
-                                                                                    <t t-foreach="attributes" t-as="bettery_line">
-                                                                                    <div class="row">
-                                                                                        <p class="col px-0 mb-0 py-2"><t t-esc="bettery_line.attribute_id.name or ''"/></p>
-                                                                                       
-                                                                                        <t t-foreach="bettery_line.value_ids" t-as="value">
-                                                                                            <p class="col px-0 mb-0 py-2 text-end"><t t-esc="value.name or ''"/></p>
-                                                                                        </t>
-                                                                                        
-                                                                                    </div>
-                                                                                </t>
-                                                                        </div>
-                                                                    </t>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </t>
-                                            <t t-if="product.attribute_line_ids and len(product.attribute_line_ids) &lt; 5">
-                                                <div class="card bg-white" data-name="Item">
-                                                    <a href="#" role="tab" data-bs-toggle="collapse" aria-expanded="false" class="collapsed card-header py-3 s_faq_collapse_right_icon o_default_snippet_text" data-bs-target="#myCollapseTab44542_2">Caractéristiques techniques</a>
-                                                    <div class="collapse" data-bs-parent="#myCollapse" role="tabpanel" id="myCollapseTab44542_2">
-                                                        <div class="card-body specification-box">
-                                                            <!-- <p>La trottinette électrique Navee S65 est un vrai tapis volant ! Ces suspensions à torsion et ces pneus tubeless en 10 pouces lui procurent un confort irréprochable. Tous les défauts (ou presque) des routes urbaines sont absorbées vous garantissant un réel plaisir de conduire.</p> -->
-                                                            
-                                                            <t t-if="product.attribute_line_ids">
+                                                            <div class="row justify-content-between">
                                                                 <t t-set="category_ids" t-value="product.attribute_line_ids.attribute_id.mapped('category_id')"/>
                                                                 <t t-foreach="category_ids" t-as="category_id">
-                                                                <div class="col-md-12 pt16 pb16 col-12 px-3 me-lg-3 column">
-                                                                    <table>
-                                                                        <div class="row">
-                                                                            <h6 class="title fw-bold px-0" t-esc="category_id.name">Batterie</h6>
-                                                                        </div>
+                                                                    <div class="col-md-5 pt16 pb16 col-12 px-3 me-lg-3 column">
+                                                                        <h6 class="title fw-bold px-0" t-esc="category_id.name">Batterie</h6>
                                                                         <t t-set="attributes" t-value="product.attribute_line_ids.filtered(lambda r: r.attribute_id.category_id == category_id)"/>
                                                                         <t t-foreach="attributes" t-as="bettery_line">
-                                                                            <div class="row attribute-row">
+                                                                            <div class="row">
                                                                                 <p class="col px-0 mb-0 py-2"><t t-esc="bettery_line.attribute_id.name or ''"/></p>
                                                                                 <t t-foreach="bettery_line.value_ids" t-as="value">
-                                                                                    <p class="col-2 px-0 mb-0 py-2 text-center"><t t-esc="value.name or ''"/></p>
+                                                                                    <p class="col px-0 mb-0 py-2 text-end"><t t-esc="value.name or ''"/></p>
                                                                                 </t>
                                                                             </div>
                                                                         </t>
-                                                                    </table>
-                                                                </div>
+                                                                    </div>
                                                                 </t>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                        <t t-if="product.attribute_line_ids and len(product.attribute_line_ids) &lt; 5">
+                                            <div class="card bg-white" data-name="Item">
+                                                <a href="#" role="tab" data-bs-toggle="collapse" aria-expanded="false" class="collapsed card-header py-3 s_faq_collapse_right_icon o_default_snippet_text" data-bs-target="#myCollapseTab44542_2">Caractéristiques techniques</a>
+                                                <div class="collapse" data-bs-parent="#myCollapse" role="tabpanel" id="myCollapseTab44542_2">
+                                                    <div class="card-body specification-box">
+                                                        <t t-if="product.attribute_line_ids">
+                                                            <t t-set="category_ids" t-value="product.attribute_line_ids.attribute_id.mapped('category_id')"/>
+                                                            <t t-foreach="category_ids" t-as="category_id">
+                                                                <div class="col-md-12 pt16 pb16 col-12 px-3 me-lg-3 column">
+                                                                    <h6 class="title fw-bold px-0" t-esc="category_id.name">Batterie</h6>
+                                                                    <t t-set="attributes" t-value="product.attribute_line_ids.filtered(lambda r: r.attribute_id.category_id == category_id)"/>
+                                                                    <t t-foreach="attributes" t-as="bettery_line">
+                                                                        <div class="row attribute-row">
+                                                                            <p class="col px-0 mb-0 py-2"><t t-esc="bettery_line.attribute_id.name or ''"/></p>
+                                                                            <t t-foreach="bettery_line.value_ids" t-as="value">
+                                                                                <p class="col-2 px-0 mb-0 py-2 text-center"><t t-esc="value.name or ''"/></p>
+                                                                            </t>
+                                                                        </div>
+                                                                    </t>
+                                                                </div>
                                                             </t>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </t>
-                                            <div class="card bg-white" data-name="Item" t-if="product.delivery_return">
-                                                <a href="#" role="tab" data-bs-toggle="modal" aria-expanded="false" class="collapsed card-header py-3 o_default_snippet_text s_faq_collapse_right_icon" data-bs-target="#livraisonmodel">Livraison &amp; retour</a>
-                                            </div>
-                                            <div t-if="product.delivery_return" class="modal modal-fullscreen fade" id="livraisonmodel" tabindex="-1" aria-labelledby="livraisonmodelLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header border-bottom-0 mx-auto">
-                                                            <h3 class="modal-title text-uppercase fw-bold" id="livraisonmodelLabel">Livraison &amp; retour</h3>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <p class="card-text o_default_snippet_text pro-desc"><t t-esc="product.delivery_return or ''"/></p>
-                                                        </div>
+                                                        </t>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="card bg-white" data-name="Item" t-if="product.warranty_support">
-                                                <a href="#" role="tab" data-bs-toggle="modal" aria-expanded="false" class="collapsed card-header py-3 o_default_snippet_text s_faq_collapse_right_icon" data-bs-target="#garantiemodel">Garantie &amp; Assistance</a>
+                                        </t>
+                                        <div class="card bg-white" data-name="Item" t-if="product.delivery_return">
+                                            <a href="#" role="tab" data-bs-toggle="modal" aria-expanded="false" class="collapsed card-header py-3 o_default_snippet_text s_faq_collapse_right_icon" data-bs-target="#livraisonmodel">Livraison &amp; retour</a>
+                                        </div>
+                                        <div t-if="product.delivery_return" class="modal modal-fullscreen fade" id="livraisonmodel" tabindex="-1" aria-labelledby="livraisonmodelLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header border-bottom-0 mx-auto">
+                                                        <h3 class="modal-title text-uppercase fw-bold" id="livraisonmodelLabel">Livraison &amp; retour</h3>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p class="card-text o_default_snippet_text pro-desc"><t t-esc="product.delivery_return or ''"/></p>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <div t-if="product.warranty_support" class="modal modal-fullscreen fade" id="garantiemodel" tabindex="-1" aria-labelledby="garantiemodelLabel" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header border-bottom-0 mx-auto">
-                                                            <h3 class="modal-title text-uppercase fw-bold" id="garantiemodelLabel">Garantie &amp; Assistance</h3>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <p class="card-text o_default_snippet_text pro-desc"><t t-esc="product.warranty_support or ''"/></p>
-                                                        </div>
+                                        </div>
+                                        <div class="card bg-white" data-name="Item" t-if="product.warranty_support">
+                                            <a href="#" role="tab" data-bs-toggle="modal" aria-expanded="false" class="collapsed card-header py-3 o_default_snippet_text s_faq_collapse_right_icon" data-bs-target="#garantiemodel">Garantie &amp; Assistance</a>
+                                        </div>
+                                        <div t-if="product.warranty_support" class="modal modal-fullscreen fade" id="garantiemodel" tabindex="-1" aria-labelledby="garantiemodelLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header border-bottom-0 mx-auto">
+                                                        <h3 class="modal-title text-uppercase fw-bold" id="garantiemodelLabel">Garantie &amp; Assistance</h3>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p class="card-text o_default_snippet_text pro-desc"><t t-esc="product.warranty_support or ''"/></p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                </section>
-                            </div>
-                            </div><!-- /col-lg-6 accordion -->
-                        </div><!-- /row properties-layout -->
+                                </div>
+                            </section>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -823,34 +798,34 @@
             <section class="safety pt64 pb64 oe_structure oe_empty">
                 <div class="container">
                     <div class="row">
-                        <div class="col-lg-6 pt16 pb16">
+                        <div class="col-lg-6 pb16 pt32">
                             <div class="information h-100">
                                 <div class="row">
                                     <div class="col-6 detail">
-                                        <h5 class="fw-bold text-uppercase text-white">Pensez à votre sécurité</h5>
-                                        <a class="icon"><img class="img" src="/website_freemoov/static/src/img/arrow-left.png" alt="photo"/></a>
+                                        <h5 class="fw-bold text-uppercase text-white"><span style="font-weight: normal;">guide d'achat</span> <em>trottinette</em></h5>
+                                        <a class="icon" href="/blog/trottinette-electrique-1/guide-complet-pour-choisir-une-trottinette-electrique-1"><img class="img" src="/website_freemoov/static/src/img/arrow-left.png" alt="photo"/></a>
                                     </div>
                                     <div class="col-6">
-                                        <img class="img img-fluid photo" src="/website_freemoov/static/src/img/img1.png" alt="photo"/>
+                                        <img src="/web/image/18457-d67da69b/2.png" alt="Guide trottinette" class="img img-fluid photo" loading="lazy"/>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-6 pt16 pb16">
+                        <div class="col-lg-6 pb16 pt24">
                             <div class="information h-100 two">
                                 <div class="row">
                                     <div class="col-6 detail">
-                                        <h5 class="fw-bold text-uppercase text-white">Découvrez nos accessoires</h5>
-                                        <a class="icon"><img class="img" src="/website_freemoov/static/src/img/arrow-left.png" alt="photo"/></a>
+                                        <h5 class="fw-bold text-uppercase text-white"><span style="font-weight: normal;">guide d'achat</span> <em>gyroroue</em></h5>
+                                        <a class="icon" href="/blog/gyroroue-2/le-guide-ultime-pour-choisir-une-gyroroue-2"><img class="img" src="/website_freemoov/static/src/img/arrow-left.png" alt="photo"/></a>
                                     </div>
                                     <div class="col-6">
-                                        <img class="img img-fluid photo" src="/website_freemoov/static/src/img/img2.png" alt="photo"/>
+                                        <img src="/web/image/18458-7e28d1ca/1.png" alt="Guide gyroroue" class="img img-fluid photo" loading="lazy"/>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>      
+                </div>
             </section>
             <div class="oe_structure oe_empty"></div>
 
