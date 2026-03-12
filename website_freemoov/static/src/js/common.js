@@ -1,25 +1,21 @@
 odoo.define('website_freemoov.carousel_override', function (require) {
     "use strict";
     var publicWidget = require('web.public.widget');
+    var dom = require('web.dom');
 
     // Override Odoo's product carousel widget:
-    // - Update sticky top on parent based on fixed header height
+    // - Move sticky from #o-carousel-product to parent .o_wsale_product_images
+    // - Use Odoo's dom.scrollFixedOffset() for reliable header height detection
     // - Disable _onMouseWheel (scroll should scroll the page, not cycle slides)
     if (publicWidget.registry.websiteSaleCarouselProduct) {
         publicWidget.registry.websiteSaleCarouselProduct.include({
             _updateCarouselPosition: function () {
-                var size = 5;
-                var header = document.querySelector('header.o_header_affixed');
-                if (header) {
-                    size += $(header).outerHeight();
-                } else {
-                    document.querySelectorAll('.o_top_fixed_element').forEach(function (el) {
-                        size += $(el).outerHeight();
-                    });
-                }
+                // Use Odoo's built-in fixed offset calculation (handles all header states)
+                var offset = dom.scrollFixedOffset() + 5;
+                // Apply sticky top to the parent images container instead of the carousel
                 var parent = this.$el.closest('.o_wsale_product_images')[0];
                 if (parent) {
-                    parent.style.setProperty('top', size + 'px');
+                    parent.style.setProperty('top', offset + 'px');
                 }
             },
             _onMouseWheel: function () {

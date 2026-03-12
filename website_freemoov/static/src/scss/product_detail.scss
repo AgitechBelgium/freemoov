@@ -98,12 +98,25 @@
 	    padding: 45px;
 	    border-radius: 20px;
 	}
-	// Two-column layout: accordion left, stats right (desktop)
-	// Mobile: stats first, accordion second (via order classes)
-	.properties-layout {
-		align-items: flex-start;
-	}
+	// Full-width stats banner at top
 	.properties-stats-banner {
+		padding-bottom: 24px;
+		margin-bottom: 24px;
+		border-bottom: 1px solid #e0e0e0;
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(6, 1fr);
+			gap: 16px;
+			// Tablet: 3 columns
+			@media (max-width: 991.98px) {
+				grid-template-columns: repeat(3, 1fr);
+			}
+			// Mobile: 2 columns
+			@media (max-width: 575.98px) {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 12px;
+			}
+		}
 		.propertie-box {
 			transition: transform 0.15s ease;
 			&:hover { transform: translateY(-2px); }
@@ -120,12 +133,25 @@
 			}
 		}
 	}
+	// Full-width content below stats
 	.properties-content-block {
 		.data {
-			margin-bottom: 16px;
-			p {
-				font-size: 14px;
-				line-height: 1.6;
+			margin-bottom: 20px;
+			font-size: 14px;
+			line-height: 1.7;
+			color: #444;
+		}
+		// Accordion items in 2 columns on desktop
+		.accordion-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 0 16px;
+			@media (max-width: 767.98px) {
+				grid-template-columns: 1fr;
+			}
+			// Modals should not be constrained by grid
+			.modal {
+				grid-column: 1 / -1;
 			}
 		}
 	}
@@ -359,10 +385,12 @@
 	padding-top: 16px;
 
 	.o_wsale_product_images {
-		// Desktop: sticky — top is set dynamically by JS based on header state
+		// Desktop: sticky — top is refined by JS via dom.scrollFixedOffset()
 		@media (min-width: 992px) {
 			position: sticky !important;
-			top: 5px; // Default; JS updates this when header becomes fixed
+			// Safe CSS fallback: header ~80px + green banner ~35px + margin 5px
+			// JS will override this with exact value once header is initialized
+			top: 120px;
 			align-self: flex-start !important;
 			z-index: 2;
 			transition: top 200ms ease;
