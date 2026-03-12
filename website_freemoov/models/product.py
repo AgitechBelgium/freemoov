@@ -13,6 +13,16 @@ class ProductTemplate(models.Model):
 	is_dropship_product = fields.Boolean(string="Dropshipping Product?")
 	tab_ids = fields.One2many('ust.product.tabs', 'product_id',string="Tab")
 
+	def _get_sales_prices(self, pricelist, fiscal_position):
+		"""Force Belgian fiscal position (21% VAT) for all website visitors."""
+		belgian_fp = self.env['account.fiscal.position'].sudo().search([
+			('country_id.code', '=', 'BE'),
+			('auto_apply', '=', True),
+		], limit=1)
+		if belgian_fp:
+			fiscal_position = belgian_fp
+		return super()._get_sales_prices(pricelist, fiscal_position)
+
 	def dropship_product(self) :
 		dropship_route = self.env.ref('stock_dropshipping.route_drop_shipping')
 		is_dropship = dropship_route.id in self.route_ids.ids
