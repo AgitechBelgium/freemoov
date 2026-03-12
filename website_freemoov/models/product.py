@@ -35,7 +35,8 @@ class ProductTemplate(models.Model):
 
 class ProductCategoryTemplate(models.Model):
 	_inherit = "product.public.category"
-	
+
 	# category_ids = fields.Many2many('product.public.category',string="Categories")
 	brand_ids = fields.Many2many('ust.product.brand',string="Brand")
 	category_description = fields.Text(string="Category Description ")
+	category_bottom_content = fields.Html(string="Category Bottom Content", translate=html_translate, sanitize=False)
