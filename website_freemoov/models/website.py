@@ -6,6 +6,16 @@ class Website(models.Model):
 	_inherit = 'website'
 
 
+	def _get_current_fiscal_position_id(self, partner_sudo):
+		"""Force Belgian fiscal position (21% VAT) for all website visitors."""
+		belgian_fp = self.env['account.fiscal.position'].sudo().search([
+			('country_id.code', '=', 'BE'),
+			('auto_apply', '=', True),
+		], limit=1)
+		if belgian_fp:
+			return belgian_fp.id
+		return super()._get_current_fiscal_position_id(partner_sudo)
+
 	def check_stock_availability(self,product_variant) :
 		qty_avail = 0
 		product_variant_id = self.env['product.product'].sudo().browse(product_variant)
