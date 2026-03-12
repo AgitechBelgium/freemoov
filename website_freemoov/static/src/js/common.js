@@ -1,43 +1,101 @@
+odoo.define('website_freemoov.carousel_override', function (require) {
+    "use strict";
+    var publicWidget = require('web.public.widget');
+    var dom = require('web.dom');
+
+    // Override Odoo's product carousel widget:
+    // - Move sticky from #o-carousel-product to parent .o_wsale_product_images
+    // - Use Odoo's dom.scrollFixedOffset() for reliable header height detection
+    // - Disable _onMouseWheel (scroll should scroll the page, not cycle slides)
+    if (publicWidget.registry.websiteSaleCarouselProduct) {
+        publicWidget.registry.websiteSaleCarouselProduct.include({
+            _updateCarouselPosition: function () {
+                // Use Odoo's built-in fixed offset calculation (handles all header states)
+                var offset = dom.scrollFixedOffset() + 5;
+                // Apply sticky top to the parent images container instead of the carousel
+                var parent = this.$el.closest('.o_wsale_product_images')[0];
+                if (parent) {
+                    parent.style.setProperty('top', offset + 'px');
+                }
+            },
+            _onMouseWheel: function () {
+                // No-op: let page scroll normally
+            },
+        });
+    }
+});
+
 $(document).ready(function(){
     $(".nav-item.dropdown.position-static").on('click', function(event) {
         $(this).closest('.dropdown-menu.o_mega_menu').modal('show');
-    })
+    });
     if($('div').hasClass('cat-div')) {
-        $('.cat-div').parent().find('#ust_all_in_one_configure').addClass('bg-white')
-      }
+        $('.cat-div').parent().find('#ust_all_in_one_configure').addClass('bg-white');
+    }
+
+    // Owl Carousel initialization (with .length guards)
+    if ($('.client').length) {
+        $('.client').owlCarousel({
+            loop: true,
+            margin: 10,
+            nav: true,
+            responsive: {
+                0: { items: 1.3 },
+                600: { items: 3 },
+                1000: { items: 4 }
+            }
+        });
+    }
+
+    if ($('.accessory_product').length) {
+        $('.accessory_product').owlCarousel({
+            loop: true,
+            margin: 10,
+            nav: true,
+            responsive: {
+                0: { items: 2.3 },
+                600: { items: 3 },
+                1000: { items: 5 }
+            }
+        });
+    }
+
+    // Replace download button with share button on product page
+    var $downloadBtn = $('.download_product_img');
+    if ($downloadBtn.length) {
+        var $shareBtn = $(
+            '<div class="share_product_link">' +
+                '<a class="share_link_btn" href="#" title="Copier le lien">' +
+                    '<i class="fa fa-share-alt"></i>' +
+                '</a>' +
+                '<span class="share_tooltip">Lien copié !</span>' +
+            '</div>'
+        );
+        $downloadBtn.after($shareBtn);
+        $downloadBtn.hide();
+    }
+
+    $(document).on('click', '.share_link_btn', function(e) {
+        e.preventDefault();
+        var url = window.location.href;
+        var $tooltip = $(this).siblings('.share_tooltip');
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(url).then(function() {
+                $tooltip.addClass('show');
+                setTimeout(function() { $tooltip.removeClass('show'); }, 2000);
+            });
+        } else {
+            var $temp = $('<input>');
+            $('body').append($temp);
+            $temp.val(url).select();
+            document.execCommand('copy');
+            $temp.remove();
+            $tooltip.addClass('show');
+            setTimeout(function() { $tooltip.removeClass('show'); }, 2000);
+        }
+    });
 });
-$('.client').owlCarousel({
-    loop:true,
-    margin:10,
-    nav:true,
-    responsive:{
-        0:{
-            items:1.3
-        },
-        600:{
-            items:3
-        },
-        1000:{
-            items:4
-        }
-    }
-})
-$('.accessory_product').owlCarousel({
-    loop:true,
-    margin:10,
-    nav:true,
-    responsive:{
-        0:{
-            items:2.3
-        },
-        600:{
-            items:3
-        },
-        1000:{
-            items:5
-        }
-    }
-})
+
 odoo.define('website_freemoov.category_script', function (require) {
     "use strict";
 
@@ -46,9 +104,8 @@ odoo.define('website_freemoov.category_script', function (require) {
     var Widget = require('web.Widget');
 
     $(document).ready(function () {
-        $('#o_product_page_reviews_content').addClass('show')
+        $('#o_product_page_reviews_content').addClass('show');
         $(".ust-all-slider .owl-item").each(function () {
-            var priceContainer = $(this).find(".oe_price");
             if ($(this).find("del").length > 0) {
                 $(this).find('.oe_price').css('color', '#dc3545');
                 $(this).find('.oe_price').addClass('main_price');
@@ -61,39 +118,29 @@ odoo.define('website_freemoov.category_script', function (require) {
                 $(this).find('span.h6').css('color', '#000');
             }
         });
-        var triggerSecondClick = true;
         $(".back_to_menu").click(function() {
             $("#top-menu-collapse").modal("show");
             $("#top-menu-collapse-sub-category").modal("hide");
             $(".top_menu_sub_categ").modal("hide");
-        })
+        });
         $(".cat-div").parents('#ust_all_in_one_configure').css("background-color", "#fff");
         if($('div').hasClass('cat-div')) {
-            $('.cat-div').parent().find('#ust_all_in_one_configure').addClass('bg-white')
-          }
-        
-      
+            $('.cat-div').parent().find('#ust_all_in_one_configure').addClass('bg-white');
+        }
+
         $(".category-link").click(function (event) {
             event.preventDefault();
             var categoryId = $(this).data("category-id");
             var categoryName = $(this).data("category-name");
             ajax.jsonRpc('/fetch_subcategories', 'call', {category_id: categoryId})
                 .then(function (data) {
-                    // Populate the subcategory modal with data
-                    console.log('>>>>>>>>>categoryId>>>>>>>>>>',data['sub_catg'])                    // $("#subcategoryModalTitle").text(categoryName);
-                    var category_html = "<a class='nav_link text-white' href='/shop/category/" + data['category'] + "'>" + categoryName + "</a>"  
+                    var category_html = "<a class='nav_link text-white' href='/shop/category/" + data['category'] + "'>" + categoryName + "</a>";
                     $("#subcategoryModalTitle").find('a').html(category_html);
-                    var link = "/shop/category/" + data['category']
-                    $(".sub_categ_button").find('a').attr('href',link);
+                    var link = "/shop/category/" + data['category'];
+                    $(".sub_categ_button").find('a').attr('href', link);
                     $("#subcategoryModalBody").html(data['sub_catg']);
-                            
                     $("#top-menu-collapse-sub-category").modal("show");
-
-                    
                 });
         });
     });
 });
-
-
-
