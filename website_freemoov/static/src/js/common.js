@@ -118,29 +118,34 @@ odoo.define('website_freemoov.category_script', function (require) {
                 $(this).find('span.h6').css('color', '#000');
             }
         });
-        $(".back_to_menu").click(function() {
-            $("#top-menu-collapse").modal("show");
-            $("#top-menu-collapse-sub-category").modal("hide");
-            $(".top_menu_sub_categ").modal("hide");
-        });
         $(".cat-div").parents('#ust_all_in_one_configure').css("background-color", "#fff");
         if($('div').hasClass('cat-div')) {
             $('.cat-div').parent().find('#ust_all_in_one_configure').addClass('bg-white');
         }
 
-        $(".category-link").click(function (event) {
-            event.preventDefault();
-            var categoryId = $(this).data("category-id");
-            var categoryName = $(this).data("category-name");
-            ajax.jsonRpc('/fetch_subcategories', 'call', {category_id: categoryId})
-                .then(function (data) {
-                    var category_html = "<a class='nav_link text-white' href='/shop/category/" + data['category'] + "'>" + categoryName + "</a>";
-                    $("#subcategoryModalTitle").find('a').html(category_html);
-                    var link = "/shop/category/" + data['category'];
-                    $(".sub_categ_button").find('a').attr('href', link);
-                    $("#subcategoryModalBody").html(data['sub_catg']);
-                    $("#top-menu-collapse-sub-category").modal("show");
-                });
+        // Desktop mega-menu: show/hide on hover with delay
+        var megaTimeout;
+        $('.fm-mega-trigger').on('mouseenter', function() {
+            clearTimeout(megaTimeout);
+            $('.fm-mega-trigger').removeClass('show');
+            $(this).addClass('show');
+        }).on('mouseleave', function() {
+            var $el = $(this);
+            megaTimeout = setTimeout(function() {
+                $el.removeClass('show');
+            }, 200);
+        });
+
+        // Mobile search toggle
+        $('.fm-search-toggle').on('click', function() {
+            $('#fm-search-collapse').collapse('toggle');
+        });
+
+        // Close offcanvas when clicking a navigation link (page will reload)
+        $('#freemoov-offcanvas').on('click', 'a[href]:not([href="#"])', function() {
+            $('#freemoov-offcanvas').removeClass('show');
+            $('.offcanvas-backdrop').remove();
+            $('body').css('overflow', '');
         });
     });
 });

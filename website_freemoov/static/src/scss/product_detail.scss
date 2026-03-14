@@ -1084,9 +1084,6 @@
 	color: #fff;
 }
 
-.mobile_searchbar {
-	display: none;
-}
 .prod_desc_div {
 	width: 81%;
     display: -webkit-box;
@@ -1193,30 +1190,6 @@
 	.properties {
 		.bg-color {
 			padding: 20px;
-		}
-	}
-	.header_freemoov {
-		.search_bar_1 {
-			display: none;
-		}
-		.mobile_searchbar {
-			display: block;
-			width: 100%;
-		}
-	}
-	
-	.header_freemoov .cc_header_freemoov #top-menu-collapse-sub-category {
-		.modal-dialog {
-			margin: 0;
-
-			.modal-content {
-				height: auto;
-			}
-		}
-	}
-	.header_freemoov .cc_header_freemoov #top-menu-collapse  {
-		.modal-dialog {
-			margin: 0;
 		}
 	}
 }

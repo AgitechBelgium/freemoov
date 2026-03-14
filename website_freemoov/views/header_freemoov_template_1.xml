@@ -3,228 +3,311 @@
 
     <template id="header_freemoov_two" inherit_id="website.layout" name="Header Two" active="False">
         <xpath expr="//header" position="attributes">
-            <attribute name="t-attf-class" add="header_freemoov" separator=" " />
+            <attribute name="t-attf-class" add="header_freemoov" separator=" "/>
         </xpath>
         <xpath expr="//header//nav" position="replace">
             <t t-call="website.navbar">
-                <t t-set="_navbar_classes" t-valuef="cc_header_freemoov shadow-sm px-0" />
-                <t t-set="_navbar_expand_class" t-value="''" />
-                <div id="top_menu_container" class="container justify-content-between">
-                    <div class="col-auto justify-content-center logo_border d-flex">
-                        <!-- Brand -->
+                <t t-set="_navbar_classes" t-valuef="cc_header_freemoov px-0"/>
+                <t t-set="_navbar_expand_class" t-value="''"/>
+
+                <!-- Data sources -->
+                <t t-set="category_ids" t-value="website.get_ust_cat_data()"/>
+                <t t-set="menu_category_ids" t-value="website.get_website_menu_data()"/>
+
+                <!-- ====== TOP BAR (desktop) — secondary links ====== -->
+                <div class="fm-topbar d-none d-lg-block">
+                    <div class="container">
+                        <div class="d-flex align-items-center justify-content-end gap-3">
+                            <ul class="fm-topbar-links d-flex list-unstyled mb-0">
+                                <t t-foreach="menu_category_ids" t-as="cat">
+                                    <t t-if="cat['menu'].url and '/shop/' not in (cat['menu'].url or '') and '___' not in (cat['menu'].name or '') and cat['menu'].name and not cat['menu'].name.startswith('•')">
+                                        <li>
+                                            <a t-att-href="cat['menu'].url" t-esc="cat['menu'].name"/>
+                                        </li>
+                                    </t>
+                                </t>
+                            </ul>
+                            <t t-call="website.placeholder_header_language_selector">
+                                <t t-set="_btn_class" t-valuef="flat"/>
+                                <t t-set="_div_classes" t-valuef="ms-2"/>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ====== MAIN HEADER BAR ====== -->
+                <div id="top_menu_container" class="container d-flex align-items-center">
+
+                    <!-- Hamburger (mobile only) -->
+                    <button type="button" class="fm-hamburger d-lg-none border-0 bg-transparent p-2"
+                            data-bs-toggle="offcanvas" data-bs-target="#freemoov-offcanvas"
+                            aria-label="Menu">
+                        <i class="fa fa-bars fa-lg"/>
+                    </button>
+
+                    <!-- Logo -->
+                    <div class="fm-logo flex-shrink-0">
                         <t t-call="website.placeholder_header_brand">
-                            <t t-set="_link_class" t-valuef="me-4" />
+                            <t t-set="_link_class" t-valuef=""/>
                         </t>
                     </div>
-                    <div class="search_bar_1 col order-last order-md-0 mt-2 mt-lg-0">
-                        <form method="get" data-snippet="s_searchbar_input"
-                            class="o_searchbar_form s_searchbar_input me-lg-5 pe-md-3"
-                            action="/website/search">
-                            <div role="search" class="input-group ">
-                                <input type="search" name="search"
-                                    class="search-query form-control border-0 rounded-0 oe_search_box None"
-                                    placeholder="Ecrivez Xiaomi 4 Pro, Inmotion S1, Dualtron Thunder..."
-                                    data-search-type="all" data-limit="5" data-display-image="true"
-                                    data-display-description="true" data-display-extra-link="true"
-                                    data-display-detail="true" data-order-by="name asc" />
-                                <div class="input-group-append">
-                                    <button type="submit" aria-label="Search" title="Search"
-                                        class="btn oe_search_button rounded-0">
-                                        <i class="fa fa-search" />
-                                    </button>
+
+                    <!-- Desktop Navigation with Mega-Menus (first 5 categories only) -->
+                    <nav class="fm-nav d-none d-lg-flex align-items-center flex-grow-1">
+                        <t t-foreach="category_ids[:5]" t-as="categ">
+                            <div t-if="categ.child_id" class="fm-mega-trigger">
+                                <a class="fm-nav-link" href="#"
+                                   t-att-data-categ-id="categ.id">
+                                    <span t-esc="categ.name"/>
+                                    <i class="fa fa-chevron-down"/>
+                                </a>
+                                <!-- Mega-menu dropdown panel -->
+                                <div class="fm-mega-panel">
+                                    <div class="container">
+                                        <!-- Quick links: categories without sub-items (pills) -->
+                                        <div class="fm-mega-quicklinks">
+                                            <t t-foreach="categ.child_id" t-as="child">
+                                                <t t-if="not child.child_id">
+                                                    <a class="fm-mega-pill"
+                                                       t-attf-href="/shop/category/#{slug(child)}"
+                                                       t-esc="child.name"/>
+                                                </t>
+                                            </t>
+                                            <a class="fm-mega-pill fm-mega-pill-cta"
+                                               t-attf-href="/shop/category/#{slug(categ)}">
+                                                Tout voir <i class="fa fa-long-arrow-right ms-1"/>
+                                            </a>
+                                        </div>
+                                        <!-- Detailed columns: categories with sub-items -->
+                                        <div class="row fm-mega-details">
+                                            <t t-foreach="categ.child_id" t-as="child">
+                                                <t t-if="child.child_id">
+                                                    <div class="col-lg fm-mega-col">
+                                                        <a class="fm-mega-cat-title"
+                                                           t-attf-href="/shop/category/#{slug(child)}"
+                                                           t-esc="child.name"/>
+                                                        <ul class="list-unstyled">
+                                                            <t t-foreach="child.child_id" t-as="grandchild">
+                                                                <li>
+                                                                    <a class="fm-mega-sub-link"
+                                                                       t-attf-href="/shop/category/#{slug(grandchild)}"
+                                                                       t-esc="grandchild.name"/>
+                                                                </li>
+                                                            </t>
+                                                        </ul>
+                                                    </div>
+                                                </t>
+                                            </t>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            <div t-else="" class="fm-nav-item">
+                                <a class="fm-nav-link"
+                                   t-attf-href="/shop/category/#{slug(categ)}">
+                                    <span t-esc="categ.name"/>
+                                </a>
+                            </div>
+                        </t>
+                    </nav>
+
+                    <!-- Search bar (desktop — fills space between nav and icons) -->
+                    <div class="fm-search-inline d-none d-lg-block">
+                        <form method="get" data-snippet="s_searchbar_input"
+                              class="o_searchbar_form s_searchbar_input"
+                              action="/website/search">
+                            <div role="search" class="input-group">
+                                <input type="search" name="search"
+                                       class="search-query form-control oe_search_box"
+                                       placeholder="Rechercher un produit..."
+                                       data-search-type="all" data-limit="5"
+                                       data-display-image="true"
+                                       data-display-description="true"
+                                       data-display-extra-link="true"
+                                       data-display-detail="true"
+                                       data-order-by="name asc"/>
+                                <button type="submit" aria-label="Search" title="Search"
+                                        class="btn oe_search_button">
+                                    <i class="fa fa-search"/>
+                                </button>
+                            </div>
                             <input name="order" type="hidden" class="o_search_order_by"
-                                value="name asc" />
+                                   value="name asc"/>
                         </form>
                     </div>
-                    <div class="col-auto">
-                        <ul class="header_icon d-flex align-items-center justify-content-end mb-0">
-                            <!-- Sign In -->
-                            <li
-                                t-nocache="Profile session and user group can change unrelated to parent caches."
+
+                    <!-- Right: Action Icons -->
+                    <div class="fm-actions d-flex align-items-center">
+                        <!-- User / Cart / Wishlist Icons -->
+                        <ul class="fm-icons d-flex align-items-center list-unstyled mb-0">
+                            <!-- Sign In (public users only) -->
+                            <li t-nocache="Profile session and user group can change unrelated to parent caches."
                                 t-nocache-_item_class="_item_class"
                                 t-nocache-_link_class="_link_class"
                                 groups="base.group_public" class="nav-item o_no_autohide_item">
                                 <a t-attf-href="/web/login" class="nav-link">
                                     <img class="img img-fluid"
-                                        src="/website_freemoov/static/src/img/user.png" />
+                                         src="/website_freemoov/static/src/img/user.png"/>
                                     <span t-if="request.session.profile_session"
-                                        class="text-danger fa fa-circle" />
+                                          class="text-danger fa fa-circle"/>
                                 </a>
                             </li>
-
-                            <!-- User Dropdown -->
+                            <!-- User Dropdown (logged in) -->
                             <t t-call="portal.user_dropdown">
-                                <t t-set="_icon" t-value="True" />
-                                <t t-set="_item_class" t-valuef="nav-item dropdown" />
-                                <t t-set="_link_class" t-valuef="nav-link" />
+                                <t t-set="_icon" t-value="True"/>
+                                <t t-set="_item_class" t-valuef="nav-item dropdown"/>
+                                <t t-set="_link_class" t-valuef="nav-link"/>
                             </t>
+                            <!-- Cart -->
                             <t t-call="website_sale.header_cart_link">
-                                <t t-set="_icon" t-value="True" />
-                                <t t-set="_item_class" t-value="'nav-item'" />
-                                <t t-set="_link_class" t-value="'nav-link'" />
+                                <t t-set="_icon" t-value="True"/>
+                                <t t-set="_item_class" t-value="'nav-item'"/>
+                                <t t-set="_link_class" t-value="'nav-link'"/>
                             </t>
+                            <!-- Wishlist -->
                             <t t-call="website_sale_wishlist.header_wishlist_link">
-                                <t t-set="_icon" t-value="True" />
-                                <t t-set="_item_class" t-value="'nav-item'" />
-                                <t t-set="_link_class" t-value="'nav-link'" />
-                            </t>
-
-                            <!-- Navbar Toggler -->
-                            <li class="nav-item">
-                                <button type="button" class="navbar_toggler btn p-1"
-                                    data-bs-toggle="modal" data-bs-target="#top-menu-collapse">
-                                    <img class="img img-fluid"
-                                        src="/website_freemoov/static/src/img/menu.png" />
-                                </button>
-                            </li>
-
-                            <!-- Language Selector -->
-                            <t t-call="website.placeholder_header_language_selector">
-                                <t t-set="_btn_class" t-valuef="flat" />
-                                <t t-set="_div_classes" t-valuef="me-3" />
-                            </t>
-
-                            <!-- Call To Action -->
-                            <t t-call="website.placeholder_header_call_to_action">
-                                <t t-set="_div_classes" t-valuef="s_btn" />
+                                <t t-set="_icon" t-value="True"/>
+                                <t t-set="_item_class" t-value="'nav-item'"/>
+                                <t t-set="_link_class" t-value="'nav-link'"/>
                             </t>
                         </ul>
+
+                        <!-- CTA placeholder (hidden, kept for website builder) -->
+                        <t t-call="website.placeholder_header_call_to_action">
+                            <t t-set="_div_classes" t-valuef="d-none"/>
+                        </t>
                     </div>
+                </div>
 
-                    <!-- The Modal -->
-                    <div class="modal fade" id="top-menu-collapse">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-
-                                <!-- Modal Header -->
-                                <div class="modal-header p0 border-0">
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-
-                                <!-- Modal body -->
-                                <div class="modal-body p-0">
-                                    <img src="/website_freemoov/static/src/img/footer-icon.png"
-                                        class="img img-fluid pb40" />
-                                    <ul class="list-unstyled">
-                                        <t t-set="category_ids"
-                                            t-value="website.get_ust_cat_data() if website else None" />
-
-                                        <t t-set="menu_category_ids" t-value="website.get_website_menu_data()"></t>
-                                        <t t-foreach="menu_category_ids" t-as="category" t-if="menu_category_ids">
-                                            <t t-if="category['slider_type'] == 'sub_menu'">     
-                                                <li class="nav-item">
-                                                    <a
-                                                        class="nav-link parent_categ_link"
-                                                        href="#"
-                                                        t-attf-data-category-id="#{category['menu'].id}"
-                                                        t-attf-data-category-name="#{category['menu'].name}"
-                                                        t-attf-onclick="$('#top-menu-collapse-second-category_#{category['menu'].id}').modal('show');">
-                                                        <t t-set="record"
-                                                            t-value="cat"></t>
-                                                        <span
-                                                            t-esc="category['menu'].name" />
-                                                    </a>
-                                                </li>
-                                                <t t-call="website_freemoov.subcategoryscond_template">
-                                                    <t t-set="record" t-value="category['menu']" />
-                                                </t>
-                                            </t>  
-                                       </t>
-                                       <t t-foreach="menu_category_ids" t-as="category" t-if="menu_category_ids">
-                                            <t t-if="category['slider_type'] == 'main_menu'">  
-                                                <li class="nav-item">
-                                                    <a class="nav-link" t-att-href="category['menu'].url">
-                                                        <span t-esc="category['menu'].name"></span>
-                                                    </a>
-                                                </li>
-                                            </t>
-                                       </t>
-                                    </ul>
-                                    <div class="login-buttons pt40 pb40-2 text-center text-xl-start">
-                                        <a href="/web/login?"
-                                            class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">se
-                                            connecter</a>
-                                        <a href="/web/signup?"
-                                            class="btn btn-outline-light my-2 my-xl-0">créer un
-                                            compte</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <!-- The Modal -->
-                    <div class="modal fade" id="top-menu-collapse-sub-category">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-
-                                <!-- Modal Header -->
-                                <div class="modal-header p0 border-0">
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="icon pb40">
-                                    <img src="/website_freemoov/static/src/img/footer-icon.png"
-                                        class="img img-fluid" />
-                                </div>
-                                <h2 class="modal-title pb40 text-center text-md-start"
-                                    id="subcategoryModalTitle">
-                                    <a class="nav_link"></a>
-                                </h2>
-                                <div class="buttons pb32 text-center d-block d-md-none">
-                                    <a
-                                        class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0 ">voir
-                                        tout</a>
-                                </div>
-                                <!-- Modal body -->
-                                <div class="modal-body p-0" id="subcategoryModalBody">
-                                </div>
-                                <div
-                                    class="buttons pt40 text-center text-xl-start d-none d-md-block sub_categ_button">
-                                    <a href="/shop"
-                                        class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">voir
-                                        tout</a>
-                                    <!-- <button type="button" class="btn btn-outline-light my-2
-                                    my-xl-0 back_to_menu" data-dismiss="modal"
-                                    data-bs-toggle="modal" data-bs-target="#top-menu-collapse">Back
-                                    to menu</button> -->
-                                    <button type="button"
-                                        class="btn btn-outline-light my-2 my-xl-0 back_to_menu">Back
-                                        to menu</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="search_bar_2 order-md-0 mt-2 mt-lg-0 mobile_searchbar">
+                <!-- ====== MOBILE SEARCH COLLAPSE ====== -->
+                <div class="fm-search-mobile collapse d-lg-none" id="fm-search-collapse">
+                    <div class="container py-2">
                         <form method="get" data-snippet="s_searchbar_input"
-                            class="o_searchbar_form s_searchbar_input me-lg-5 pe-md-3"
-                            action="/website/search">
-                            <div role="search" class="input-group ">
+                              class="o_searchbar_form s_searchbar_input"
+                              action="/website/search">
+                            <div role="search" class="input-group">
                                 <input type="search" name="search"
-                                    class="search-query form-control border-0 rounded-0 oe_search_box None"
-                                    placeholder="Ecrivez Xiaomi 4 Pro, Inmotion S1, Dualtron Thunder..."
-                                    data-search-type="all" data-limit="5" data-display-image="true"
-                                    data-display-description="true" data-display-extra-link="true"
-                                    data-display-detail="true" data-order-by="name asc" />
-                                <div class="input-group-append">
-                                    <button type="submit" aria-label="Search" title="Search"
-                                        class="btn oe_search_button rounded-0">
-                                        <i class="fa fa-search" />
-                                    </button>
-                                </div>
+                                       class="search-query form-control oe_search_box"
+                                       placeholder="Xiaomi 4 Pro, Inmotion S1, Dualtron Thunder..."
+                                       data-search-type="all" data-limit="5"
+                                       data-display-image="true"
+                                       data-display-description="true"
+                                       data-display-extra-link="true"
+                                       data-display-detail="true"
+                                       data-order-by="name asc"/>
+                                <button type="submit" aria-label="Search" title="Search"
+                                        class="btn oe_search_button">
+                                    <i class="fa fa-search"/>
+                                </button>
                             </div>
                             <input name="order" type="hidden" class="o_search_order_by"
-                                value="name asc" />
+                                   value="name asc"/>
                         </form>
                     </div>
                 </div>
+
+                <!-- ====== OFFCANVAS MOBILE MENU ====== -->
+                <div class="offcanvas offcanvas-start" tabindex="-1" id="freemoov-offcanvas"
+                     aria-labelledby="freemoov-offcanvas-label">
+                    <div class="offcanvas-header">
+                        <img src="/website_freemoov/static/src/img/footer-icon.png"
+                             class="fm-offcanvas-logo" alt="Freemoov"
+                             id="freemoov-offcanvas-label"/>
+                        <button type="button" class="btn-close btn-close-white"
+                                data-bs-dismiss="offcanvas" aria-label="Fermer"/>
+                    </div>
+                    <div class="offcanvas-body">
+                        <!-- Search bar -->
+                        <div class="fm-offcanvas-search">
+                            <form method="get" data-snippet="s_searchbar_input"
+                                  class="o_searchbar_form s_searchbar_input"
+                                  action="/website/search">
+                                <div role="search" class="input-group">
+                                    <input type="search" name="search"
+                                           class="search-query form-control oe_search_box"
+                                           placeholder="Xiaomi, Inmotion, Dualtron..."
+                                           data-search-type="all" data-limit="5"
+                                           data-display-image="true"
+                                           data-display-description="true"
+                                           data-display-extra-link="true"
+                                           data-display-detail="true"
+                                           data-order-by="name asc"/>
+                                    <button type="submit" aria-label="Search" title="Search"
+                                            class="btn oe_search_button">
+                                        <i class="fa fa-search"/>
+                                    </button>
+                                </div>
+                                <input name="order" type="hidden" class="o_search_order_by"
+                                       value="name asc"/>
+                            </form>
+                        </div>
+
+                        <!-- Accordion product categories -->
+                        <div class="accordion fm-accordion" id="fm-menu-accordion">
+                            <t t-foreach="category_ids" t-as="categ">
+                                <t t-if="categ.child_id">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button"
+                                                    data-bs-toggle="collapse"
+                                                    t-attf-data-bs-target="#fm-collapse-#{categ.id}"
+                                                    aria-expanded="false">
+                                                <t t-esc="categ.name"/>
+                                            </button>
+                                        </h2>
+                                        <div t-attf-id="fm-collapse-#{categ.id}"
+                                             class="accordion-collapse collapse"
+                                             data-bs-parent="#fm-menu-accordion">
+                                            <div class="accordion-body">
+                                                <a class="fm-view-all"
+                                                   t-attf-href="/shop/category/#{slug(categ)}">
+                                                    Tout voir <i class="fa fa-arrow-right ms-1"/>
+                                                </a>
+                                                <t t-foreach="categ.child_id" t-as="child">
+                                                    <a class="fm-sub-link"
+                                                       t-attf-href="/shop/category/#{slug(child)}"
+                                                       t-esc="child.name"/>
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </t>
+                                <t t-else="">
+                                    <div class="fm-nav-simple">
+                                        <a class="fm-menu-link"
+                                           t-attf-href="/shop/category/#{slug(categ)}"
+                                           t-esc="categ.name"/>
+                                    </div>
+                                </t>
+                            </t>
+                        </div>
+
+                        <!-- Secondary links (non-product) -->
+                        <div class="fm-menu-links">
+                            <t t-foreach="menu_category_ids" t-as="cat">
+                                <t t-if="cat['menu'].url and '/shop/' not in (cat['menu'].url or '') and '___' not in (cat['menu'].name or '') and cat['menu'].name and not cat['menu'].name.startswith('•')">
+                                    <a class="fm-menu-link"
+                                       t-att-href="cat['menu'].url"
+                                       t-esc="cat['menu'].name"/>
+                                </t>
+                            </t>
+                        </div>
+
+                        <!-- Login / Signup (public users only) -->
+                        <div class="fm-offcanvas-auth"
+                             t-nocache="Profile session and user group can change unrelated to parent caches."
+                             groups="base.group_public">
+                            <a href="/web/login" class="btn btn-light me-2">Se connecter</a>
+                            <a href="/web/signup" class="btn btn-outline-light">Créer un compte</a>
+                        </div>
+                    </div>
+                </div>
+
             </t>
         </xpath>
     </template>
+
+    <!-- Legacy template — kept for backward compatibility -->
     <template id="subcategoryscond_template" name="Subcategory Template">
         <div class="modal fade top_menu_sub_categ"
             t-att-id="'top-menu-collapse-second-category_%s' % record.id" tabindex="-1"
@@ -269,7 +352,6 @@
                         <a href="/shop"
                             class="btn btn-outline-light bg-white text-black me-xl-4 my-2 my-xl-0">voir
                             tout</a>
-                      
                         <button type="button"
                             class="btn btn-outline-light my-2 my-xl-0 back_to_menu">Back
                             to menu</button>
