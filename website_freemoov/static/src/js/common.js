@@ -26,6 +26,16 @@ odoo.define('website_freemoov.carousel_override', function (require) {
 });
 
 $(document).ready(function(){
+    $('.attribute_name').each(function() {
+        var el = $(this);
+        el.text(el.text().replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim());
+    });
+
+    var $offcanvas = $('#freemoov-offcanvas');
+    if ($offcanvas.length && $offcanvas.closest('header').length) {
+        $offcanvas.appendTo('body');
+    }
+
     $(".nav-item.dropdown.position-static").on('click', function(event) {
         $(this).closest('.dropdown-menu.o_mega_menu').modal('show');
     });

@@ -203,19 +203,23 @@
 			    				padding: 5px 8px !important;
 			    				margin: 0 !important;
 			    				overflow: hidden;
-			    				max-height: 32px;
+			    				min-height: 32px;
 			    				.attribute_name {
 			    					font-size: 9px;
 			    					font-weight: 600;
 			    					color: #888;
 			    					text-transform: uppercase;
 			    					margin: 0 !important;
-			    					white-space: nowrap;
+			    					white-space: normal;
 			    					overflow: hidden;
-			    					text-overflow: ellipsis;
-			    					max-width: 55%;
+			    					display: -webkit-box;
+			    					-webkit-line-clamp: 2;
+			    					-webkit-box-orient: vertical;
+			    					max-width: 58%;
 			    					line-height: 1.3;
 			    					letter-spacing: 0.2px;
+			    					overflow-wrap: break-word;
+			    					word-break: break-word;
 			    				}
 			    				ul {
 			    					margin: 0 !important;
@@ -451,20 +455,24 @@
 								grid-template-columns: 1fr 1fr;
 								gap: 4px;
 							}
-							.variant_attribute {
-								padding: 5px 10px !important;
-								flex-direction: row !important;
-								align-items: center !important;
-								justify-content: space-between !important;
-								gap: 4px;
-								.attribute_name {
-									font-size: 8px;
-									max-width: 55%;
-									line-height: 1.2;
-									white-space: nowrap;
-									overflow: hidden;
-									text-overflow: ellipsis;
-								}
+						.variant_attribute {
+							padding: 4px 6px !important;
+							flex-direction: row !important;
+							align-items: center !important;
+							justify-content: space-between !important;
+							gap: 4px;
+							.attribute_name {
+								font-size: 8px;
+								max-width: 58%;
+								line-height: 1.3;
+								white-space: normal;
+								overflow: hidden;
+								display: -webkit-box;
+								-webkit-line-clamp: 2;
+								-webkit-box-orient: vertical;
+								overflow-wrap: break-word;
+								word-break: break-word;
+							}
 								ul {
 									flex-shrink: 0;
 									li label .form-check .radio_input_value {
@@ -612,29 +620,33 @@
 							grid-template-columns: 1fr 1fr;
 							gap: 4px;
 						}
-						.variant_attribute{
-							display: flex !important;
-							flex-direction: row;
-							justify-content: space-between;
-							align-items: center !important;
-							background: #f5f6f7;
-							border-radius: 6px;
-							padding: 6px 10px !important;
-							border: 0;
-							margin: 0;
-							.attribute_name{
-								font-size: 9px;
-								font-weight: 600;
-								color: #888;
-								line-height: 1.3;
-								margin: 0 !important;
-								letter-spacing: 0.2px;
-								text-transform: uppercase;
-								white-space: nowrap;
-								overflow: hidden;
-								text-overflow: ellipsis;
-								max-width: 55%;
-							}
+					.variant_attribute{
+						display: flex !important;
+						flex-direction: row;
+						justify-content: space-between;
+						align-items: center !important;
+						background: #f5f6f7;
+						border-radius: 6px;
+						padding: 5px 10px !important;
+						border: 0;
+						margin: 0;
+						.attribute_name{
+							font-size: 9px;
+							font-weight: 600;
+							color: #888;
+							line-height: 1.3;
+							margin: 0 !important;
+							letter-spacing: 0.2px;
+							text-transform: uppercase;
+							white-space: normal;
+							overflow: hidden;
+							display: -webkit-box;
+							-webkit-line-clamp: 2;
+							-webkit-box-orient: vertical;
+							max-width: 58%;
+							overflow-wrap: break-word;
+							word-break: break-word;
+						}
 							ul{
 								margin: 0 !important;
 								li{
