@@ -18,20 +18,28 @@ class ProductTemplate(models.Model):
 		is_dropship = dropship_route.id in self.route_ids.ids
 		return is_dropship
 
-	def get_stock_availability(self,website=None):
-		if self.detailed_type == 'product' and not self.allow_out_of_stock_order:
-			product_variant_ids = self.product_variant_ids.ids
-			if website and website.warehouse_id :
-				warehouse_location_id = website.warehouse_id.lot_stock_id
-				stock_quant_ids = self.env['stock.quant'].sudo().search([('product_id','in',product_variant_ids),('location_id','=',warehouse_location_id.id),('on_hand','=',True)])
-				qty_avail = sum(quant.quantity for quant in stock_quant_ids)
-		else :
-			qty_avail = 1
-		
+	def get_stock_availability(self, website=None):
 		dropship_route = self.env.ref('stock_dropshipping.route_drop_shipping')
 		is_dropship = dropship_route.id in self.route_ids.ids
 
-		return {'qty_avail':qty_avail, 'is_dropship' : is_dropship}
+		if self.detailed_type != 'product':
+			return {'qty_avail': 1, 'is_dropship': is_dropship, 'allow_out_of_stock': False}
+
+		if self.allow_out_of_stock_order:
+			return {'qty_avail': 1, 'is_dropship': is_dropship, 'allow_out_of_stock': True}
+
+		qty_avail = 0
+		product_variant_ids = self.product_variant_ids.ids
+		if website and website.warehouse_id:
+			warehouse_location_id = website.warehouse_id.lot_stock_id
+			stock_quant_ids = self.env['stock.quant'].sudo().search([
+				('product_id', 'in', product_variant_ids),
+				('location_id', '=', warehouse_location_id.id),
+				('on_hand', '=', True),
+			])
+			qty_avail = sum(quant.quantity for quant in stock_quant_ids)
+
+		return {'qty_avail': qty_avail, 'is_dropship': is_dropship, 'allow_out_of_stock': False}
 
 class ProductCategoryTemplate(models.Model):
 	_inherit = "product.public.category"
