@@ -400,6 +400,7 @@ header.o_header_standard {
 // OFFCANVAS MOBILE MENU
 // ============================================
 #freemoov-offcanvas {
+	z-index: 1080 !important;
 	background-image: linear-gradient(135deg, #099D5D 0%, #5DB348 50%, #7AC144 100%);
 	max-width: 85vw;
 	width: 320px;
@@ -616,6 +617,11 @@ header.o_header_standard {
 // ============================================
 // VISIT DETAIL (kept from original)
 // ============================================
+// Offcanvas backdrop must sit above the sticky header
+.offcanvas-backdrop {
+	z-index: 1070 !important;
+}
+
 .visit .detail {
 	.fa { position: relative; }
 	.fa-map-marker { top: 5px; right: 5px; }
