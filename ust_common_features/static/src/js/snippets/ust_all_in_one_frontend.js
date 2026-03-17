@@ -26,20 +26,34 @@ odoo.define('ust_common_features.ust_all_in_one_slider_frontend', function(requi
             }
             if (!this.editableMode) {
                 var all_slider_id = $this.$target.attr('data-all_slider_s_id');
-                $.get("/slider_s/all_in_one_data", {
-                    'style_id': all_slider_id || '',
-                }).then(function(ust_slider_record) {
-                    if (ust_slider_record) {
-                        $this.$target.empty();
-                        $this.$target.append(ust_slider_record);
-                        $(".ust_all_in_one_configure_slider").removeClass('o_hidden');
-                        ajax.jsonRpc('/slider_s/get_all_slider_time_data', 'call', {
-                            'all_slider_id': all_slider_id
-                        }).then(function(ust_slider) {
+                var hasContent = $this.$target.find('.all_slider, .owl-carousel, .cat-div, .ust-cat-grid, .ust-cat-slider').length > 0;
+
+                if (hasContent) {
+                    $this.$target.removeClass('o_hidden');
+                    ajax.jsonRpc('/slider_s/get_all_slider_time_data', 'call', {
+                        'all_slider_id': all_slider_id
+                    }).then(function(ust_slider) {
+                        var $owl = $this.$target.find('.owl-carousel:not(.owl-loaded)');
+                        if ($owl.length) {
                             $this.getOwlAllInOneSlider(ust_slider);
-                        });
-                    }
-                });
+                        }
+                    });
+                } else {
+                    $.get("/slider_s/all_in_one_data", {
+                        'style_id': all_slider_id || '',
+                    }).then(function(ust_slider_record) {
+                        if (ust_slider_record) {
+                            $this.$target.empty();
+                            $this.$target.append(ust_slider_record);
+                            $(".ust_all_in_one_configure_slider").removeClass('o_hidden');
+                            ajax.jsonRpc('/slider_s/get_all_slider_time_data', 'call', {
+                                'all_slider_id': all_slider_id
+                            }).then(function(ust_slider) {
+                                $this.getOwlAllInOneSlider(ust_slider);
+                            });
+                        }
+                    });
+                }
             }
         },
 
