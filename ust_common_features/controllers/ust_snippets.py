@@ -184,17 +184,11 @@ class CustomWebsiteSale(WebsiteSale):
 
         layout_mode = request.session.get('website_sale_shop_layout_mode')
         if not layout_mode:
-            if website.viewref('website_sale.products_list_view').active:
-                layout_mode = 'list'
-            else:
-                layout_mode = 'grid'
+            layout_mode = 'grid'
             request.session['website_sale_shop_layout_mode'] = layout_mode
 
         if category:
             category_id = category.id
-            layout_mode = 'list'
-        else:
-            layout_mode = 'grid'
 
         products_prices = lazy(lambda: products._get_sales_prices(pricelist))
 

@@ -35,10 +35,8 @@ ul{
 a.btn {
     border-radius: 8px;
 }
-#ust_all_in_one_configure{
-    background-color: #F5F6F7;
+.ust_all_in_one_configure_slider {
     padding-bottom: 0px !important;
-    min-height: 480px;
     .all-slider-header-title{
         span{
             h5{
@@ -50,7 +48,6 @@ a.btn {
         .oe_product_cart{
             height: 360px !important;
             .oe_product_image{
-                // Allow badge to be visible outside image area
                 overflow: visible !important;
                 .oe_product_image_link{
                     height: 160px !important;
