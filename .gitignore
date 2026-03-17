@@ -2,3 +2,22 @@
 __pycache__/
 *.pyc
 
+filestore/
+
+# Backups & dumps
+prod_backup_v16/
+staging_backup/
+*.pgdump
+*.sql.gz
+staging_dump.*
+
+# Large archives
+*.zip
+
+# Data exports
+*.csv
+prod_cow_*.json
+update_cow*.sql
+
+# OS files
+.DS_Store
