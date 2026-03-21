@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_form_view_google_merchant" model="ir.ui.view">
+        <field name="name">product.template.form.inherit.google.merchant</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="Google Merchant Center" name="google_merchant_center">
+                    <group>
+                        <group string="Status">
+                            <field name="gmc_sync_status" readonly="1"/>
+                            <field name="gmc_last_sync_date" readonly="1"/>
+                            <field name="gmc_error_count" readonly="1"/>
+                        </group>
+                        <group string="Configuration">
+                            <field name="gmc_exclude"/>
+                            <field name="gmc_condition"/>
+                            <field name="gmc_google_category" placeholder="Override Google category"/>
+                            <field name="gmc_offer_id" placeholder="Auto (default_code or ID)"/>
+                        </group>
+                    </group>
+                    <group>
+                        <button name="action_gmc_sync_now" type="object" string="Sync to GMC now" class="btn-primary"/>
+                        <button name="action_gmc_reset_errors" type="object" string="Reset errors" class="btn-secondary"
+                                attrs="{'invisible': [('gmc_error_count', '=', 0)]}"/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
