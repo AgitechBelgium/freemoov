@@ -355,11 +355,11 @@ def build_description(product, brand, ptype, raw_summary, raw_desc_sale):
 
 def compute_shipping(country, weight, price_ttc):
     """Compute shipping cost for a country based on weight and price."""
+    if price_ttc >= FREE_SHIPPING_THRESHOLD:
+        return 0.0
     rates = SHIPPING_RATES.get(country, SHIPPING_RATES['BE'])
     if weight and weight >= 30:
         return rates['heavy']
-    if price_ttc >= FREE_SHIPPING_THRESHOLD:
-        return 0.0
     return rates['standard']
 
 
