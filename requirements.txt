@@ -1,5 +1,0 @@
-google-auth>=2.0
-google-api-core>=2.0
-google-shopping-merchant-products>=0.1
-proto-plus>=1.22
-protobuf>=4.21

@@ -1,4 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_google_merchant_log_user,google.merchant.log.user,google_merchant_center.model_google_merchant_log,base.group_user,1,0,0,0
-access_google_merchant_log_manager,google.merchant.log.manager,google_merchant_center.model_google_merchant_log,base.group_system,1,1,1,1
-access_google_merchant_sync_wizard_user,google.merchant.sync.wizard.user,google_merchant_center.model_google_merchant_sync_wizard,base.group_user,1,1,1,1
