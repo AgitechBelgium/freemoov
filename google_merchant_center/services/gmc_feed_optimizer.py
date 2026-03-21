@@ -306,6 +306,33 @@ def _build_title_accessory(brand, raw_title, ptype):
 # Description builder — max 5000 chars
 # ─────────────────────────────────────────────────────────────────────
 
+def _build_variant_block(product):
+    """Build a text block listing price-different variants for the description."""
+    variants = product.product_variant_ids
+    if not variants or len(variants) <= 1:
+        return ''
+
+    base_price = product.list_price
+    entries = []
+    for v in variants:
+        extra = sum(v.product_template_attribute_value_ids.mapped('price_extra'))
+        final_price = base_price + extra
+        attrs = [a.name for a in v.product_template_attribute_value_ids]
+        if not attrs:
+            continue
+        label = ' / '.join(attrs)
+        entries.append((label, final_price))
+
+    prices = set(p for _, p in entries)
+    if len(prices) <= 1:
+        return ''
+
+    lines = [u'Configurations disponibles :']
+    for label, price in sorted(entries, key=lambda x: x[1]):
+        lines.append(u'- %s : %.2f \u20ac' % (label, price))
+    return ' '.join(lines)
+
+
 def build_description(product, brand, ptype, raw_summary, raw_desc_sale):
     """Build cleaned, SEO-enriched description (max 5000 chars)."""
     raw = raw_summary or raw_desc_sale or ''
@@ -345,6 +372,10 @@ def build_description(product, brand, ptype, raw_summary, raw_desc_sale):
     if ptype == 'velo' and '25 km' not in clean.lower():
         clean = clean.rstrip('.')
         clean += u'. Vitesse maximale assist\xe9e : 25 km/h. Conforme \xe0 la r\xe9glementation europ\xe9enne EN 15194.'
+
+    variant_block = _build_variant_block(product)
+    if variant_block:
+        clean = clean.rstrip('.') + '. ' + variant_block
 
     return clean[:5000].strip()
 
@@ -447,6 +478,17 @@ def prepare_product_data(product, base_url='https://freemoov.com',
     # Price — list_price is already TTC (Belgian VAT price_include=True)
     price_ttc = float(product_ctx.list_price or 0)
     sale_price_ttc = None
+
+    # For multi-variant products with different prices, use the lowest variant price
+    variants = product_ctx.product_variant_ids
+    if variants and len(variants) > 1:
+        variant_prices = []
+        for v in variants:
+            extra = sum(v.product_template_attribute_value_ids.mapped('price_extra'))
+            variant_prices.append(price_ttc + extra)
+        if len(set(round(p, 2) for p in variant_prices)) > 1:
+            price_ttc = min(variant_prices)
+
     if (hasattr(product_ctx, 'compare_list_price')
             and product_ctx.compare_list_price
             and product_ctx.compare_list_price > price_ttc):
@@ -459,8 +501,8 @@ def prepare_product_data(product, base_url='https://freemoov.com',
     # Variant info
     barcode = ''
     default_code = ''
-    if product_ctx.product_variant_count == 1 and product_ctx.product_variant_ids:
-        v = product_ctx.product_variant_ids[0]
+    if variants and len(variants) == 1:
+        v = variants[0]
         barcode = (v.barcode or '').strip()
         default_code = (v.default_code or '').strip()
 
