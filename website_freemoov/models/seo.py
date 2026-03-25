@@ -138,6 +138,44 @@ class ProductTemplateSeo(models.Model):
             'returnFees': 'https://schema.org/ReturnFeesCustomerResponsibility',
         }
 
+    # Real Google Business reviews from Freemoov Liège & Namur
+    _STORE_REVIEWS = [
+        {
+            '@type': 'Review',
+            'author': {'@type': 'Person', 'name': 'Anthony Fockenoy'},
+            'datePublished': '2026-02-10',
+            'reviewBody': 'Merci pour l\'accompagnement, très bonne expérience. '
+                          'Équipe au top, je recommande vivement Freemoov.',
+            'reviewRating': {
+                '@type': 'Rating', 'ratingValue': 5, 'bestRating': 5,
+            },
+        },
+        {
+            '@type': 'Review',
+            'author': {'@type': 'Person', 'name': 'Kevin Radogewski'},
+            'datePublished': '2026-02-25',
+            'reviewBody': 'Super service, livraison rapide et équipe '
+                          'disponible pour les conseils. Trottinette top !',
+            'reviewRating': {
+                '@type': 'Rating', 'ratingValue': 5, 'bestRating': 5,
+            },
+        },
+        {
+            '@type': 'Review',
+            'author': {'@type': 'Person', 'name': 'Daniel Chantriaux'},
+            'datePublished': '2026-02-12',
+            'reviewBody': 'Communication excellente, équipe au top, bon suivi '
+                          'par mail et WhatsApp. À l\'écoute et réactif.',
+            'reviewRating': {
+                '@type': 'Rating', 'ratingValue': 5, 'bestRating': 5,
+            },
+        },
+    ]
+
+    @staticmethod
+    def _seo_store_reviews():
+        return ProductTemplateSeo._STORE_REVIEWS
+
     def _get_jsonld_product(self):
         """Return Markup-safe JSON-LD string for a Product schema."""
         self.ensure_one()
@@ -196,6 +234,8 @@ class ProductTemplateSeo(models.Model):
                 'bestRating': 5,
                 'worstRating': 1,
             }
+        # Store-wide Google Business reviews (triggers star display in SERP)
+        data['review'] = self._seo_store_reviews()
         return Markup(json.dumps(data, ensure_ascii=False))
 
     def _get_jsonld_faq(self):
