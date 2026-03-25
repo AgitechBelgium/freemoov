@@ -1,12 +1,11 @@
 /* ==========================================================
    Footer Freemoov — Dark green theme
    Background: #0a2e1b | Copyright: #071a0e
-   Trust bar: gradient #099D5D → #7AC144
    ========================================================== */
 
-/* Trust bar — gradient green */
+/* Trust bar — gradient green, visually separate from footer */
 .fm-trust-bar {
-    background: linear-gradient(135deg, #099D5D 0%, #7AC144 100%);
+    background: linear-gradient(135deg, #099D5D 0%, #7AC144 100%) !important;
     .fm-trust-item {
         img {
             height: 48px;
@@ -61,25 +60,56 @@
         }
     }
 
+    .fm-google-badge {
+        a {
+            display: inline-block;
+            text-decoration: none;
+            &:hover .fm-badge-inner {
+                border-color: rgba(255,255,255,0.4);
+                background: rgba(255,255,255,0.08);
+            }
+        }
+        .fm-badge-inner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+        .fm-google-g { flex-shrink: 0; }
+        .fm-badge-stars {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            .fa-star, .fa-star-half-o {
+                color: #FBBC05;
+                font-size: 13px;
+            }
+            strong {
+                color: #fff;
+                font-size: 16px;
+                font-weight: 700;
+                margin-left: 4px;
+            }
+            > span {
+                color: #ffffffaa;
+                font-size: 14px;
+            }
+        }
+        .fm-badge-count {
+            color: #ffffffaa;
+            font-size: 12px;
+            line-height: 1;
+        }
+    }
+
     .fm-footer-heading {
         color: #fff;
         font-size: 16px;
         font-weight: 700;
         margin-bottom: 16px;
-        cursor: default;
-        .fa-chevron-down {
-            font-size: 12px;
-            transition: transform 0.3s;
-        }
-        &[aria-expanded="false"] .fa-chevron-down {
-            transform: rotate(-90deg);
-        }
-        @media (max-width: 991.98px) {
-            cursor: pointer;
-            padding-bottom: 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 0;
-        }
     }
 
     .fm-footer-links {
@@ -95,6 +125,10 @@
                 color: #fff;
             }
         }
+    }
+
+    .fm-contact-block {
+        margin-bottom: 0;
     }
 
     .fm-contact-item {
@@ -124,6 +158,10 @@
             font-size: 12px;
             line-height: 1.5;
         }
+    }
+
+    .fm-newsletter-row {
+        border-top: 1px solid rgba(255,255,255,0.1);
     }
 
     .fm-newsletter-text {
@@ -176,7 +214,7 @@
 
 .fm-copyright-inner {
     .fm-payment-icons img {
-        max-height: 28px;
+        max-height: 22px;
         opacity: 0.8;
     }
     .fm-copyright-text {
@@ -185,7 +223,7 @@
     }
 }
 
-/* Footer link colors override */
+/* Footer link colors override (Odoo cc5 defaults) */
 .o_cc5 a:not(.btn), .o_footer a:not(.btn),
 .o_cc5 .btn-link, .o_footer .btn-link,
 .o_colored_level .o_cc5 a:not(.btn),
@@ -193,13 +231,8 @@
     color: #ffffffaa;
 }
 .o_cc5 a:not(.btn):hover, .o_footer a:not(.btn):hover,
-.o_cc5 .btn-link:hover, .o_footer .btn-link:hover {
+.o_cc5 .btn-link:hover, .o_footer .btn-link:hover,
+.o_colored_level .o_cc5 a:not(.btn):hover,
+.o_colored_level .o_cc5 .btn-link:hover {
     color: #fff;
-}
-
-/* Mobile accordion */
-@media (max-width: 991.98px) {
-    .fm-footer .fm-footer-links.collapse:not(.show) {
-        display: none;
-    }
 }
