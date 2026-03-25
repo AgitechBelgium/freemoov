@@ -1,0 +1,731 @@
+// ==============================================
+// Checkout Flow — Freemoov (Shopify-level)
+// ==============================================
+
+$fm-green: #099D5D;
+$fm-green-light: #7AC144;
+$fm-bg: #F5F6F7;
+$fm-dark: #000;
+$fm-gray: #7F7F7F;
+$fm-border: #e8e9ea;
+$fm-radius: 12px;
+
+// ==============================================
+// Buttons
+// ==============================================
+.fm-btn-primary {
+	background-image: linear-gradient(135deg, $fm-green, $fm-green-light) !important;
+	border: none !important;
+	border-radius: $fm-radius;
+	color: #fff !important;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+	transition: all 0.2s ease;
+	&:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba($fm-green, 0.3);
+		color: #fff !important;
+	}
+}
+
+.fm-btn-outline {
+	background: transparent !important;
+	border: 2px solid $fm-green !important;
+	border-radius: $fm-radius;
+	color: $fm-green !important;
+	font-weight: 700;
+	letter-spacing: 0.3px;
+	transition: all 0.2s ease;
+	&:hover {
+		background: $fm-green !important;
+		color: #fff !important;
+	}
+}
+
+// ==============================================
+// Wizard Stepper
+// ==============================================
+.fm-stepper {
+	gap: 0;
+
+	.fm-stepper-step {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-decoration: none;
+		color: $fm-gray;
+		position: relative;
+		min-width: 80px;
+		&:hover { text-decoration: none; }
+	}
+
+	.fm-stepper-num {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		background: #e0e0e0;
+		color: #fff;
+		font-weight: 700;
+		font-size: 16px;
+		margin-bottom: 6px;
+		transition: all 0.3s;
+	}
+
+	.fm-stepper-label {
+		font-size: 13px;
+		font-weight: 600;
+		white-space: nowrap;
+	}
+
+	.fm-stepper-line {
+		flex: 1;
+		height: 3px;
+		background: #e0e0e0;
+		min-width: 60px;
+		margin: 0 8px;
+		margin-bottom: 20px;
+		transition: background 0.3s;
+		&.active { background: $fm-green; }
+	}
+
+	.fm-stepper-step.active {
+		color: $fm-green;
+		.fm-stepper-num { background: $fm-green; }
+	}
+
+	.fm-stepper-step.current {
+		.fm-stepper-num { box-shadow: 0 0 0 4px rgba($fm-green, 0.2); }
+	}
+}
+
+.wizard .progress-wizard { display: none !important; }
+
+// ==============================================
+// Cart Page
+// ==============================================
+.fm-cart-page {
+	background-color: $fm-bg;
+	min-height: 60vh;
+}
+
+.fm-empty-cart {
+	background: #fff;
+	border-radius: 16px;
+	padding: 60px 20px !important;
+	box-shadow: 0 2px 16px rgba(0,0,0,0.04);
+	margin: 20px 0;
+}
+
+// ==============================================
+// Phase A — Cart Lines (div-based cards)
+// ==============================================
+.fm-cart-lines {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.fm-cart-item {
+	display: grid;
+	grid-template-columns: 96px 1fr auto auto auto;
+	grid-template-areas: "img info qty price delete";
+	align-items: center;
+	gap: 16px;
+	background: #fff;
+	border-radius: $fm-radius;
+	padding: 16px;
+	box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+	transition: box-shadow 0.25s ease, transform 0.25s ease;
+
+	&:hover {
+		box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+		transform: translateY(-1px);
+	}
+
+	&.optional_product {
+		border-left: 3px solid $fm-green-light;
+		background: #fafffe;
+	}
+}
+
+.fm-ci-img {
+	grid-area: img;
+	img, span img {
+		width: 96px;
+		height: 96px;
+		object-fit: contain;
+		border-radius: 10px;
+		background: $fm-bg;
+	}
+}
+
+.fm-ci-info {
+	grid-area: info;
+	min-width: 0;
+	a {
+		color: $fm-dark;
+		text-decoration: none;
+		font-weight: 700;
+		font-size: 15px;
+		display: block;
+		&:hover { color: $fm-green; }
+	}
+	.text-muted {
+		font-size: 12px;
+		margin-top: 2px;
+	}
+}
+
+.fm-ci-qty {
+	grid-area: qty;
+	.css_quantity {
+		display: inline-flex;
+		align-items: center;
+		border: 1.5px solid $fm-border;
+		border-radius: 24px;
+		overflow: hidden;
+		background: #fff;
+
+		.btn-link {
+			color: $fm-green;
+			border: none;
+			padding: 8px 14px;
+			text-decoration: none;
+			font-size: 14px;
+			transition: background 0.15s;
+			&:hover { background: rgba($fm-green, 0.08); }
+		}
+
+		.form-control.quantity {
+			border: none;
+			text-align: center;
+			width: 44px;
+			padding: 6px 0;
+			font-weight: 700;
+			font-size: 15px;
+			box-shadow: none;
+			background: transparent;
+		}
+	}
+}
+
+.fm-ci-price {
+	grid-area: price;
+	text-align: right;
+	white-space: nowrap;
+
+	.fm-ci-price-amount {
+		font-weight: 800;
+		font-size: 16px;
+		color: $fm-dark;
+	}
+
+	del {
+		font-size: 12px;
+	}
+}
+
+.fm-ci-delete {
+	grid-area: delete;
+	.js_delete_product {
+		color: #ccc;
+		font-size: 16px;
+		transition: color 0.2s;
+		&:hover { color: #dc3545; }
+	}
+}
+
+// ==============================================
+// Phase B — Trust Block (sidebar)
+// ==============================================
+.fm-trust-block {
+	border-top: 1px solid $fm-border;
+	padding: 16px 20px;
+}
+
+.fm-trust-divider {
+	text-align: center;
+	font-size: 12px;
+	font-weight: 700;
+	color: $fm-gray;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-bottom: 8px;
+	i { color: $fm-green; }
+}
+
+.fm-trust-items {
+	padding-top: 8px;
+}
+
+.fm-trust-item-line {
+	font-size: 13px;
+	color: #555;
+	padding: 4px 0;
+	i {
+		color: $fm-green;
+		width: 20px;
+		text-align: center;
+		margin-right: 6px;
+	}
+}
+
+// ==============================================
+// Cart Summary Sidebar
+// ==============================================
+.js_cart_summary, .o_total_card {
+	border-radius: 16px !important;
+	border: none !important;
+	box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+	overflow: hidden;
+
+	.card-body {
+		padding: 24px;
+	}
+
+	h4 {
+		font-weight: 800;
+		font-size: 18px;
+	}
+
+	// CTA buttons
+	a.btn-secondary, a.btn-primary, button.btn-primary,
+	.btn-primary:not(.js_add_cart_json) {
+		background-image: linear-gradient(135deg, $fm-green, $fm-green-light) !important;
+		border: none !important;
+		border-radius: $fm-radius !important;
+		color: #fff !important;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.3px;
+		padding: 14px 24px;
+		width: 100%;
+		text-align: center;
+		transition: all 0.2s ease;
+		&:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba($fm-green, 0.3);
+		}
+	}
+}
+
+// Sticky sidebar
+.fm-cart-page,
+.fm-checkout-page,
+.fm-confirmation-page {
+	.col-xl-4 > .card,
+	.col-xl-4 > .js_cart_summary,
+	.order-xl-2 > .card,
+	.col-xl-auto > .card {
+		position: sticky;
+		top: 120px;
+	}
+}
+
+// ==============================================
+// Cart/Checkout buttons
+// ==============================================
+.oe_website_sale {
+	.oe_cart + .d-flex,
+	.oe_cart ~ .row .d-flex.justify-content-between,
+	> .container > .d-flex.justify-content-between {
+		margin-top: 24px;
+
+		.btn-secondary, a.btn-secondary {
+			border: 2px solid $fm-green !important;
+			background: transparent !important;
+			color: $fm-green !important;
+			border-radius: $fm-radius;
+			font-weight: 600;
+			&:hover {
+				background: $fm-green !important;
+				color: #fff !important;
+			}
+		}
+	}
+}
+
+.oe_cart {
+	.btn-primary, a.btn-primary {
+		background-image: linear-gradient(135deg, $fm-green, $fm-green-light) !important;
+		border: none !important;
+		border-radius: $fm-radius !important;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.3px;
+		&:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 4px 12px rgba($fm-green, 0.3);
+		}
+	}
+	.btn-secondary {
+		background-color: $fm-green !important;
+		color: #fff !important;
+		border: none !important;
+		border-radius: $fm-radius !important;
+	}
+}
+
+// Promo code
+.oe_website_sale input[name="promo"] {
+	border-radius: $fm-radius 0 0 $fm-radius;
+	border: 1px solid $fm-border;
+	&:focus {
+		border-color: $fm-green;
+		box-shadow: 0 0 0 3px rgba($fm-green, 0.15);
+	}
+}
+
+// ==============================================
+// Checkout — Address Cards
+// ==============================================
+.fm-checkout-page {
+	background-color: $fm-bg;
+
+	.one_kanban .card {
+		border-radius: $fm-radius;
+		border: 2px solid $fm-border;
+		transition: border-color 0.2s, box-shadow 0.2s;
+		overflow: hidden;
+
+		&.border-primary {
+			border-color: $fm-green !important;
+			box-shadow: 0 0 0 3px rgba($fm-green, 0.12);
+		}
+		.card-body { padding: 16px; }
+		.card-footer {
+			background: transparent;
+			border-top: 1px solid $fm-border;
+			padding: 12px 16px;
+			.btn-primary {
+				background-image: linear-gradient(135deg, $fm-green, $fm-green-light);
+				border: none;
+				border-radius: 8px;
+			}
+			.btn-secondary {
+				background: transparent;
+				border: 1px solid $fm-border;
+				color: $fm-dark;
+				border-radius: 8px;
+				&:hover { border-color: $fm-green; color: $fm-green; }
+			}
+		}
+	}
+
+	.js_edit_address {
+		color: $fm-green;
+		font-weight: 600;
+		&:hover { color: darken($fm-green, 10%); }
+	}
+
+	.d-flex.justify-content-between {
+		margin-top: 24px;
+		a[href="/shop/cart"], .btn-secondary {
+			border: 2px solid $fm-green !important;
+			background: transparent !important;
+			color: $fm-green !important;
+			border-radius: $fm-radius;
+			font-weight: 600;
+			&:hover { background: $fm-green !important; color: #fff !important; }
+		}
+		a[href="/shop/confirm_order"], .btn-primary {
+			background-image: linear-gradient(135deg, $fm-green, $fm-green-light) !important;
+			border: none !important;
+			border-radius: $fm-radius !important;
+			font-weight: 700;
+			text-transform: uppercase;
+			letter-spacing: 0.3px;
+		}
+	}
+
+	h3 { font-weight: 700; margin-bottom: 16px; margin-top: 24px; }
+
+	// Phase D — Payment provider cards
+	.o_payment_option_card {
+		border-radius: $fm-radius;
+		border: 2px solid $fm-border;
+		transition: border-color 0.2s, box-shadow 0.2s;
+		&:has(input:checked), &.border-primary {
+			border-color: $fm-green !important;
+			box-shadow: 0 0 0 3px rgba($fm-green, 0.12);
+		}
+	}
+}
+
+// Address Form
+.checkout_autoformat {
+	.form-control, .form-select {
+		border: 1px solid $fm-border;
+		border-radius: 8px;
+		padding: 10px 14px;
+		transition: border-color 0.2s, box-shadow 0.2s;
+		&:focus { border-color: $fm-green; box-shadow: 0 0 0 3px rgba($fm-green, 0.15); }
+		&.is-invalid { border-color: #dc3545; box-shadow: 0 0 0 3px rgba(220,53,69,0.15); }
+	}
+	label { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+}
+
+// ==============================================
+// Confirmation Page
+// ==============================================
+.fm-confirmation-banner {
+	background: linear-gradient(135deg, $fm-green, $fm-green-light);
+	padding: 40px 20px;
+}
+.fm-check-circle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 64px; height: 64px;
+	border-radius: 50%;
+	background: rgba(255,255,255,0.2);
+	i { font-size: 32px; color: #fff; }
+}
+.fm-confirmation-ctas {
+	margin-top: 24px;
+	.btn { min-width: 200px; }
+	@media (max-width: 575.98px) {
+		.btn { display: block; width: 100%; margin-bottom: 12px; }
+	}
+}
+.fm-confirmation-page {
+	background-color: $fm-bg;
+	.thanks_msg { background: #fff; border-radius: 16px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+	.card { border-radius: $fm-radius; border: 1px solid $fm-border; }
+	table.table { border-radius: $fm-radius; overflow: hidden; th, td { padding: 12px 16px; } }
+}
+
+// ==============================================
+// Cart Popover (Mini-cart)
+// ==============================================
+.popover {
+	&.bs-popover-bottom,
+	&.o_website_sale_cart_popover {
+		border-radius: 16px;
+		box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+		border: none;
+		max-width: 360px;
+		overflow: hidden;
+
+		.popover-body { padding: 16px; }
+
+		.cart_line {
+			padding: 10px 0;
+			border-bottom: 1px solid #f5f5f5;
+			&:last-of-type { border-bottom: none; }
+			img {
+				border-radius: 8px;
+				width: 48px; height: 48px;
+				object-fit: cover;
+			}
+			a {
+				color: $fm-dark;
+				text-decoration: none;
+				font-weight: 600;
+				font-size: 13px;
+				&:hover { color: $fm-green; }
+			}
+		}
+
+		.text-center {
+			padding-top: 12px;
+			border-top: 1px solid #f0f0f0;
+			a.btn {
+				background-image: linear-gradient(135deg, $fm-green, $fm-green-light);
+				border: none;
+				border-radius: $fm-radius;
+				color: #fff;
+				font-weight: 700;
+				padding: 10px 20px;
+				width: 100%;
+				display: block;
+				&:hover {
+					transform: translateY(-1px);
+					box-shadow: 0 4px 12px rgba($fm-green, 0.3);
+				}
+			}
+		}
+	}
+}
+
+.fm-popover-empty {
+	min-width: 200px;
+}
+
+// ==============================================
+// Phase E — Mobile sticky CTA
+// ==============================================
+.fm-mobile-cta {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 1030;
+	background: #fff;
+	box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+	border-top: 1px solid $fm-border;
+	padding: 12px 16px;
+	transform: translateY(0);
+	transition: transform 0.3s ease;
+
+	&.fm-hidden {
+		transform: translateY(100%);
+	}
+}
+
+.fm-mobile-cta-inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	max-width: 600px;
+	margin: 0 auto;
+}
+
+.fm-mobile-cta-total {
+	display: flex;
+	flex-direction: column;
+}
+
+.fm-mobile-cta-label {
+	font-size: 11px;
+	color: $fm-gray;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.fm-mobile-cta-amount {
+	font-size: 20px;
+	font-weight: 900;
+	color: $fm-dark;
+}
+
+.fm-mobile-cta-btn {
+	flex-shrink: 0;
+	padding: 12px 20px !important;
+	font-size: 14px !important;
+}
+
+// ==============================================
+// Phase F — Micro-interactions
+// ==============================================
+
+// Item removal animation
+.fm-cart-item {
+	&.fm-removing {
+		animation: fm-slide-out 0.3s ease forwards;
+	}
+}
+
+@keyframes fm-slide-out {
+	to {
+		opacity: 0;
+		transform: translateX(-30px);
+		max-height: 0;
+		padding: 0;
+		margin: 0;
+		overflow: hidden;
+	}
+}
+
+// Price update flash
+.fm-ci-price-amount {
+	transition: color 0.3s;
+	&.fm-price-updated {
+		animation: fm-price-flash 0.5s ease;
+	}
+}
+
+@keyframes fm-price-flash {
+	0% { color: $fm-green; transform: scale(1.1); }
+	100% { color: $fm-dark; transform: scale(1); }
+}
+
+// Quantity loading state
+.fm-ci-qty {
+	.css_quantity.fm-loading {
+		opacity: 0.6;
+		pointer-events: none;
+		.form-control.quantity {
+			color: transparent;
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cstyle%3E%40keyframes s%7Bto%7Btransform:rotate(1turn)%7D%7D%3C/style%3E%3Ccircle cx='12' cy='12' r='10' fill='none' stroke='%23099D5D' stroke-width='3' stroke-dasharray='40 20' style='animation:s .8s linear infinite'/%3E%3C/svg%3E");
+			background-repeat: no-repeat;
+			background-position: center;
+			background-size: 18px;
+		}
+	}
+}
+
+// ==============================================
+// Responsive
+// ==============================================
+@media (min-width: 992px) {
+	.fm-mobile-cta { display: none !important; }
+}
+
+@media (max-width: 991.98px) {
+	// Add bottom padding so mobile CTA doesn't cover content
+	.fm-cart-page #wrap,
+	.fm-checkout-page #wrap {
+		padding-bottom: 80px;
+	}
+}
+
+@media (max-width: 767.98px) {
+	.fm-stepper {
+		.fm-stepper-line { min-width: 30px; }
+		.fm-stepper-num { width: 32px; height: 32px; font-size: 14px; }
+	}
+
+	// Cart item: mobile grid
+	.fm-cart-item {
+		grid-template-columns: 72px 1fr auto;
+		grid-template-areas:
+			"img info  delete"
+			"img qty   price";
+		gap: 8px 12px;
+		padding: 12px;
+	}
+
+	.fm-ci-img img, .fm-ci-img span img {
+		width: 72px;
+		height: 72px;
+	}
+
+	.fm-ci-info {
+		a { font-size: 14px; }
+	}
+
+	.fm-ci-qty .css_quantity {
+		.btn-link { padding: 6px 10px; font-size: 12px; }
+		.form-control.quantity { width: 36px; font-size: 14px; }
+	}
+
+	.fm-ci-price .fm-ci-price-amount { font-size: 14px; }
+
+	.fm-confirmation-banner { padding: 24px 16px; h2 { font-size: 20px; } }
+	.fm-check-circle { width: 48px; height: 48px; i { font-size: 24px; } }
+}
+
+@media (max-width: 575.98px) {
+	.fm-cart-item {
+		grid-template-columns: 64px 1fr;
+		grid-template-areas:
+			"img   info"
+			"qty   price"
+			".     delete";
+		gap: 8px;
+	}
+
+	.fm-ci-img img, .fm-ci-img span img {
+		width: 64px; height: 64px;
+	}
+
+	.fm-ci-delete {
+		justify-self: end;
+	}
+}

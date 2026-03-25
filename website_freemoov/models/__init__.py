@@ -6,3 +6,5 @@ from . import bettery_details
 from . import product
 from . import product_attribute
 from . import menu_cms
+from . import seo
+from . import product_faq

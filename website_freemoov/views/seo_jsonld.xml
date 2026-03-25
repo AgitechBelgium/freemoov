@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ================================================================
+         JSON-LD: Product page — Product schema + BreadcrumbList
+         ================================================================ -->
+    <template id="seo_jsonld_product" inherit_id="website_sale.product" name="SEO: Product JSON-LD">
+        <xpath expr="//div[@id='wrap']" position="before">
+            <script type="application/ld+json" t-out="product._get_jsonld_product()"/>
+            <script type="application/ld+json" t-out="product._get_jsonld_breadcrumb(category)"/>
+            <!-- FAQPage schema (from product.faq records) -->
+            <t t-set="faq_ld" t-value="product._get_jsonld_faq()"/>
+            <script t-if="faq_ld" type="application/ld+json" t-out="faq_ld"/>
+            <!-- VideoObject schema (from product.video_url) -->
+            <t t-set="video_ld" t-value="product._get_jsonld_video()"/>
+            <script t-if="video_ld" type="application/ld+json" t-out="video_ld"/>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
+         JSON-LD: Category page — BreadcrumbList + CollectionPage/ItemList
+         ================================================================ -->
+    <template id="seo_jsonld_category" inherit_id="website_sale.products" name="SEO: Category JSON-LD">
+        <xpath expr="//div[hasclass('oe_website_sale')]" position="before">
+            <t t-if="category">
+                <script type="application/ld+json" t-out="category._get_jsonld_breadcrumb()"/>
+                <script type="application/ld+json" t-out="category._get_jsonld_collection(products)"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
+         JSON-LD: Homepage — Organization + WebSite
+         ================================================================ -->
+    <template id="seo_jsonld_homepage" inherit_id="website.layout" name="SEO: Homepage JSON-LD">
+        <xpath expr="//head/link[@rel='canonical']" position="after">
+            <t t-if="request and request.httprequest.path in ('/', '/home')">
+                <script type="application/ld+json" t-out="website.get_jsonld_organization()"/>
+                <script type="application/ld+json" t-out="website.get_jsonld_website()"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
+         JSON-LD: Store pages — LocalBusiness (ElectronicsStore)
+         Injected on /magasin, /freemoov-liege, /freemoov-namur
+         ================================================================ -->
+    <template id="seo_jsonld_stores" inherit_id="website.layout" name="SEO: LocalBusiness JSON-LD" priority="20">
+        <xpath expr="//head/link[@rel='canonical']" position="after">
+            <t t-if="request and request.httprequest.path in ('/magasin', '/freemoov-liege', '/freemoov-namur')">
+                <t t-if="request.httprequest.path in ('/magasin', '/freemoov-liege')">
+                    <script type="application/ld+json" t-out="website.get_jsonld_local_business_liege()"/>
+                </t>
+                <t t-if="request.httprequest.path in ('/magasin', '/freemoov-namur')">
+                    <script type="application/ld+json" t-out="website.get_jsonld_local_business_namur()"/>
+                </t>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

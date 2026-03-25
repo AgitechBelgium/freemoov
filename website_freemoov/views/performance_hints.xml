@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Resource hints for faster page load: preconnect to Google Fonts and GTM -->
+    <template id="performance_hints" inherit_id="website.layout" name="Performance Hints">
+        <xpath expr="//head/meta[@charset]" position="after">
+            <!-- Preconnect to Google Fonts (used by Odoo for Noto Sans) -->
+            <link rel="preconnect" href="https://fonts.googleapis.com"/>
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+            <!-- DNS prefetch for Google Tag Manager -->
+            <link rel="dns-prefetch" href="https://www.googletagmanager.com"/>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Product Template Form: FAQ + SEO Content tabs
+         ================================================================ -->
+    <record id="seo_product_template_form" model="ir.ui.view">
+        <field name="name">product.template.seo.form</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_only_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="FAQ (SEO)" name="faq_page">
+                    <field name="faq_ids">
+                        <tree editable="bottom">
+                            <field name="sequence" widget="handle"/>
+                            <field name="question"/>
+                            <field name="answer" widget="html"/>
+                        </tree>
+                    </field>
+                </page>
+                <page string="Contenu SEO" name="seo_content_page">
+                    <group>
+                        <field name="editorial_review" widget="html"
+                               placeholder="Redigez ici votre avis d'expert Freemoov sur ce produit..."/>
+                        <field name="video_url"
+                               placeholder="https://www.youtube.com/watch?v=... ou https://www.instagram.com/reel/..."/>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ================================================================
+         Product Public Category Form: SEO Intro + Blog
+         ================================================================ -->
+    <record id="seo_category_form" model="ir.ui.view">
+        <field name="name">product.public.category.seo.form</field>
+        <field name="model">product.public.category</field>
+        <field name="inherit_id" ref="website_freemoov.product_public_category_form_view_freemov"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='category_description']" position="after">
+                <field name="seo_intro" widget="html"
+                       placeholder="Introduction SEO de la categorie (editable aussi via le website builder)"/>
+                <field name="blog_id"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
