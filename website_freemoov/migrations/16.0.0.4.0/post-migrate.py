@@ -77,4 +77,19 @@ def migrate(cr, version):
     """)
     _logger.info('Product meta titles set: %d products', cr.rowcount)
 
+    # ------------------------------------------------------------------
+    # 6. Add | Freemoov to existing meta titles that don't have it
+    # ------------------------------------------------------------------
+    cr.execute("""
+        UPDATE product_template
+        SET website_meta_title = (
+            SELECT jsonb_object_agg(key, value || ' | Freemoov')
+            FROM jsonb_each_text(website_meta_title)
+        )
+        WHERE is_published = True
+          AND website_meta_title IS NOT NULL
+          AND website_meta_title::text NOT LIKE '%Freemoov%'
+    """)
+    _logger.info('Product meta titles suffixed: %d products', cr.rowcount)
+
     _logger.info('SEO+UX overhaul migration v16.0.0.4.0 — done')

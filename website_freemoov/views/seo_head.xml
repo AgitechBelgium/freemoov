@@ -82,6 +82,17 @@ Sitemap: <t t-esc="url_root"/>sitemap.xml
     </template>
 
     <!-- ================================================================
+         Strip Odoo's built-in microdata (itemscope/itemprop) from product
+         page to avoid duplicate Product schema alongside our JSON-LD.
+         ================================================================ -->
+    <template id="seo_strip_microdata" inherit_id="website_sale.product" name="SEO: Strip microdata" priority="99">
+        <xpath expr="//div[@id='wrap']" position="attributes">
+            <attribute name="itemscope"/>
+            <attribute name="itemtype"/>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
          Note: H3 prices in website_sale.product_price cannot be overridden
          via template inheritance (Odoo does not apply extensions on primary
          templates called via t-call in COW copies). The H3 prices on product
