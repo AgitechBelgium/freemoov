@@ -9,7 +9,7 @@
     'author': '',
     'website' : '',
     'sequence': 1,
-    'description': """Website Freemoov""",
+    'description': """Website Freemoov — mobilite electrique Belgique""",
     'depends': [
         'website',
         'web_editor',
