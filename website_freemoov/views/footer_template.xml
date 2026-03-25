@@ -11,8 +11,7 @@
 									<img class="img-fluid"
 										src="/website_freemoov/static/src/img/homepage/Group1.png"
 										alt="photo" />
-									<p class="mb-0 text-white mt16">Le <b>spécialiste</b> en
-										trottinette électrique</p>
+									<p class="mb-0 text-white mt16"><b>N°1 en Wallonie</b> depuis 2019</p>
 								</div>
 							</div>
 							<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
@@ -20,8 +19,7 @@
 									<img class="img-fluid"
 										src="/website_freemoov/static/src/img/homepage/Group2.png"
 										alt="photo" />
-									<p class="mb-0 text-white mt16">Expert en <b>satisfaction
-										client</b></p>
+									<p class="mb-0 text-white mt16"><b>4.8/5 sur Google</b> — 348 avis</p>
 								</div>
 							</div>
 							<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
@@ -29,8 +27,7 @@
 									<img class="img-fluid"
 										src="/website_freemoov/static/src/img/homepage/Group3.png"
 										alt="photo" />
-									<p class="mb-0 text-white mt16"><b>Services après-vente</b>par
-										nos spécialistes</p>
+									<p class="mb-0 text-white mt16"><b>Réparation sur place</b> à Liège et Namur</p>
 								</div>
 							</div>
 							<div class="col-xl-2 col-lg-3  col-md-6 pt16 pb16">
@@ -38,8 +35,7 @@
 									<img class="img-fluid"
 										src="/website_freemoov/static/src/img/homepage/Group4.png"
 										alt="photo" />
-									<p class="mb-0 text-white mt16"><b>À votre écoute</b>en
-										magasin spécialisé</p>
+									<p class="mb-0 text-white mt16"><b>Conseil expert</b> en magasin spécialisé</p>
 								</div>
 							</div>
 						</div>
@@ -237,8 +233,7 @@
 									<span style="font-size: 14px;">
 										<strong>
 											<span style="font-size: 18px;">Nous sommes Freemoov,
-												votre meilleur allié pour une mobilité électrique
-												sans tracas !</span>
+												Le spécialiste N°1 de la mobilité électrique en Belgique — magasins à Liège et Namur.</span>
 										</strong>
 									</span>
 								</p>
@@ -332,7 +327,7 @@
 				<div class="row">
 					<div class="col-sm text-center text-sm-start text-muted">
 						<span class="o_footer_copyright_name me-2">
-							<span style="font-size: 12px;"><font class="text-600">Copyright © Freemoov SRL |&amp;nbsp;&amp;nbsp;Tous droits réservé | Avenue du Bourgmestre Jean Materne 12, 5100 Jambes, Belgique</font></span></span>
+							<span style="font-size: 12px;"><font class="text-600">Copyright © Freemoov SRL |&amp;nbsp;&amp;nbsp;Tous droits réservés | Boulevard de la Sauvenière 136B, 4000 Liège, Belgique</font></span></span>
 							<t id="language_selector_call" t-call="portal.language_selector">
 								<t t-set="_div_classes" t-value="(_div_classes or '') + ' dropup'"/>
 							</t>
@@ -344,7 +339,7 @@
 	
 	<template id="footer_copyright_company_name_inherited_portal" inherit_id="portal.frontend_layout" active="True">
 		<xpath expr="//footer//span[hasclass('o_footer_copyright_name')]" position="replace">
-			<span style="font-size: 12px;"><font class="text-600">Copyright © Freemoov SRL |&amp;nbsp;&amp;nbsp;Tous droits réservé | Avenue du Bourgmestre Jean Materne 12, 5100 Jambes, Belgique</font>
+			<span style="font-size: 12px;"><font class="text-600">Copyright © Freemoov SRL |&amp;nbsp;&amp;nbsp;Tous droits réservés | Boulevard de la Sauvenière 136B, 4000 Liège, Belgique</font>
 			</span>
 			<!-- <t id="language_selector_call" t-call="portal.language_selector">
                 <t t-set="_div_classes" t-value="(_div_classes or '') + ' dropup'"/>
