@@ -51,11 +51,9 @@ def migrate(cr, version):
     _logger.info('website_meta_title set on %d categories', cr.rowcount)
 
     # ------------------------------------------------------------------
-    # 3. Fix homepage_url: empty = serve / directly, no /home reroute
+    # 3. Homepage URL: keep /home (content is in homepage_template view)
+    #    Canonical fix handled in seo.py _get_canonical_url() instead.
     # ------------------------------------------------------------------
-    cr.execute("UPDATE website SET homepage_url = '' WHERE homepage_url = '/home'")
-    if cr.rowcount:
-        _logger.info('homepage_url fixed: /home -> empty (canonical = /)')
 
     # ------------------------------------------------------------------
     # 4. Clean sitemap cache (forces regeneration with new URLs)
