@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+	<!-- ============================================================
+		 WIZARD STEPPER — Green numbered circles
+		 ============================================================ -->
+	<template id="inherit_wizard_checkout" inherit_id="website_sale.wizard_checkout" name="Wizard Stepper Freemoov">
+		<xpath expr="//div[hasclass('progress-wizard')]" position="replace">
+			<div class="fm-stepper d-flex align-items-center justify-content-center my-4">
+				<a href="/shop/cart" t-attf-class="fm-stepper-step active #{step == 10 and 'current' or ''}">
+					<span class="fm-stepper-num">1</span>
+					<span class="fm-stepper-label d-none d-md-block">Panier</span>
+				</a>
+				<div t-attf-class="fm-stepper-line #{step >= 20 and 'active' or ''}"/>
+				<a t-att-href="step >= 20 and '/shop/checkout' or '#'"
+				   t-attf-class="fm-stepper-step #{step >= 20 and 'active' or ''} #{step == 20 and 'current' or ''}">
+					<span class="fm-stepper-num">2</span>
+					<span class="fm-stepper-label d-none d-md-block">Informations</span>
+				</a>
+				<div t-attf-class="fm-stepper-line #{step >= 40 and 'active' or ''}"/>
+				<a t-att-href="step >= 40 and '/shop/confirm_order' or '#'"
+				   t-attf-class="fm-stepper-step #{step >= 40 and 'active' or ''} #{step == 40 and 'current' or ''}">
+					<span class="fm-stepper-num">3</span>
+					<span class="fm-stepper-label d-none d-md-block">Confirmation</span>
+				</a>
+			</div>
+		</xpath>
+	</template>
+
+	<!-- ============================================================
+		 CART PAGE — Background class
+		 ============================================================ -->
+	<template id="inherit_cart" inherit_id="website_sale.cart" name="Cart Page Freemoov">
+		<xpath expr="//div[@id='wrap']" position="attributes">
+			<attribute name="class" add="fm-cart-page" separator=" "/>
+		</xpath>
+		<!-- Mobile sticky CTA (Phase E) -->
+		<xpath expr="//div[@id='wrap']" position="inside">
+			<div class="fm-mobile-cta d-lg-none" t-if="website_sale_order and website_sale_order.website_order_line">
+				<div class="fm-mobile-cta-inner">
+					<div class="fm-mobile-cta-total">
+						<span class="fm-mobile-cta-label">Total</span>
+						<span class="fm-mobile-cta-amount" t-field="website_sale_order.amount_total"
+							  t-options='{"widget": "monetary", "display_currency": website_sale_order.pricelist_id.currency_id}'/>
+					</div>
+					<a role="button" class="btn fm-btn-primary fm-mobile-cta-btn" href="/shop/checkout?express=1">
+						Passer commande <i class="fa fa-chevron-right ms-1"/>
+					</a>
+				</div>
+			</div>
+		</xpath>
+	</template>
+
+	<!-- ============================================================
+		 CART LINES — Empty cart + div-based cards (Phase A)
+		 ============================================================ -->
+	<template id="inherit_cart_lines" inherit_id="website_sale.cart_lines" name="Cart Lines Freemoov">
+		<!-- Replace empty cart alert -->
+		<xpath expr="//div[hasclass('js_cart_lines')][hasclass('alert')]" position="replace">
+			<div t-if="not website_sale_order or not website_sale_order.website_order_line"
+				 class="js_cart_lines fm-empty-cart text-center py-5">
+				<div class="mb-4">
+					<i class="fa fa-shopping-cart" style="font-size: 64px; color: #d0d0d0;"/>
+				</div>
+				<h4 class="mb-2">Votre panier est vide</h4>
+				<p class="text-muted mb-4">Parcourez nos produits et trouvez votre bonheur !</p>
+				<a href="/shop" class="btn fm-btn-primary px-5 py-3">Decouvrir nos produits</a>
+			</div>
+		</xpath>
+
+		<!-- Replace table with div-based cards -->
+		<xpath expr="//table[@id='cart_products']" position="replace">
+			<div t-if="website_sale_order and website_sale_order.website_order_line"
+				 id="cart_products" class="mb16 js_cart_lines fm-cart-lines">
+				<t t-set="show_qty" t-value="is_view_active('website_sale.product_quantity')"/>
+				<t t-foreach="website_sale_order.website_order_line" t-as="line">
+					<div t-attf-class="fm-cart-item o_cart_product #{line.linked_line_id and 'optional_product' or ''}"
+						 t-att-data-line-id="line.id">
+						<!-- Image -->
+						<div class="fm-ci-img">
+							<t t-if="line.product_id">
+								<a t-att-href="line.product_id.website_url">
+									<span t-if="line._is_not_sellable_line() and line.product_id.image_128">
+										<img t-att-src="image_data_uri(line.product_id.image_128)"
+											 class="img rounded" t-att-alt="line.name_short"/>
+									</span>
+									<span t-else=""
+										  t-field="line.product_id.image_128"
+										  t-options="{'widget': 'image', 'qweb_img_responsive': False, 'class': 'rounded'}"/>
+								</a>
+							</t>
+						</div>
+						<!-- Info -->
+						<div class="fm-ci-info">
+							<t t-if="line.product_id">
+								<div>
+									<t t-call="website_sale.cart_line_product_link">
+										<strong t-field="line.name_short"/>
+									</t>
+								</div>
+								<t t-call="website_sale.cart_line_description_following_lines">
+									<t t-set="div_class" t-value="''"/>
+								</t>
+							</t>
+						</div>
+						<!-- Quantity -->
+						<div class="fm-ci-qty">
+							<div class="css_quantity input-group">
+								<t t-if="not line._is_not_sellable_line()">
+									<t t-if="show_qty">
+										<a t-attf-href="#" class="btn btn-link js_add_cart_json" aria-label="Remove one" title="Remove one">
+											<i class="fa fa-minus"/>
+										</a>
+										<input type="text" class="js_quantity form-control quantity"
+											   t-att-data-line-id="line.id"
+											   t-att-data-product-id="line.product_id.id"
+											   t-att-value="int(line.product_uom_qty) == line.product_uom_qty and int(line.product_uom_qty) or line.product_uom_qty"/>
+										<t t-if="line._get_shop_warning(clear=False)">
+											<a t-attf-href="#" class="btn btn-link">
+												<i class='fa fa-warning text-warning' t-att-title="line._get_shop_warning()" role="img" aria-label="Warning"/>
+											</a>
+										</t>
+										<a t-else='' t-attf-href="#" class="btn btn-link js_add_cart_json" aria-label="Add one" title="Add one">
+											<i class="fa fa-plus"/>
+										</a>
+									</t>
+									<t t-else="">
+										<input type="hidden" class="js_quantity form-control quantity"
+											   t-att-data-line-id="line.id"
+											   t-att-data-product-id="line.product_id.id"
+											   t-att-value="int(line.product_uom_qty) == line.product_uom_qty and int(line.product_uom_qty) or line.product_uom_qty"/>
+									</t>
+								</t>
+								<t t-else="">
+									<span class="text-muted" t-esc="int(line.product_uom_qty)"/>
+									<input type="hidden" class="js_quantity form-control quantity"
+										   t-att-data-line-id="line.id"
+										   t-att-data-product-id="line.product_id.id"
+										   t-att-value="line.product_uom_qty"/>
+								</t>
+							</div>
+						</div>
+						<!-- Price -->
+						<div class="fm-ci-price">
+							<t t-set="combination" t-value="line.product_id.product_template_attribute_value_ids + line.product_no_variant_attribute_value_ids"/>
+							<t t-set="combination_info" t-value="line.product_id.product_tmpl_id._get_combination_info(combination, pricelist=website_sale_order.pricelist_id, add_qty=line.product_uom_qty)"/>
+							<t groups="account.group_show_line_subtotals_tax_excluded">
+								<span class="fm-ci-price-amount" t-field="line.price_reduce_taxexcl"
+									  t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}"/>
+							</t>
+							<t groups="account.group_show_line_subtotals_tax_included">
+								<span class="fm-ci-price-amount" t-field="line.price_reduce_taxinc"
+									  t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}"/>
+							</t>
+							<del t-if="line.discount" class="text-danger small d-block"
+								 t-esc="combination_info['list_price']"
+								 t-options="{'widget': 'monetary', 'display_currency': website_sale_order.currency_id}"/>
+						</div>
+						<!-- Delete -->
+						<div class="fm-ci-delete">
+							<a href='#' aria-label="Supprimer" title="Supprimer" class='js_delete_product no-decoration'>
+								<i class='fa fa-trash-o'/>
+							</a>
+						</div>
+					</div>
+				</t>
+			</div>
+		</xpath>
+	</template>
+
+	<!-- ============================================================
+		 SIDEBAR — Trust block (Phase B)
+		 ============================================================ -->
+	<template id="inherit_short_cart_summary" inherit_id="website_sale.short_cart_summary" name="Cart Summary Trust Block">
+		<xpath expr="//div[hasclass('card-body')]" position="after">
+			<div class="fm-trust-block">
+				<div class="fm-trust-divider">
+					<span><i class="fa fa-lock me-1"/> Paiement 100% securise</span>
+				</div>
+				<div class="fm-trust-icons text-center py-2">
+					<img src="/website_freemoov/static/src/img/payment_icons.png"
+						 alt="Moyens de paiement" class="img-fluid" loading="lazy"
+						 style="max-height: 32px; opacity: 0.85;"/>
+				</div>
+				<div class="fm-trust-items">
+					<div class="fm-trust-item-line">
+						<i class="fa fa-truck"/> Livraison Express : 24/72h
+					</div>
+					<div class="fm-trust-item-line">
+						<i class="fa fa-refresh"/> Retour sous 30 jours
+					</div>
+					<div class="fm-trust-item-line">
+						<i class="fa fa-headphones"/> SAV par nos specialistes
+					</div>
+				</div>
+			</div>
+		</xpath>
+	</template>
+
+	<!-- ============================================================
+		 CART POPOVER — Redesign (Phase C)
+		 ============================================================ -->
+	<template id="inherit_cart_popover" inherit_id="website_sale.cart_popover" name="Cart Popover Freemoov">
+		<!-- Replace empty alert -->
+		<xpath expr="//div[hasclass('alert')]" position="replace">
+			<div t-if="not website_sale_order or not website_sale_order.website_order_line"
+				 class="fm-popover-empty text-center py-3">
+				<i class="fa fa-shopping-cart d-block mb-2" style="font-size: 24px; color: #ccc;"/>
+				<span class="text-muted small">Votre panier est vide</span>
+			</div>
+		</xpath>
+	</template>
+
+	<!-- ============================================================
+		 CHECKOUT PAGE — Background class
+		 ============================================================ -->
+	<template id="inherit_checkout" inherit_id="website_sale.checkout" name="Checkout Freemoov">
+		<xpath expr="//div[@id='wrap']" position="attributes">
+			<attribute name="class" add="fm-checkout-page" separator=" "/>
+		</xpath>
+	</template>
+
+	<!-- ============================================================
+		 ADDRESS PAGE — Background class
+		 ============================================================ -->
+	<template id="inherit_address" inherit_id="website_sale.address" name="Address Freemoov">
+		<xpath expr="//div[@id='wrap']" position="attributes">
+			<attribute name="class" add="fm-checkout-page" separator=" "/>
+		</xpath>
+	</template>
+
+	<!-- ============================================================
+		 PAYMENT PAGE — Background class (Phase D)
+		 ============================================================ -->
+	<template id="inherit_payment" inherit_id="website_sale.payment" name="Payment Freemoov">
+		<xpath expr="//div[@id='wrap']" position="attributes">
+			<attribute name="class" add="fm-checkout-page" separator=" "/>
+		</xpath>
+	</template>
+
+	<!-- ============================================================
+		 CONFIRMATION PAGE — Success banner + CTAs
+		 ============================================================ -->
+	<template id="inherit_confirmation" inherit_id="website_sale.confirmation" name="Confirmation Freemoov">
+		<xpath expr="//div[@id='wrap']" position="attributes">
+			<attribute name="class" add="fm-confirmation-page" separator=" "/>
+		</xpath>
+		<xpath expr="//div[hasclass('oe_website_sale')]/h1" position="replace">
+			<div class="fm-confirmation-banner text-center py-4 mb-4 rounded-3">
+				<div class="fm-check-circle mx-auto mb-3">
+					<i class="fa fa-check"/>
+				</div>
+				<h2 class="text-white mb-2">Merci pour votre commande !</h2>
+				<p class="mb-0" style="color: rgba(255,255,255,0.8);">
+					Commande <strong t-field="order.name"/> confirmee
+				</p>
+			</div>
+		</xpath>
+		<xpath expr="//div[@id='oe_structure_website_sale_confirmation_2']" position="after">
+			<div class="fm-confirmation-ctas text-center py-4">
+				<a href="/shop" class="btn fm-btn-primary px-5 py-3 me-2 mb-2">Continuer vos achats</a>
+				<a href="/my/orders" class="btn fm-btn-outline px-5 py-3 mb-2">Suivre ma commande</a>
+			</div>
+		</xpath>
+	</template>
+
+</odoo>
