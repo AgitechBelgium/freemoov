@@ -59,19 +59,21 @@ class SeoMetadataFix(models.AbstractModel):
         if not request:
             return meta
         website = request.website
-        domain = website.domain
+        domain = website.domain or ''
+        domain = domain.strip().rstrip('/')
         if not domain:
+            domain = website.get_base_url().rstrip('/')
+        if not domain or '.odoo.com' in domain:
             return meta
-        domain = domain.rstrip('/')
         if not domain.startswith('http'):
             domain = 'https://' + domain
 
-        for bucket in ('opengraph_meta', 'twitter_meta'):
+        from urllib.parse import urlparse
+        for bucket in ('default_opengraph', 'default_twitter', 'opengraph_meta', 'twitter_meta'):
             data = meta.get(bucket, {})
             for key in list(data.keys()):
                 val = data[key]
-                if isinstance(val, str) and val.startswith('http') and '.odoo.com' in val:
-                    from urllib.parse import urlparse
+                if isinstance(val, str) and '.odoo.com' in val:
                     parsed = urlparse(val)
                     data[key] = domain + parsed.path
                     if parsed.query:
@@ -125,29 +127,44 @@ class ProductTemplateSeo(models.Model):
     def _build_auto_meta_description(self):
         """Build a meta description from product name, brand and key attributes."""
         self.ensure_one()
-        brand = self._get_brand_name()
+        real_brand = hasattr(self, 'x_studio_marque') and self.x_studio_marque
+        brand = real_brand or ''
         name = self.name or ''
 
         specs = []
         for line in self.attribute_line_ids:
             attr_name = line.attribute_id.name
             if attr_name in self._SEO_PRIORITY_ATTRS:
-                values = ', '.join(line.value_ids.mapped('name'))
-                if values:
-                    specs.append('%s %s' % (attr_name, values))
+                values = line.value_ids.mapped('name')
+                if not values:
+                    continue
+                if len(values) == 1:
+                    specs.append('%s %s' % (attr_name, values[0]))
+                else:
+                    # Multi-value = variant axis → show range
+                    specs.append('%s de %s à %s' % (attr_name, values[0], values[-1]))
 
         specs.sort(key=lambda s: next(
             (i for i, a in enumerate(self._SEO_PRIORITY_ATTRS) if s.startswith(a)), 99
         ))
 
+        # Only append brand/category if not already in product name
+        def _normalize(s):
+            return set(w.rstrip('s') for w in s.lower().split() if len(w) > 2)
+        name_norm = _normalize(name)
+        brand_extra = brand if brand and not _normalize(brand).issubset(name_norm) else ''
+
         if specs:
-            desc = '%s %s : %s. Livraison gratuite en Belgique.' % (
-                name, brand, ', '.join(specs),
-            )
+            prefix = ('%s %s' % (name, brand_extra)).strip()
+            desc = '%s : %s. Livraison gratuite en Belgique.' % (prefix, ', '.join(specs))
         else:
-            desc = '%s %s \u2014 disponible chez Freemoov, sp\u00e9cialiste mobilit\u00e9 \u00e9lectrique en Belgique. Livraison gratuite.' % (
-                name, brand,
-            )
+            categ = self._seo_category_name()
+            categ_extra = categ if categ and not _normalize(categ).issubset(name_norm) else ''
+            prefix = ('%s %s' % (name, brand_extra)).strip()
+            if categ_extra:
+                desc = '%s \u2014 %s disponible chez Freemoov. Livraison gratuite en Belgique.' % (prefix, categ_extra)
+            else:
+                desc = '%s \u2014 disponible chez Freemoov. Livraison gratuite en Belgique.' % prefix
 
         if len(desc) > 160:
             desc = desc[:157] + '...'
@@ -257,27 +274,133 @@ class ProductTemplateSeo(models.Model):
     def _seo_store_reviews():
         return ProductTemplateSeo._STORE_REVIEWS
 
-    def _get_jsonld_product(self):
-        """Return Markup-safe JSON-LD string for a Product schema."""
-        self.ensure_one()
+    def _seo_images(self):
+        """Return list of all product image URLs (main + extras)."""
         website = self.env['website'].get_current_website()
         base_url = website.get_base_url()
-
         images = [base_url + website.image_url(self, 'image_1920')]
+        for img in self.product_template_image_ids:
+            images.append('%s/web/image/product.image/%s/image_1920' % (base_url, img.id))
+        return images
 
+    def _seo_description(self):
+        """Return best available text description (summary > description_sale > name)."""
+        if self.summary:
+            text = html2plaintext(self.summary)
+            return text[:1000].strip()
+        if self.description_sale:
+            return self.description_sale[:1000].strip()
+        return self.name
+
+    def _seo_category_name(self):
+        categ = self.public_categ_ids[:1]
+        return categ.name if categ else ''
+
+    def _seo_variant_label(self, variant):
+        """Return the distinguishing label of a variant (e.g. 'Noir')."""
+        labels = []
+        for ptav in variant.product_template_attribute_value_ids:
+            line = ptav.attribute_line_id
+            if len(line.product_template_value_ids) > 1:
+                labels.append(ptav.name)
+        return ' / '.join(labels) if labels else ''
+
+    def _seo_variant_offer(self, variant):
+        """Return an Offer dict for a specific product variant."""
+        base_url = self.env['website'].get_current_website().get_base_url()
+        offer = {
+            '@type': 'Offer',
+            'url': base_url + self.website_url,
+            'priceCurrency': 'EUR',
+            'price': '%.2f' % (self.list_price + variant.price_extra),
+            'priceValidUntil': (fields.Date.today() + timedelta(days=90)).isoformat(),
+            'availability': self._seo_availability(),
+            'itemCondition': 'https://schema.org/NewCondition',
+            'seller': {'@type': 'Organization', 'name': 'Freemoov'},
+            'shippingDetails': self._seo_shipping_details(),
+            'hasMerchantReturnPolicy': self._seo_return_policy(),
+        }
+        sku = variant.default_code or self.default_code or ''
+        if sku:
+            offer['sku'] = sku
+        return offer
+
+    def _seo_aggregate_rating(self):
+        """Return aggregateRating dict (per-product or store-wide fallback)."""
+        if hasattr(self, 'rating_count') and self.rating_count and self.rating_count > 0:
+            return {
+                '@type': 'AggregateRating',
+                'ratingValue': '%.1f' % self.rating_avg,
+                'reviewCount': self.rating_count,
+                'bestRating': 5,
+                'worstRating': 1,
+            }
+        return {
+            '@type': 'AggregateRating',
+            'ratingValue': '4.8',
+            'reviewCount': 350,
+            'bestRating': 5,
+            'worstRating': 1,
+        }
+
+    def _get_jsonld_product(self):
+        """Return Markup-safe JSON-LD string for a Product/ProductGroup schema."""
+        self.ensure_one()
+        base_url = self.env['website'].get_current_website().get_base_url()
+        variants = self.product_variant_ids.filtered('active')
+        is_group = len(variants) > 1
+
+        # Common fields shared by both Product and ProductGroup
         data = {
             '@context': 'https://schema.org',
-            '@type': 'Product',
+            '@type': 'ProductGroup' if is_group else 'Product',
             'name': self.name,
-            'description': self.description_sale or self.name,
+            'description': self._seo_description(),
             'url': base_url + self.website_url,
-            'image': images,
-            'sku': self.default_code or '',
+            'image': self._seo_images(),
             'brand': {
                 '@type': 'Brand',
                 'name': self._get_brand_name(),
             },
-            'offers': {
+            'aggregateRating': self._seo_aggregate_rating(),
+            'review': self._seo_store_reviews(),
+        }
+
+        categ = self._seo_category_name()
+        if categ:
+            data['category'] = categ
+
+        if self.weight:
+            data['weight'] = {
+                '@type': 'QuantitativeValue',
+                'value': self.weight,
+                'unitCode': 'KGM',
+            }
+
+        if is_group:
+            # ProductGroup: each variant is a Product with its own Offer
+            data['productGroupID'] = str(self.id)
+            variant_list = []
+            for variant in variants:
+                label = self._seo_variant_label(variant)
+                v_name = '%s - %s' % (self.name, label) if label else self.name
+                v_data = {
+                    '@type': 'Product',
+                    'name': v_name,
+                    'url': base_url + self.website_url,
+                    'image': data['image'][0] if data['image'] else '',
+                    'offers': self._seo_variant_offer(variant),
+                }
+                if variant.default_code:
+                    v_data['sku'] = variant.default_code
+                if variant.barcode:
+                    v_data['gtin13'] = variant.barcode
+                variant_list.append(v_data)
+            data['hasVariant'] = variant_list
+        else:
+            # Single Product: one Offer, SKU/GTIN at product level
+            variant = variants[:1]
+            data['offers'] = {
                 '@type': 'Offer',
                 'url': base_url + self.website_url,
                 'priceCurrency': 'EUR',
@@ -288,35 +411,14 @@ class ProductTemplateSeo(models.Model):
                 'seller': {'@type': 'Organization', 'name': 'Freemoov'},
                 'shippingDetails': self._seo_shipping_details(),
                 'hasMerchantReturnPolicy': self._seo_return_policy(),
-            },
-        }
-        if self.barcode:
-            data['gtin13'] = self.barcode
-        if self.weight:
-            data['weight'] = {
-                '@type': 'QuantitativeValue',
-                'value': self.weight,
-                'unitCode': 'KGM',
             }
-        # AggregateRating: per-product if available, else store-wide fallback
-        if hasattr(self, 'rating_count') and self.rating_count and self.rating_count > 0:
-            data['aggregateRating'] = {
-                '@type': 'AggregateRating',
-                'ratingValue': '%.1f' % self.rating_avg,
-                'reviewCount': self.rating_count,
-                'bestRating': 5,
-                'worstRating': 1,
-            }
-        else:
-            data['aggregateRating'] = {
-                '@type': 'AggregateRating',
-                'ratingValue': '4.8',
-                'reviewCount': 350,
-                'bestRating': 5,
-                'worstRating': 1,
-            }
-        # Store-wide Google Business reviews (triggers star display in SERP)
-        data['review'] = self._seo_store_reviews()
+            sku = (variant.default_code if variant else '') or self.default_code or ''
+            if sku:
+                data['sku'] = sku
+            barcode = variant.barcode if variant else ''
+            if barcode:
+                data['gtin13'] = barcode
+
         return Markup(json.dumps(data, ensure_ascii=False))
 
     def _get_jsonld_faq(self):

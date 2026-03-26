@@ -30,7 +30,7 @@
                             <div class="fm-section-title">Découvrez aussi</div>
                             <div class="fm-category-pills">
                                 <t t-foreach="siblings[:8]" t-as="sib">
-                                    <a t-attf-href="/shop/category/#{sib.seo_name or sib.name}-#{sib.id}"
+                                    <a t-attf-href="/shop/category/#{slug(sib)}"
                                        class="fm-category-pill">
                                         <t t-esc="sib.name"/>
                                     </a>
