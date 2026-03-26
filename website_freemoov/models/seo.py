@@ -283,10 +283,25 @@ class ProductTemplateSeo(models.Model):
             images.append('%s/web/image/product.image/%s/image_1920' % (base_url, img.id))
         return images
 
+    @staticmethod
+    def _clean_plaintext(text):
+        """Remove markdown/image artifacts from html2plaintext output."""
+        # Remove markdown bold/italic: **text**, ***text***, ***/text/***
+        text = re.sub(r'\*{2,3}/|/\*{2,3}', '', text)
+        text = re.sub(r'\*{2,3}', '', text)
+        # Remove image alt text references: Logo-Brand [1], Image [5], [N]
+        text = re.sub(r'[\w-]+ \[\d+\]', '', text)
+        text = re.sub(r'\[\d+\]', '', text)
+        # Collapse multiple newlines/spaces
+        text = re.sub(r'\n+', ' ', text)
+        text = re.sub(r'  +', ' ', text)
+        return text.strip()
+
     def _seo_description(self):
         """Return best available text description (summary > description_sale > name)."""
         if self.summary:
             text = html2plaintext(self.summary)
+            text = self._clean_plaintext(text)
             return text[:1000].strip()
         if self.description_sale:
             return self.description_sale[:1000].strip()
