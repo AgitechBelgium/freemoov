@@ -1,7 +1,8 @@
+import re
+
 from odoo import http
 from odoo.http import request
 from odoo.addons.http_routing.models.ir_http import slug
-
 
 
 class WebsiteCategoryController(http.Controller):

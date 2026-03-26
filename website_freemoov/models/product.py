@@ -13,6 +13,14 @@ class ProductTemplate(models.Model):
 	is_dropship_product = fields.Boolean(string="Dropshipping Product?")
 	tab_ids = fields.One2many('ust.product.tabs', 'product_id',string="Tab")
 
+	def write(self, vals):
+		res = super().write(vals)
+		if vals.get('active') is False:
+			published = self.filtered('is_published')
+			if published:
+				published.write({'is_published': False})
+		return res
+
 	def dropship_product(self) :
 		dropship_route = self.env.ref('stock_dropshipping.route_drop_shipping')
 		is_dropship = dropship_route.id in self.route_ids.ids

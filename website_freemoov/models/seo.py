@@ -27,6 +27,28 @@ HANDLING_DAYS_MAX = 2
 RETURN_DAYS = 14
 
 
+class IrHttpSeo(models.AbstractModel):
+    """301-redirect archived product pages to their parent category."""
+    _inherit = 'ir.http'
+
+    @classmethod
+    def _serve_fallback(cls):
+        # Intercept 404 on /shop/<slug>-<id> for archived products
+        if request and request.httprequest.path.startswith('/shop/'):
+            match = re.search(r'-(\d+)$', request.httprequest.path)
+            if match:
+                product_id = int(match.group(1))
+                product = request.env['product.template'].sudo().with_context(
+                    active_test=False,
+                ).browse(product_id)
+                if product.exists() and not product.active:
+                    categ = product.public_categ_ids[:1]
+                    from odoo.addons.http_routing.models.ir_http import slug
+                    url = '/shop/category/%s' % slug(categ) if categ else '/shop'
+                    return request.redirect(url, code=301)
+        return super()._serve_fallback()
+
+
 class SeoMetadataFix(models.AbstractModel):
     """Fix og:image domain pointing to freemoov.odoo.com instead of the
     public website domain (www.freemoov.com)."""
@@ -71,6 +93,56 @@ class ProductTemplateSeo(models.Model):
         sanitize_attributes=False,
     )
     video_url = fields.Char(string='URL Vidéo')
+
+    # ------------------------------------------------------------------
+    # Meta tags (title + description auto-generation)
+    # ------------------------------------------------------------------
+
+    _SEO_PRIORITY_ATTRS = ['Autonomie', 'Puissance moteur', 'Vitesse', 'Poids']
+
+    def _default_website_meta(self):
+        res = super()._default_website_meta()
+        if not self.website_meta_title:
+            title = '%s | Freemoov' % self.name
+            res['default_opengraph']['og:title'] = title
+            res['default_twitter']['twitter:title'] = title
+        if not self.website_meta_description:
+            desc = self._build_auto_meta_description()
+            res['default_meta_description'] = desc
+            res['default_opengraph']['og:description'] = desc
+            res['default_twitter']['twitter:description'] = desc
+        return res
+
+    def _build_auto_meta_description(self):
+        """Build a meta description from product name, brand and key attributes."""
+        self.ensure_one()
+        brand = self._get_brand_name()
+        name = self.name or ''
+
+        specs = []
+        for line in self.attribute_line_ids:
+            attr_name = line.attribute_id.name
+            if attr_name in self._SEO_PRIORITY_ATTRS:
+                values = ', '.join(line.value_ids.mapped('name'))
+                if values:
+                    specs.append('%s %s' % (attr_name, values))
+
+        specs.sort(key=lambda s: next(
+            (i for i, a in enumerate(self._SEO_PRIORITY_ATTRS) if s.startswith(a)), 99
+        ))
+
+        if specs:
+            desc = '%s %s : %s. Livraison gratuite en Belgique.' % (
+                name, brand, ', '.join(specs),
+            )
+        else:
+            desc = '%s %s \u2014 disponible chez Freemoov, sp\u00e9cialiste mobilit\u00e9 \u00e9lectrique en Belgique. Livraison gratuite.' % (
+                name, brand,
+            )
+
+        if len(desc) > 160:
+            desc = desc[:157] + '...'
+        return desc
 
     # ------------------------------------------------------------------
     # JSON-LD helpers
