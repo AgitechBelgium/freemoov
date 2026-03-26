@@ -100,10 +100,19 @@ class ProductTemplateSeo(models.Model):
 
     _SEO_PRIORITY_ATTRS = ['Autonomie', 'Puissance moteur', 'Vitesse', 'Poids']
 
+    def _build_auto_meta_title(self):
+        """Build a meta title, enriching short names with category."""
+        name = self.name or ''
+        base = '%s | Freemoov' % name
+        if len(base) < 40 and self.public_categ_ids:
+            categ = self.public_categ_ids[0].name or ''
+            base = '%s \u2014 %s | Freemoov' % (name, categ)
+        return base
+
     def _default_website_meta(self):
         res = super()._default_website_meta()
         if not self.website_meta_title:
-            title = '%s | Freemoov' % self.name
+            title = self._build_auto_meta_title()
             res['default_opengraph']['og:title'] = title
             res['default_twitter']['twitter:title'] = title
         if not self.website_meta_description:
