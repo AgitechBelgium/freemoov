@@ -31,11 +31,18 @@
 		}
 	}
 }
-// Prevent horizontal scroll on mobile (category cards overflowing)
+// Prevent horizontal scroll on mobile (category cards + flex-nowrap sidebar overflowing)
+#wrapwrap {
+	overflow-x: hidden;
+}
 @media (max-width: 767px) {
 	.js_sale.o_wsale_products_page,
 	.oe_website_sale {
 		overflow-x: hidden !important;
+	}
+	// Force sidebar + grid to stack vertically on mobile
+	.o_wsale_products_main_row {
+		flex-wrap: wrap !important;
 	}
 }
 

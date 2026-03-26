@@ -220,7 +220,24 @@
     .fm-copyright-text {
         color: #ffffff99;
         font-size: 12px;
+        white-space: nowrap;
     }
+    /* Keep payment icons + copyright on one line at all breakpoints */
+    @media (max-width: 767.98px) {
+        flex-direction: column !important;
+        gap: 8px;
+        .fm-payment-icons img { max-height: 18px; }
+        .fm-copyright-text {
+            white-space: normal;
+            text-align: center;
+            font-size: 11px;
+        }
+    }
+}
+
+/* Hide "Généré par Odoo" branding */
+.o_brand_promotion {
+    display: none !important;
 }
 
 /* Footer link colors override (Odoo cc5 defaults) */
