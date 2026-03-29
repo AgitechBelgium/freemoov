@@ -1,0 +1,384 @@
+// ================================================================
+// FREEMOOV SEARCH — Shopify-level autocomplete & results
+// ================================================================
+
+$fm-green: #099D5D;
+$fm-green-light: #7AC144;
+$fm-bg: #F5F6F7;
+$fm-dark: #000;
+$fm-gray: #7F7F7F;
+$fm-border: #e8e9ea;
+$fm-radius: 12px;
+
+// --- 1. SEARCH BAR ENHANCEMENT ----------------------------------
+.o_searchbar_form {
+	.input-group {
+		border: 2px solid $fm-border;
+		border-radius: 10px;
+		background: #fff;
+		overflow: hidden;
+		transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+		&:focus-within {
+			border-color: $fm-green;
+			box-shadow: 0 0 0 3px rgba($fm-green, 0.1);
+		}
+
+		input.oe_search_box {
+			background: transparent;
+			font-size: 14px;
+			padding: 10px 16px;
+			height: 44px;
+			border: none !important;
+			&::placeholder { color: #aaa; font-size: 13px; }
+			&:focus { box-shadow: none; }
+		}
+
+		.oe_search_button {
+			background: $fm-green;
+			color: #fff;
+			border: none;
+			padding: 0 16px;
+			font-size: 15px;
+			transition: background 0.2s ease;
+			&:hover { background: darken($fm-green, 5%); }
+			.oe_search_found { display: none; } // hide "(X found)" text in button
+		}
+	}
+}
+
+// --- 2. AUTOCOMPLETE DROPDOWN ------------------------------------
+.o_searchbar_form .o_dropdown_menu,
+.o_searchbar_form .dropdown-menu {
+	border: none !important;
+	border-radius: 12px;
+	box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+	margin-top: 6px;
+	padding: 8px 0;
+	max-height: 70vh;
+	overflow-y: auto;
+	background: #fff;
+
+	// Each result item
+	.dropdown-item {
+		padding: 10px 16px !important;
+		border-bottom: 1px solid rgba($fm-border, 0.4);
+		transition: background 0.15s ease;
+		white-space: normal;
+
+		&:last-of-type { border-bottom: none; }
+		&:hover, &:focus { background: rgba($fm-green, 0.04); }
+		&.active, &:active { background: rgba($fm-green, 0.08); color: $fm-dark; }
+	}
+
+	.o_search_result_item {
+		gap: 12px;
+
+		// Product image
+		img.o_image_64_contain,
+		.o_image_64_contain {
+			width: 52px !important;
+			height: 52px !important;
+			object-fit: contain;
+			border-radius: 8px;
+			background: $fm-bg;
+			border: 1px solid $fm-border;
+			flex-shrink: 0;
+		}
+
+		// Folder icon (categories)
+		i.o_image_64_contain {
+			width: 52px !important;
+			height: 52px !important;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: $fm-bg;
+			border-radius: 8px;
+			border: 1px solid $fm-border;
+			font-size: 20px !important;
+			color: $fm-gray;
+		}
+	}
+
+	// Result details
+	.o_search_result_item_detail {
+		flex: 1;
+		min-width: 0;
+		padding: 0 8px !important;
+
+		.h6, .fw-bold {
+			font-size: 14px;
+			font-weight: 600;
+			color: $fm-dark;
+			margin-bottom: 2px;
+			line-height: 1.4;
+
+			// Highlight matching text
+			.text-primary { color: $fm-green !important; }
+		}
+
+		// Description
+		p {
+			font-size: 12px;
+			color: $fm-gray;
+			margin: 0;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+
+			.text-primary { color: $fm-green !important; }
+		}
+
+		// Category links
+		.btn-link {
+			font-size: 11px;
+			padding: 0 !important;
+			color: $fm-gray;
+			text-decoration: none;
+			&:hover { color: $fm-green; }
+		}
+	}
+
+	// Price on the right
+	.flex-shrink-0 {
+		b, .text-nowrap {
+			font-size: 14px;
+			font-weight: 700;
+			color: $fm-dark;
+		}
+		.text-danger {
+			font-size: 11px;
+			color: #dc3545 !important;
+		}
+	}
+
+	// "All results" button at bottom
+	.dropdown-item.text-center {
+		font-weight: 600;
+		font-size: 14px;
+		color: $fm-green;
+		padding: 12px 16px !important;
+		border-top: 1px solid $fm-border;
+		border-bottom: none;
+		&:hover { background: rgba($fm-green, 0.04); color: darken($fm-green, 5%); }
+	}
+
+	// Fuzzy search message
+	.dropdown-item-text {
+		font-size: 12px;
+		color: $fm-gray;
+		padding: 8px 16px;
+	}
+}
+
+// --- 3. SEARCH RESULTS PAGE --------------------------------------
+.container > form.o_searchbar_form {
+	margin-bottom: 24px;
+
+	.input-group {
+		max-width: 100%;
+		border: 2px solid $fm-border;
+		border-radius: 10px;
+
+		input.oe_search_box {
+			height: 48px;
+			font-size: 16px;
+			padding: 12px 20px;
+		}
+
+		.oe_search_button {
+			padding: 0 24px;
+			font-size: 16px;
+			.oe_search_found {
+				display: inline;
+				small { font-size: 13px; }
+			}
+		}
+	}
+}
+
+// "Résultats de recherche" heading
+.container > .mt24.h3 {
+	font-size: 20px;
+	font-weight: 700;
+	color: $fm-dark;
+	margin-bottom: 20px;
+}
+
+// Results list on the search results page
+.container > .table-responsive {
+	// Each result row
+	> a.dropdown-item {
+		display: block;
+		padding: 16px !important;
+		margin-bottom: 8px;
+		border-radius: $fm-radius;
+		border: 1px solid $fm-border;
+		background: #fff;
+		text-decoration: none;
+		transition: all 0.2s ease;
+
+		&:hover {
+			border-color: rgba($fm-green, 0.3);
+			box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+			background: rgba($fm-green, 0.02);
+		}
+
+		.o_search_result_item {
+			gap: 16px;
+			flex-wrap: nowrap;
+
+			// Image
+			img.o_image_64_contain {
+				width: 72px !important;
+				height: 72px !important;
+				object-fit: contain;
+				border-radius: 10px;
+				background: $fm-bg;
+				border: 1px solid $fm-border;
+			}
+
+			// Folder icon
+			i.o_image_64_contain {
+				width: 72px !important;
+				height: 72px !important;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background: $fm-bg;
+				border-radius: 10px;
+				border: 1px solid $fm-border;
+				font-size: 28px !important;
+				color: $fm-gray;
+			}
+		}
+
+		// Result details
+		.o_search_result_item_detail {
+			flex: 1;
+			min-width: 0;
+
+			.h6, .fw-bold {
+				font-size: 16px;
+				font-weight: 700;
+				color: $fm-dark;
+				margin-bottom: 4px;
+				.text-primary { color: $fm-green !important; }
+			}
+
+			p {
+				font-size: 13px;
+				color: $fm-gray;
+				margin: 0;
+				display: -webkit-box;
+				-webkit-line-clamp: 2;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+				.text-primary { color: $fm-green !important; }
+			}
+
+			.btn-link {
+				font-size: 12px;
+				color: $fm-green;
+				text-decoration: none;
+				padding: 2px 0 !important;
+				&:hover { text-decoration: underline; }
+			}
+		}
+
+		// Price
+		.flex-shrink-0 {
+			b { font-size: 18px; font-weight: 800; color: $fm-dark; }
+		}
+	}
+}
+
+// --- 4. FORCE SEARCH RESULTS PAGE TO PRODUCTS ONLY ---------------
+// The search results page has its own search bar that ignores header config.
+// We hide non-product results (categories, pages) on the results page via CSS.
+.container > .table-responsive {
+	// Hide category results (folder icons)
+	> a.dropdown-item:has(i.fa-folder-o) { display: none; }
+	// Hide page results (file icons)
+	> a.dropdown-item:has(i.fa-file-o) { display: none; }
+}
+
+// --- 5. FAQ ACCORDION STYLING ------------------------------------
+.fm-product-faq {
+	max-width: 800px;
+
+	.fm-faq-title {
+		font-size: 22px;
+		font-weight: 800;
+		color: $fm-dark;
+		margin-bottom: 20px;
+	}
+
+	.accordion-item {
+		border: 1px solid $fm-border;
+		border-radius: $fm-radius !important;
+		margin-bottom: 8px;
+		overflow: hidden;
+
+		&:first-of-type, &:last-of-type { border-radius: $fm-radius !important; }
+	}
+
+	.accordion-button {
+		font-size: 15px;
+		font-weight: 600;
+		color: $fm-dark;
+		padding: 16px 20px;
+		background: #fff;
+		border: none;
+		box-shadow: none !important;
+
+		&::after {
+			// Replace Bootstrap chevron with a proper down arrow
+			background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23099D5D'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e") !important;
+			width: 16px;
+			height: 16px;
+			transition: transform 0.25s ease;
+		}
+
+		&:not(.collapsed) {
+			color: $fm-green;
+			background: rgba($fm-green, 0.03);
+			&::after { transform: rotate(180deg); }
+		}
+
+		&:hover { color: $fm-green; }
+	}
+
+	.accordion-body {
+		padding: 0 20px 16px;
+		font-size: 14px;
+		line-height: 1.7;
+		color: $fm-gray;
+
+		p { margin-bottom: 8px; }
+		strong { color: $fm-dark; }
+	}
+}
+
+// --- 6. RESPONSIVE -----------------------------------------------
+@media (max-width: 767.98px) {
+	.o_searchbar_form .o_dropdown_menu .o_search_result_item {
+		img.o_image_64_contain, i.o_image_64_contain {
+			width: 40px !important; height: 40px !important;
+		}
+	}
+
+	.container > .table-responsive > a.dropdown-item {
+		padding: 12px !important;
+		.o_search_result_item {
+			gap: 10px;
+			img.o_image_64_contain, i.o_image_64_contain {
+				width: 56px !important; height: 56px !important;
+			}
+		}
+		.o_search_result_item_detail .h6 { font-size: 14px; }
+		.flex-shrink-0 b { font-size: 15px; }
+	}
+}

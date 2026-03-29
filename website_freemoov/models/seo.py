@@ -395,6 +395,16 @@ class ProductTemplateSeo(models.Model):
         if is_group:
             # ProductGroup: each variant is a Product with its own Offer
             data['productGroupID'] = str(self.id)
+            # AggregateOffer at ProductGroup level (required by Google)
+            prices = [(self.list_price + v.price_extra) for v in variants]
+            data['offers'] = {
+                '@type': 'AggregateOffer',
+                'lowPrice': '%.2f' % min(prices),
+                'highPrice': '%.2f' % max(prices),
+                'priceCurrency': 'EUR',
+                'offerCount': len(variants),
+                'availability': self._seo_availability(),
+            }
             variant_list = []
             for variant in variants:
                 label = self._seo_variant_label(variant)
@@ -584,22 +594,43 @@ class ProductPublicCategorySeo(models.Model):
         """Return JSON-LD CollectionPage + ItemList for a category listing."""
         self.ensure_one()
         base_url = self.env['website'].get_current_website().get_base_url()
+        website = self.env['website'].get_current_website()
+        price_valid = (fields.Date.today() + timedelta(days=90)).isoformat()
         list_items = []
+        shipping = products[:1]._seo_shipping_details() if products else []
+        return_policy = ProductTemplateSeo._seo_return_policy()
         for idx, product in enumerate(products[:36], start=1):
+            item = {
+                '@type': 'Product',
+                'name': product.name,
+                'url': base_url + product.website_url,
+                'image': base_url + website.image_url(product, 'image_512'),
+                'description': product._seo_description(),
+                'brand': {
+                    '@type': 'Brand',
+                    'name': product._get_brand_name(),
+                },
+                'offers': {
+                    '@type': 'Offer',
+                    'url': base_url + product.website_url,
+                    'price': '%.2f' % product.list_price,
+                    'priceCurrency': 'EUR',
+                    'priceValidUntil': price_valid,
+                    'availability': product._seo_availability(),
+                    'itemCondition': 'https://schema.org/NewCondition',
+                    'seller': {'@type': 'Organization', 'name': 'Freemoov'},
+                    'shippingDetails': shipping,
+                    'hasMerchantReturnPolicy': return_policy,
+                },
+                'aggregateRating': product._seo_aggregate_rating(),
+            }
+            sku = product.default_code or ''
+            if sku:
+                item['sku'] = sku
             list_items.append({
                 '@type': 'ListItem',
                 'position': idx,
-                'item': {
-                    '@type': 'Product',
-                    'name': product.name,
-                    'url': base_url + product.website_url,
-                    'image': base_url + self.env['website'].get_current_website().image_url(product, 'image_512'),
-                    'offers': {
-                        '@type': 'Offer',
-                        'price': '%.2f' % product.list_price,
-                        'priceCurrency': 'EUR',
-                    },
-                },
+                'item': item,
             })
         data = {
             '@context': 'https://schema.org',
