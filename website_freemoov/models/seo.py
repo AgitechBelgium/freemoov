@@ -405,6 +405,7 @@ class ProductTemplateSeo(models.Model):
                 'offerCount': len(variants),
                 'availability': self._seo_availability(),
             }
+            agg_rating = self._seo_aggregate_rating()
             variant_list = []
             for variant in variants:
                 label = self._seo_variant_label(variant)
@@ -415,6 +416,7 @@ class ProductTemplateSeo(models.Model):
                     'url': base_url + self.website_url,
                     'image': data['image'][0] if data['image'] else '',
                     'offers': self._seo_variant_offer(variant),
+                    'aggregateRating': agg_rating,
                 }
                 if variant.default_code:
                     v_data['sku'] = variant.default_code
@@ -599,6 +601,7 @@ class ProductPublicCategorySeo(models.Model):
         list_items = []
         shipping = products[:1]._seo_shipping_details() if products else []
         return_policy = ProductTemplateSeo._seo_return_policy()
+        store_reviews = ProductTemplateSeo._seo_store_reviews()
         for idx, product in enumerate(products[:36], start=1):
             item = {
                 '@type': 'Product',
@@ -623,6 +626,7 @@ class ProductPublicCategorySeo(models.Model):
                     'hasMerchantReturnPolicy': return_policy,
                 },
                 'aggregateRating': product._seo_aggregate_rating(),
+                'review': store_reviews,
             }
             sku = product.default_code or ''
             if sku:
