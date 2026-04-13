@@ -37,6 +37,7 @@
             <t t-name="website.robots">
 User-agent: *
 Disallow: /my/
+Allow: /web/image/website/1/favicon
 Disallow: /web/
 Disallow: /shop/cart
 Disallow: /shop/checkout
