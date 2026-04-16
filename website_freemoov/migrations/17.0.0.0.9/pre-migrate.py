@@ -1,25 +1,95 @@
 # -*- coding: utf-8 -*-
 """
-Pre-migration script to force update of badge_extra_price template override.
-This ensures the template changes are applied on Odoo.sh after upgrade.
+Pre-migration script executed BEFORE v17 views and models are loaded.
+
+Rôle:
+1. Cleanup badge_extra_price_fix view (forcer la recréation).
+2. Désactiver les vues orphelines créées en v16 par des modules non encore portés
+   en v17 (notamment le module SEO qui ajoutait seo_intro, seo_outro, faq_ids, etc.
+   sur product.public.category et product.template). Ces vues persistent en DB
+   après l'upgrade et bloquent le chargement des vues v17 du module website_freemoov
+   lors de la validation croisée.
+
+   Les vues sont DÉSACTIVÉES (active=false), pas supprimées — elles pourront être
+   réactivées une fois le module SEO porté en v17.
 """
+import logging
+
+_logger = logging.getLogger(__name__)
+
+
+# Champs ajoutés par le module SEO v16 (models/seo.py en prod) qui n'existent pas
+# encore dans les modèles v17 de website_freemoov. Toute vue qui les référence
+# bloquera le load Odoo.
+ORPHAN_V16_FIELDS = (
+    'seo_intro',
+    'seo_outro',
+    'seo_content',
+    'seo_h1',
+    'seo_meta_title_extra',
+    'seo_meta_description_extra',
+    'faq_ids',
+    'product_faq_ids',
+)
+
 
 def migrate(cr, version):
-    """
-    Delete the old badge_extra_price_fix view to force recreation with new content.
-    """
     if not version:
         return
-    
-    # Delete the old view to force Odoo to recreate it from XML
+
+    # --- 1. Cleanup badge_extra_price_fix (existant) ---
     cr.execute("""
-        DELETE FROM ir_ui_view 
+        DELETE FROM ir_ui_view
         WHERE key = 'website_freemoov.badge_extra_price_fix'
     """)
-    
-    # Also try with the full external ID
     cr.execute("""
-        DELETE FROM ir_model_data 
-        WHERE module = 'website_freemoov' 
-        AND name = 'badge_extra_price_fix'
+        DELETE FROM ir_model_data
+        WHERE module = 'website_freemoov'
+          AND name = 'badge_extra_price_fix'
     """)
+
+    # --- 2. Désactivation des vues orphelines référençant les champs SEO v16 ---
+    like_clauses = " OR ".join(
+        "arch_db::text LIKE %s" for _ in ORPHAN_V16_FIELDS
+    )
+    params = [f"%{field}%" for field in ORPHAN_V16_FIELDS]
+
+    cr.execute(
+        f"""
+        SELECT id, name, model, key
+          FROM ir_ui_view
+         WHERE active = true
+           AND arch_db IS NOT NULL
+           AND ({like_clauses})
+        """,
+        params,
+    )
+    rows = cr.fetchall()
+
+    if rows:
+        _logger.warning(
+            "[17.0.0.0.9 pre-migrate] Désactivation de %d vue(s) orpheline(s) "
+            "référençant des champs SEO v16 non portés:",
+            len(rows),
+        )
+        for row in rows:
+            _logger.warning("  - id=%s name=%r model=%r key=%r", *row)
+
+        cr.execute(
+            f"""
+            UPDATE ir_ui_view
+               SET active = false
+             WHERE active = true
+               AND arch_db IS NOT NULL
+               AND ({like_clauses})
+            """,
+            params,
+        )
+        _logger.warning(
+            "[17.0.0.0.9 pre-migrate] %d vue(s) désactivée(s) avec succès.",
+            cr.rowcount,
+        )
+    else:
+        _logger.info(
+            "[17.0.0.0.9 pre-migrate] Aucune vue orpheline SEO à désactiver."
+        )
