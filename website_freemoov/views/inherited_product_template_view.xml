@@ -9,7 +9,6 @@
             <xpath expr="//field[@name='sequence']" position="after">
                 <field name="brand_ids"/>
                 <field name="category_description"/>
-                <field name="category_bottom_content" widget="html"/>
             </xpath>
         </field>
     </record>

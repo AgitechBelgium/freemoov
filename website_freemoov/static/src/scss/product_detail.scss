@@ -98,12 +98,25 @@
 	    padding: 45px;
 	    border-radius: 20px;
 	}
-	// Two-column layout: accordion left, stats right (desktop)
-	// Mobile: stats first, accordion second (via order classes)
-	.properties-layout {
-		align-items: flex-start;
-	}
+	// Full-width stats banner at top
 	.properties-stats-banner {
+		padding-bottom: 24px;
+		margin-bottom: 24px;
+		border-bottom: 1px solid #e0e0e0;
+		.stats-grid {
+			display: grid;
+			grid-template-columns: repeat(6, 1fr);
+			gap: 16px;
+			// Tablet: 3 columns
+			@media (max-width: 991.98px) {
+				grid-template-columns: repeat(3, 1fr);
+			}
+			// Mobile: 2 columns
+			@media (max-width: 575.98px) {
+				grid-template-columns: repeat(2, 1fr);
+				gap: 12px;
+			}
+		}
 		.propertie-box {
 			transition: transform 0.15s ease;
 			&:hover { transform: translateY(-2px); }
@@ -120,12 +133,25 @@
 			}
 		}
 	}
+	// Full-width content below stats
 	.properties-content-block {
 		.data {
-			margin-bottom: 16px;
-			p {
-				font-size: 14px;
-				line-height: 1.6;
+			margin-bottom: 20px;
+			font-size: 14px;
+			line-height: 1.7;
+			color: #444;
+		}
+		// Accordion items in 2 columns on desktop
+		.accordion-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 0 16px;
+			@media (max-width: 767.98px) {
+				grid-template-columns: 1fr;
+			}
+			// Modals should not be constrained by grid
+			.modal {
+				grid-column: 1 / -1;
 			}
 		}
 	}
@@ -359,10 +385,12 @@
 	padding-top: 16px;
 
 	.o_wsale_product_images {
-		// Desktop: sticky — top is set dynamically by JS based on header state
+		// Desktop: sticky — top is refined by JS via dom.scrollFixedOffset()
 		@media (min-width: 992px) {
 			position: sticky !important;
-			top: 5px; // Default; JS updates this when header becomes fixed
+			// Safe CSS fallback: header ~80px + green banner ~35px + margin 5px
+			// JS will override this with exact value once header is initialized
+			top: 120px;
 			align-self: flex-start !important;
 			z-index: 2;
 			transition: top 200ms ease;
@@ -1056,9 +1084,6 @@
 	color: #fff;
 }
 
-.mobile_searchbar {
-	display: none;
-}
 .prod_desc_div {
 	width: 81%;
     display: -webkit-box;
@@ -1167,30 +1192,6 @@
 			padding: 20px;
 		}
 	}
-	.header_freemoov {
-		.search_bar_1 {
-			display: none;
-		}
-		.mobile_searchbar {
-			display: block;
-			width: 100%;
-		}
-	}
-	
-	.header_freemoov .cc_header_freemoov #top-menu-collapse-sub-category {
-		.modal-dialog {
-			margin: 0;
-
-			.modal-content {
-				height: auto;
-			}
-		}
-	}
-	.header_freemoov .cc_header_freemoov #top-menu-collapse  {
-		.modal-dialog {
-			margin: 0;
-		}
-	}
 }
 /* ==========================================
    Cart page + Cart popover styling
@@ -1273,83 +1274,6 @@
 	color: #fff !important;
 }
 
-/* Cart popover (hover popup) */
-.mycart-popover {
-	border: none !important;
-	border-radius: 16px !important;
-	box-shadow: 0 8px 32px rgba(0,0,0,0.12) !important;
-	overflow: hidden;
-	max-width: 340px;
-
-	.popover-arrow::before,
-	.popover-arrow::after {
-		border-bottom-color: #fff !important;
-	}
-
-	.popover-body {
-		padding: 16px;
-
-		.cart_line {
-			padding: 8px 0;
-			border-bottom: 1px solid #f5f5f5;
-			&:last-of-type { border-bottom: none; }
-			img {
-				border-radius: 8px;
-			}
-			.h6 {
-				font-size: 13px;
-				font-weight: 700;
-				color: #000;
-				text-decoration: none;
-			}
-			a { text-decoration: none; color: #000; }
-			small { font-size: 11px; color: #7F7F7F; }
-		}
-
-		hr { border-color: #f0f0f0; }
-
-		.table {
-			border: none;
-			td {
-				font-size: 13px;
-				color: #555;
-				border: none !important;
-				padding: 4px 0 !important;
-				&:first-child { text-align: right; padding-right: 8px !important; }
-			}
-			tr:last-child td {
-				border-top: 1px solid #eee !important;
-				padding-top: 8px !important;
-				strong { color: #000; font-size: 15px; }
-			}
-		}
-
-		.btn-primary {
-			background-image: linear-gradient(135deg, #099D5D, #7AC144);
-			border: none;
-			border-radius: 10px;
-			font-weight: 700;
-			font-size: 13px;
-			text-transform: uppercase;
-			letter-spacing: 0.3px;
-			padding: 10px 16px;
-			transition: all 0.2s ease;
-			&:hover {
-				transform: translateY(-1px);
-				box-shadow: 0 4px 12px rgba(9,157,93,0.3);
-			}
-		}
-
-		.alert-info {
-			background-color: #F5F6F7;
-			border: none;
-			border-radius: 10px;
-			color: #555;
-			font-size: 13px;
-			text-align: center;
-		}
-	}
-}
 #products_grid:not(.o_wsale_layout_list) .o_wsale_products_grid_table_wrapper .oe_product .o_wsale_product_grid_wrapper {
 	.prod_desc_div {
 		display: none;

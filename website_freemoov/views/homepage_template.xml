@@ -39,7 +39,8 @@
 											<div class="hero-img">
 												<img class="img img-fluid"
 													src="/website_freemoov/static/src/img/homepage/hero_img.png"
-													alt="Hero Img" />
+													alt="Hero Img"
+													width="389" height="389" />
 											</div>
 											<div class="row_content d-flex align-items-center">
 												<div class="row content w-100">
@@ -90,7 +91,8 @@
 											<div class="hero-img">
 												<img class="img img-fluid"
 													src="/website_freemoov/static/src/img/homepage/hero_img.png"
-													alt="Hero Img" />
+													alt="Hero Img"
+													width="389" height="389" />
 											</div>
 											<div class="row_content d-flex align-items-center">
 												<div class="row content w-100">
@@ -212,7 +214,8 @@
 											<div class="img">
 												<img class="img-fluid img"
 													src="/website_freemoov/static/src/img/homepage/clients1.png"
-													alt="client" />
+													alt="client"
+													width="62" height="55" loading="lazy" />
 											</div>
 											<div class="details w-75">
 												<h6 class="fw-bold">Réparation de pneus</h6>
@@ -228,7 +231,8 @@
 											<div class="img">
 												<img class="img-fluid img"
 													src="/website_freemoov/static/src/img/homepage/clients2.png"
-													alt="client" />
+													alt="client"
+													width="62" height="55" loading="lazy" />
 											</div>
 											<div class="details w-75">
 												<h6 class="fw-bold">Réglage de freins</h6>
@@ -244,7 +248,8 @@
 											<div class="img">
 												<img class="img-fluid img"
 													src="/website_freemoov/static/src/img/homepage/clients3.png"
-													alt="client" />
+													alt="client"
+													width="60" height="55" loading="lazy" />
 											</div>
 											<div class="details w-75">
 												<h6 class="fw-bold">Test drive</h6>
@@ -272,7 +277,8 @@
 									<div class="col-lg-7 pt8 pb8">
 										<img class="img-fluid"
 											src="/website_freemoov/static/src/img/homepage/Map.png"
-											alt="photo" />
+											alt="photo"
+											width="843" height="418" loading="lazy" />
 									</div>
 									<div class="col-lg-4 pt8 pb8 ms-xl-4">
 										<div class="title">
@@ -355,7 +361,9 @@
 											</div>
 											<div class="expert_img">
 												<img class="img-fluid img"
-													src="/website_freemoov/static/src/img/homepage/expert_advice1.png" />
+													src="/website_freemoov/static/src/img/homepage/expert_advice1.png"
+													alt="Guide d'achat trottinette"
+													width="192" height="183" loading="lazy" />
 												<a href="#" type="button" class="outline_btn">
 													<i class="fa fa-arrow-right text-white"></i>
 												</a>
@@ -371,8 +379,10 @@
 													parfaite pour vous !</h6>
 											</div>
 											<div class="expert_img">
-												<img class="img-fluid img "
-													src="/website_freemoov/static/src/img/homepage/expert_advice2.png" />
+												<img class="img-fluid img"
+													src="/website_freemoov/static/src/img/homepage/expert_advice2.png"
+													alt="Guide d'achat monoroue"
+													width="185" height="155" loading="lazy" />
 												<a href="#" type="button" class="outline_btn">
 													<i class="fa fa-arrow-right text-white"></i>
 												</a>
@@ -389,7 +399,9 @@
 											</div>
 											<div class="expert_img">
 												<img class="img-fluid img"
-													src="/website_freemoov/static/src/img/homepage/expert_advice3.png" />
+													src="/website_freemoov/static/src/img/homepage/expert_advice3.png"
+													alt="Astuces batterie"
+													width="185" height="152" loading="lazy" />
 												<a href="#" type="button" class="outline_btn">
 													<i class="fa fa-arrow-right text-white"></i>
 												</a>
@@ -405,7 +417,9 @@
 											</div>
 											<div class="expert_img">
 												<img class="img-fluid img"
-													src="/website_freemoov/static/src/img/homepage/expert_advice4.png" />
+													src="/website_freemoov/static/src/img/homepage/expert_advice4.png"
+													alt="Réglementation EDPM"
+													width="185" height="151" loading="lazy" />
 												<a href="#" type="button" class="outline_btn">
 													<i class="fa fa-arrow-right text-white"></i>
 												</a>
