@@ -31,6 +31,37 @@ if (publicWidget.registry.websiteSaleCarouselProduct) {
 }
 
 $(document).ready(function(){
+    $('.attribute_name').each(function() {
+        var el = $(this);
+        el.text(el.text().replace(/[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/gu, '').trim());
+    });
+
+    var $offcanvas = $('#freemoov-offcanvas');
+    if ($offcanvas.length && $offcanvas.closest('header').length) {
+        $offcanvas.appendTo('body');
+    }
+
+    // Mega-menu hover intent: keep panel open while mouse traverses the gap
+    // between the trigger and the absolute-positioned panel.
+    var megaHoverTimeout = null;
+    $(document).on('mouseenter', '.fm-mega-trigger, .fm-mega-panel', function() {
+        if (megaHoverTimeout) {
+            clearTimeout(megaHoverTimeout);
+            megaHoverTimeout = null;
+        }
+        var $trigger = $(this).hasClass('fm-mega-trigger')
+            ? $(this)
+            : $(this).closest('.fm-mega-trigger');
+        $('.fm-mega-trigger.show').not($trigger).removeClass('show');
+        $trigger.addClass('show');
+    });
+    $(document).on('mouseleave', '.fm-mega-trigger, .fm-mega-panel', function() {
+        if (megaHoverTimeout) clearTimeout(megaHoverTimeout);
+        megaHoverTimeout = setTimeout(function() {
+            $('.fm-mega-trigger.show').removeClass('show');
+        }, 150);
+    });
+
     $(".nav-item.dropdown.position-static").on('click', function(event) {
         $(this).closest('.dropdown-menu.o_mega_menu').modal('show');
     });
