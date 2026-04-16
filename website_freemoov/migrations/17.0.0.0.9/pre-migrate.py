@@ -18,18 +18,41 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-# Champs ajoutés par le module SEO v16 (models/seo.py en prod) qui n'existent pas
-# encore dans les modèles v17 de website_freemoov. Toute vue qui les référence
-# bloquera le load Odoo.
+# Champs ajoutés par des modules v16 non encore portés en v17 :
+#   - module SEO (models/seo.py en prod)     → seo_*
+#   - module google_merchant_center          → gmc_*
+#   - module product_faq                     → faq_*
+# Toute vue qui les référence bloquera le load Odoo tant que ces modules
+# ne sont pas portés (cf. docs/PORTING_CHECKLIST.md Lots 3 et 4).
 ORPHAN_V16_FIELDS = (
+    # SEO module
     'seo_intro',
     'seo_outro',
     'seo_content',
     'seo_h1',
     'seo_meta_title_extra',
     'seo_meta_description_extra',
+    # FAQ
     'faq_ids',
     'product_faq_ids',
+    'editorial_review',
+    'video_url',
+    # Google Merchant Center
+    'gmc_enabled',
+    'gmc_sync_status',
+    'gmc_category',
+    'gmc_last_sync',
+    'gmc_last_error',
+    'gmc_feed_status',
+    'gmc_offer_id',
+    'gmc_gtin',
+    'gmc_brand',
+    'gmc_product_type',
+    'gmc_custom_label_0',
+    'gmc_custom_label_1',
+    'gmc_custom_label_2',
+    'gmc_custom_label_3',
+    'gmc_custom_label_4',
 )
 
 
