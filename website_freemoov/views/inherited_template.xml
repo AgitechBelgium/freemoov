@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 	<template id="inherit_header_cart_link" inherit_id="website_sale.header_cart_link" name="Inherit Header Cart Link">
-        <xpath expr="//li/a/i" position="replace">
+        <xpath expr="//i[contains(@t-attf-class, 'fa-shopping-cart') or contains(@class, 'fa-shopping-cart')]" position="replace">
             <img t-if="_icon" class="img img-fluid" src="/website_freemoov/static/src/img/shopping-cart.png"/>
         </xpath>
     </template>
 
     <template id="inherit_user_dropdown" inherit_id="portal.user_dropdown" name="Inherit User Dropdown">
-        <xpath expr="//li/a/i" position="replace">
+        <xpath expr="//i[contains(@t-attf-class, 'fa-user') or contains(@class, 'fa-user')]" position="replace">
             <img t-if="_icon" t-attf-class="img img-fluid #{_icon_class}" src="/website_freemoov/static/src/img/user.png"/>
         </xpath>
     </template>
 
     <template id="inherit_header_wishlist_link" inherit_id="website_sale_wishlist.header_wishlist_link" name="Inherit Header Wishlist Link">
-        <xpath expr="//li/a/i" position="replace">
+        <xpath expr="//i[contains(@t-attf-class, 'fa-heart') or contains(@class, 'fa-heart')]" position="replace">
             <img t-if="_icon" class="img img-fluid" src="/website_freemoov/static/src/img/wishlist.png"/>
         </xpath>
     </template>
@@ -261,7 +261,7 @@
                                                 t-att-data-is_single="single"
                                                 t-att-data-is_single_and_custom="single_and_custom">
                                                 <span t-field="ptav.name"/>
-                                                <t t-call="sale.badge_extra_price"/>
+                                                <!-- removed v17: badge_extra_price requires combination_info not available in shop listing --> 
                                             </option>
                                         </t>
                                     </select>
@@ -284,7 +284,7 @@
                                                             t-att-data-is_single_and_custom="single_and_custom" />
                                                         <div class="radio_input_value form-check-label">
                                                             <span t-field="ptav.name"/>
-                                                            <t t-call="sale.badge_extra_price"/>
+                                                            <!-- removed v17: badge_extra_price requires combination_info not available in shop listing --> 
                                                         </div>
                                                     </div>
                                                 </label>
@@ -313,7 +313,7 @@
                                                 <label class="radio_input_value o_variant_pills_input_value"
                                                        t-att-for="ptav.id">
                                                     <span t-field="ptav.name"/>
-                                                    <t t-call="sale.badge_extra_price"/>
+                                                    <!-- removed v17: badge_extra_price requires combination_info not available in shop listing --> 
                                                 </label>
                                             </li>
                                         </t>
@@ -371,7 +371,7 @@
                                                 t-att-data-is_single="single"
                                                 t-att-data-is_single_and_custom="single_and_custom">
                                                 <span t-field="ptav.name"/>
-                                                <t t-call="sale.badge_extra_price"/>
+                                                <!-- removed v17: badge_extra_price requires combination_info not available in shop listing --> 
                                             </option>
                                         </t>
                                     </select>
@@ -395,7 +395,7 @@
                                                             t-att-data-is_single_and_custom="single_and_custom" />
                                                         <div class="radio_input_value form-check-label">
                                                             <span t-field="ptav.name"/>
-                                                            <t t-call="sale.badge_extra_price"/>
+                                                            <!-- removed v17: badge_extra_price requires combination_info not available in shop listing --> 
                                                         </div>
                                                     </div>
                                                 </label>
@@ -424,7 +424,7 @@
                                                 <label class="radio_input_value o_variant_pills_input_value"
                                                        t-att-for="ptav.id">
                                                     <span t-field="ptav.name"/>
-                                                    <t t-call="sale.badge_extra_price"/>
+                                                    <!-- removed v17: badge_extra_price requires combination_info not available in shop listing --> 
                                                 </label>
                                             </li>
                                         </t>
