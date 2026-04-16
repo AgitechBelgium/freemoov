@@ -4,7 +4,7 @@
 {
     'name': 'Website Freemoov',
     'category': 'Website',
-    'version': '17.0.0.9.1',
+    'version': '17.0.0.9.3',
     'summary': 'Website Freemoov',
     'author': '',
     'website' : '',
@@ -34,6 +34,13 @@
         'views/menu_cms_views.xml',
         'views/header_freemoov_template_1.xml',
         'views/cart_popover_template.xml',
+        # SEO module (ported from v16 prod)
+        'views/seo_head.xml',
+        'views/seo_jsonld.xml',
+        'views/seo_product_enrichment.xml',
+        'views/seo_category_content.xml',
+        'views/seo_backend_form.xml',
+        'views/performance_hints.xml',
     ],
 
     'assets': {
@@ -45,8 +52,11 @@
             'website_freemoov/static/src/scss/homepage.scss',
             'website_freemoov/static/src/scss/shop.scss',
             'website_freemoov/static/src/scss/product_detail.scss',
+            'website_freemoov/static/src/scss/search.scss',
+            'website_freemoov/static/src/scss/checkout.scss',
             'website_freemoov/static/src/js/common.js',
             'website_freemoov/static/src/js/variant.js',
+            'website_freemoov/static/src/js/checkout.js',
             'website_freemoov/static/src/xml/stock_availability.xml',
         ],
 
