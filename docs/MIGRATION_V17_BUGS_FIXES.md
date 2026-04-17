@@ -182,6 +182,24 @@ wrappent désormais `<i>` dans un `<div>`
 Déjà traité au 3.3. Impact supplémentaire : le CSS `.nav-item > a > i`
 ne s'applique plus si utilisé avec sélecteurs fils directs.
 
+### 3.9 Panier : `<table id="cart_products">` → `<div id="cart_products">`
+
+**Symptôme** : 500 Internal Server Error sur `/shop/cart` après upgrade v17.
+```
+ValueError: xpath "//table[@id='cart_products']" ne peut être localisé
+Template: website_sale.cart
+```
+
+**Cause** : en v16 `website_sale.cart_lines` rendait un `<table>` avec les
+lignes du panier. En v17 c'est un `<div id="cart_products"
+class="js_cart_lines d-flex flex-column mb32">` avec des sous-`<div
+class="o_cart_product d-flex ...">` — structure flex/card au lieu de table.
+
+**Fix** : post-migrate `17.0.0.9.4` remplace tous les xpath
+`//table[@id='cart_products']` par `//div[@id='cart_products']` dans les
+COWs concernés (idempotent). En local 1 COW affecté :
+`website_sale.suggested_products_list` (accessoires recommandés CMS).
+
 ---
 
 ## 4. Theme customizer et COWs v16 résiduels
