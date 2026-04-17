@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="google_merchant_sync_wizard_view_form" model="ir.ui.view">
+        <field name="name">google.merchant.sync.wizard.form</field>
+        <field name="model">google.merchant.sync.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Sync to Google Merchant Center">
+                <field name="state" invisible="1"/>
+                <group invisible="state == 'done'">
+                    <field name="sync_mode"/>
+                    <field name="product_ids" domain="[('is_published','=',True)]" nolabel="1" widget="many2many_tags"/>
+                </group>
+                <group invisible="state != 'done'">
+                    <field name="result_message" nolabel="1"/>
+                </group>
+                <footer>
+                    <button name="action_sync" string="Sync" type="object" class="btn-primary" invisible="state == 'done'"/>
+                    <button string="Close" class="btn-secondary" special="cancel" invisible="state != 'done'"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

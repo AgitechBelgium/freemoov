@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_google_merchant" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.google.merchant</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="website.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@data-key='website']" position="inside">
+                <h2>Google Merchant Center</h2>
+                <div class="row mt16 o_settings_container">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <field name="gmc_sync_enabled"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <label for="gmc_sync_enabled"/>
+                            <div class="text-muted">Activer la synchro vers Google Merchant Center</div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane">
+                            <field name="gmc_dry_run"/>
+                        </div>
+                        <div class="o_setting_right_pane">
+                            <label for="gmc_dry_run"/>
+                            <div class="text-muted">
+                                Mode test : les donnees sont loguees sans etre envoyees a Google.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="gmc_merchant_id"/>
+                            <field name="gmc_merchant_id" placeholder="5345092695"/>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="gmc_data_source_id"/>
+                            <field name="gmc_data_source_id" placeholder="10624847602"/>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="gmc_service_account_json"/>
+                            <field name="gmc_service_account_filename" invisible="1"/>
+                            <field name="gmc_service_account_json" filename="gmc_service_account_filename"/>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="gmc_feed_label"/>
+                            <field name="gmc_feed_label" placeholder="BE"/>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="gmc_content_language"/>
+                            <field name="gmc_content_language" placeholder="fr"/>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="gmc_base_url"/>
+                            <field name="gmc_base_url" placeholder="https://freemoov.com"/>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_left_pane"/>
+                        <div class="o_setting_right_pane">
+                            <label for="gmc_cron_interval"/>
+                            <field name="gmc_cron_interval"/>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

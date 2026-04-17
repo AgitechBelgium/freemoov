@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_public_category_view_form_gmc" model="ir.ui.view">
+        <field name="name">product.public.category.form.inherit.gmc</field>
+        <field name="model">product.public.category</field>
+        <field name="inherit_id" ref="website_sale.product_public_category_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Google Merchant Center">
+                    <field name="gmc_enabled"/>
+                    <field name="gmc_google_category" placeholder="e.g. Vehicles &amp; Parts &gt; ..."/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>
