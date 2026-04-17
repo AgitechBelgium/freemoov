@@ -1,0 +1,48 @@
+/* ============================================================
+   FLOA Widget — Freemoov integration styling
+   ============================================================ */
+
+$fm-green: #099D5D;
+$fm-radius: 12px;
+
+/* Container shared by product + cart widgets */
+.floa-widget-container {
+    border-radius: $fm-radius;
+    overflow: hidden;
+
+    /* Ensure FLOA iframe/shadow-dom content fits */
+    [data-floa-offers] {
+        width: 100%;
+    }
+}
+
+/* ---- Product detail page ---- */
+.floa-widget-product {
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+/* ---- Cart sidebar ---- */
+.floa-widget-cart {
+    background: #fff;
+    border: 1px solid #e8e9ea;
+    border-radius: $fm-radius;
+    padding: 0.75rem;
+}
+
+/* ---- Fallback when amount outside 50-6000€ range ---- */
+.installment-block--unavailable {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: #f8f9fa;
+    border-radius: $fm-radius;
+    color: #7F7F7F;
+    font-size: 0.85rem;
+
+    .fa {
+        font-size: 1.1rem;
+        color: $fm-green;
+    }
+}

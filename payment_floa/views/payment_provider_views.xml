@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Backend form: FLOA-specific fields on payment.provider form -->
+    <record id="payment_provider_form_floa" model="ir.ui.view">
+        <field name="name">payment.provider.form.floa</field>
+        <field name="model">payment.provider</field>
+        <field name="inherit_id" ref="payment.payment_provider_form"/>
+        <field name="arch" type="xml">
+            <group name="provider_credentials" position="inside">
+                <group attrs="{'invisible': [('code', '!=', 'floa')]}">
+                    <field name="floa_client_id"
+                           attrs="{'required': [('code', '=', 'floa'), ('state', '!=', 'disabled')]}"/>
+                    <field name="floa_client_secret" password="True"
+                           attrs="{'required': [('code', '=', 'floa'), ('state', '!=', 'disabled')]}"/>
+                    <field name="floa_hmac_key" password="True"
+                           attrs="{'required': [('code', '=', 'floa'), ('state', '!=', 'disabled')]}"/>
+                    <field name="floa_product_code"
+                           attrs="{'required': [('code', '=', 'floa'), ('state', '!=', 'disabled')]}"/>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

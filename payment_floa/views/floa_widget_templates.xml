@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================
+         PRODUCT DETAIL PAGE — Replace installment-badge-inline (near price)
+         with FLOA 3x widget
+         ============================================================ -->
+    <template id="floa_widget_price"
+              inherit_id="website_freemoov.product_details_inherited"
+              name="FLOA Widget near Product Price">
+        <!-- Replace "Payez en 3x ou 24x" badge below price -->
+        <xpath expr="//div[hasclass('installment-badge-inline')]" position="replace">
+            <t t-if="combination_info['price'] >= 50 and combination_info['price'] &lt;= 6000">
+                <div class="floa-widget-container floa-widget-product mt-1 mb-3"
+                     data-floa-offers=""
+                     t-att-data-floa-amount="int(combination_info['price'] * 100)">
+                </div>
+            </t>
+        </xpath>
+
+        <!-- Replace installment-block in trust-block with simple text -->
+        <xpath expr="//div[hasclass('installment-block')]" position="replace">
+            <div class="installment-block">
+                <i class="fa fa-credit-card"></i>
+                <p class="mb-0">
+                    <span class="text-600">Payez en 3x sans frais </span>
+                    avec FLOA Pay (de 50€ à 6 000€)
+                </p>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- ============================================================
+         CART PAGE — Add FLOA widget in sidebar after trust block
+         ============================================================ -->
+    <template id="floa_widget_cart"
+              inherit_id="website_freemoov.inherit_short_cart_summary"
+              name="FLOA Widget on Cart Page">
+        <xpath expr="//div[hasclass('fm-trust-block')]" position="after">
+            <t t-if="website_sale_order and website_sale_order.amount_total >= 50 and website_sale_order.amount_total &lt;= 6000">
+                <div class="floa-widget-container floa-widget-cart mt-3"
+                     data-floa-offers=""
+                     t-att-data-floa-amount="int(website_sale_order.amount_total * 100)">
+                </div>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Redirect form: auto-submits to FLOA payment page URL.
+         Odoo's payment JS auto-submits this form when it receives
+         redirect_form_html in the processing values. -->
+    <template id="redirect_form">
+        <form t-att-action="api_url" method="get">
+            <!-- No hidden fields needed — FLOA payment URL is self-contained.
+                 The GET form submission redirects the customer to FLOA's
+                 PCI-DSS compliant payment page. -->
+        </form>
+    </template>
+
+    <!-- Inline form: shown under the FLOA radio on the checkout payment step.
+         Odoo core wraps this template in a <div id="o_payment_provider_inline_form_{{provider.id}}" class="d-none">
+         and toggles the visibility based on the selected payment option. -->
+    <template id="inline_form">
+        <div class="floa-inline-form">
+            <div class="alert alert-info small mb-3 d-flex align-items-start">
+                <i class="fa fa-info-circle me-2 mt-1"/>
+                <div>
+                    <strong>Paiement en 3 fois sans frais</strong>
+                    <div class="text-muted">
+                        Pour finaliser votre éligibilité, merci de renseigner les informations suivantes.
+                        Vous n'aurez ensuite plus qu'à saisir votre carte bancaire sur la page FLOA.
+                    </div>
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label" for="floa_birth_date">
+                        Date de naissance
+                        <span class="text-danger">*</span>
+                    </label>
+                    <input type="date"
+                           id="floa_birth_date"
+                           name="floa_birth_date"
+                           class="form-control"
+                           required="required"
+                           autocomplete="bday"/>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" for="floa_mobile_phone">
+                        Mobile
+                        <span class="text-danger">*</span>
+                    </label>
+                    <input type="tel"
+                           id="floa_mobile_phone"
+                           name="floa_mobile_phone"
+                           class="form-control"
+                           placeholder="+32 4XX XX XX XX"
+                           autocomplete="tel"/>
+                    <small class="text-muted">Numéro belge au format <code>+324XXXXXXXX</code>.</small>
+                </div>
+                <div class="col-12">
+                    <label class="form-label" for="floa_national_number">
+                        Numéro de Registre national
+                    </label>
+                    <input type="text"
+                           id="floa_national_number"
+                           name="floa_national_number"
+                           class="form-control"
+                           placeholder="XX.XX.XX-XXX.XX"
+                           maxlength="17"/>
+                    <small class="text-muted">
+                        Recommandé — accélère l'analyse FLOA. Format : 11 chiffres (avec ou sans séparateurs).
+                    </small>
+                </div>
+            </div>
+            <div class="floa-inline-error alert alert-danger small mt-3 d-none" role="alert"/>
+        </div>
+    </template>
+
+</odoo>
