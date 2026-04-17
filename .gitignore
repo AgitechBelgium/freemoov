@@ -1,27 +1,40 @@
+# IDE & OS
+.DS_Store
 *.idea
+.vscode/
+.cursor/
+.cursorignore
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
 
-.DS_Store
-docker-compose*
-odoo-migration.conf
-*.csv
-*.mdt
+# Environnement local (docker, enterprise code, dumps, filestore, secrets)
+.local/
 
-# Documentation
-*.md
-
-# Scripts locaux
-scripts/
+# Paths legacy (résidus des anciens repos)
+docker-compose*.yml
+docker-compose*.yaml
+Dockerfile*
 odoo.conf
-
-# Dossiers temporaires
-docs/
-
-# Environnement local
-odoo-v17.conf
+odoo-*.conf
 filestore/
-staging_backup/
+prod_backup_v16/
+staging_backup*/
 staging_dump.*
+*.pgdump
+*.sql.gz
 *.zip
-filestore/*
+scripts/
+
+# Data exports (temporaires, souvent volumineux)
+*.csv
+prod_cow_*.json
+update_cow*.sql
+
+# Fichiers résiduels à ne pas committer
+/staging
+
+# Documents client confidentiels (devis, audits internes)
+DEVIS_*.md
