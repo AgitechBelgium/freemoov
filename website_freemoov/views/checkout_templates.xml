@@ -123,9 +123,31 @@
         </xpath>
     </template>
 
-    <!-- Autres inherits fm_* (fm_cart_buttons, fm_checkout_labels, fm_address_*,
-         fm_payment_labels, fm_address_on_payment, fm_confirmation, fm_total)
-         supprimés — leurs xpath v16 ne matchent pas les parents v17.
-         À réécrire progressivement pour v17 (task #19 en cours). -->
+    <!-- ============================================================ -->
+    <!-- 4. Fix bug JS v17 : _handleCarrierUpdateResult null-crash      -->
+    <!-- ============================================================ -->
+    <!-- Le JS website_sale_delivery._handleCarrierUpdateResult fait
+         querySelector('#order_delivery .monetary_field') sans null-check.
+         Le core v17 ne rend #order_delivery que si website_sale_order.carrier_id
+         est déjà set (via cart_delivery inherit). Au premier clic carrier,
+         order.carrier_id est null → #order_delivery absent → innerHTML crash.
+         Override : rendre toujours #order_delivery (caché initialement si
+         pas de carrier, révélé par le JS au moment où il écrit innerHTML). -->
+    <template id="fm_ensure_order_delivery_dom"
+              inherit_id="website_sale.total"
+              name="Freemoov ensure #order_delivery always in DOM">
+        <xpath expr="//tr[@id='order_total_untaxed']" position="before">
+            <tr id="order_delivery"
+                t-if="not website_sale_order or not website_sale_order.carrier_id"
+                style="display: none;">
+                <td colspan="2" class="ps-0 pt-0 pb-2 border-0 text-muted">
+                    Livraison
+                </td>
+                <td class="text-end pe-0 pt-0 pb-2 border-0 text-muted">
+                    <span class="monetary_field" style="white-space: nowrap;">0,00&#160;€</span>
+                </td>
+            </tr>
+        </xpath>
+    </template>
 
 </odoo>
