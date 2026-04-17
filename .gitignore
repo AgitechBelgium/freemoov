@@ -30,6 +30,9 @@ scripts/
 
 # Data exports (temporaires, souvent volumineux)
 *.csv
+# Mais toujours committer les CSV essentiels des modules Odoo (ACL, data)
+!**/security/*.csv
+!**/data/*.csv
 prod_cow_*.json
 update_cow*.sql
 
