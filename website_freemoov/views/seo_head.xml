@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ================================================================
+         Hreflang: fr-BE + x-default for single-language Belgian site
+         ================================================================ -->
+    <template id="seo_hreflang" inherit_id="website.layout" name="SEO: Hreflang fr-BE" priority="20">
+        <xpath expr="//head/link[@rel='canonical']" position="after">
+            <t t-if="request and website and website.is_public_user()">
+                <t t-set="seo_canonical" t-value="website._get_canonical_url(canonical_params=canonical_params)"/>
+                <link rel="alternate" hreflang="fr-BE" t-att-href="seo_canonical"/>
+                <link rel="alternate" hreflang="x-default" t-att-href="seo_canonical"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
+         Noindex: pages with sort/filter params (prevent crawl waste)
+         ================================================================ -->
+    <template id="seo_noindex_filtered" inherit_id="website.layout" name="SEO: Noindex filtered pages" priority="20">
+        <xpath expr="//head/link[@rel='canonical']" position="after">
+            <t t-if="request and request.httprequest.args and (
+                request.httprequest.args.get('order') or
+                request.httprequest.args.get('attrib') or
+                request.httprequest.args.get('min_price') or
+                request.httprequest.args.get('max_price'))">
+                <meta name="robots" content="noindex, follow"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
+         Robots.txt: optimized with Disallow for tech/filter URLs
+         ================================================================ -->
+    <template id="seo_robots" inherit_id="website.robots" name="SEO: Custom Robots.txt">
+        <xpath expr="." position="replace">
+            <t t-name="website.robots">
+User-agent: *
+Disallow: /my/
+Allow: /web/image/website/1/favicon
+Disallow: /web/
+Disallow: /shop/cart
+Disallow: /shop/checkout
+Disallow: /shop/payment
+Disallow: /shop/confirm_order
+Disallow: /livechat/
+Disallow: /helpdesk/
+Disallow: /website/info
+Disallow: /slider_s/
+Disallow: /*?order=
+Disallow: /*?search=
+Disallow: /*?min_price=
+Disallow: /*?max_price=
+Disallow: /*?ppg=
+Disallow: /*?attrib=
+
+Allow: /shop/
+Allow: /shop/category/
+Allow: /blog/
+
+Sitemap: <t t-esc="url_root"/>sitemap.xml
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
+         Category page title fix: use category.name instead of "Boutique"
+         ================================================================ -->
+    <template id="seo_category_title" inherit_id="website_sale.products" name="SEO: Category page title" priority="99">
+        <xpath expr="//t[@t-set='additional_title'][1]" position="replace">
+            <t t-if="category" t-set="additional_title" t-value="category.name"/>
+            <t t-else="" t-set="additional_title">Nos produits</t>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
+         Clean product URLs: strip ?category= from product card links
+         ================================================================ -->
+    <template id="seo_clean_product_urls" inherit_id="website_sale.products_item" name="SEO: Clean product URLs" priority="99">
+        <xpath expr="//t[@t-set='product_href']" position="replace">
+            <t t-set="product_href" t-value="product.website_url"/>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
+         Strip Odoo's built-in microdata (itemscope/itemprop) from product
+         page to avoid duplicate Product schema alongside our JSON-LD.
+         ================================================================ -->
+    <template id="seo_strip_microdata" inherit_id="website_sale.product" name="SEO: Strip microdata" priority="99">
+        <xpath expr="//div[@id='wrap']" position="attributes">
+            <attribute name="itemscope"/>
+            <attribute name="itemtype"/>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
+         Note: H3 prices in website_sale.product_price cannot be overridden
+         via template inheritance (Odoo does not apply extensions on primary
+         templates called via t-call in COW copies). The H3 prices on product
+         detail pages are neutralized via CSS below. The SEO impact is minimal
+         as Google primarily reads JSON-LD structured data, not HTML headings
+         for price information.
+
+         On category pages (product cards), the prices are already fixed
+         in inherited_template.xml (span.h6 instead of H3).
+         On UST sliders, the prices are fixed in ust_common_features
+         (div.ust-price-block instead of H3).
+         ================================================================ -->
+
+</odoo>

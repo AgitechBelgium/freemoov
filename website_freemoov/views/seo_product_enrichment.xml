@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ================================================================
+         FAQ Accordion on product detail page
+         Uses product.faq records, rendered as Bootstrap 5 accordion.
+         Editable via backend form (FAQ tab on product).
+         FAQPage JSON-LD is injected separately via seo_jsonld.xml.
+         ================================================================ -->
+    <template id="seo_product_faq" inherit_id="website_sale.product" name="SEO: Product FAQ Accordion" priority="30">
+        <xpath expr="//div[@id='o_product_terms_and_share']" position="after">
+            <t t-if="product.faq_ids">
+                <section class="fm-product-faq pt-4 pb-4">
+                    <div class="fm-faq-title">Questions fréquentes</div>
+                    <div class="accordion fm-faq-accordion" t-attf-id="faq_accordion_#{product.id}">
+                        <t t-foreach="product.faq_ids.sorted('sequence')" t-as="faq">
+                            <div class="accordion-item">
+                                <div class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button"
+                                            data-bs-toggle="collapse"
+                                            t-attf-data-bs-target="#faq_#{faq.id}"
+                                            aria-expanded="false">
+                                        <t t-esc="faq.question"/>
+                                    </button>
+                                </div>
+                                <div t-attf-id="faq_#{faq.id}" class="accordion-collapse collapse"
+                                     t-attf-data-bs-parent="#faq_accordion_#{product.id}">
+                                    <div class="accordion-body" t-out="faq.answer"/>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </section>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
+         "Notre avis Freemoov" — editorial review section
+         Editable per product via website builder (t-field).
+         ================================================================ -->
+    <template id="seo_editorial_review" inherit_id="website_sale.product" name="SEO: Editorial Review" priority="30">
+        <xpath expr="//div[@id='o_product_terms_and_share']" position="after">
+            <t t-if="product.editorial_review">
+                <section class="fm-editorial-review pt-4 pb-4">
+                    <div class="fm-editorial-card">
+                        <div class="fm-editorial-header">
+                            <img src="/web/image/website/1/logo" alt="Freemoov" class="fm-editorial-logo"/>
+                            <div class="fm-editorial-label">Notre avis d'expert</div>
+                        </div>
+                        <div class="fm-editorial-body" t-field="product.editorial_review"/>
+                    </div>
+                </section>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
+         Video embed section — YouTube / Instagram / TikTok
+         Uses video_url field on product.template.
+         VideoObject JSON-LD injected via seo_jsonld.xml.
+         ================================================================ -->
+    <template id="seo_video_embed" inherit_id="website_sale.product" name="SEO: Video Embed" priority="30">
+        <xpath expr="//div[@id='o_product_terms_and_share']" position="after">
+            <t t-if="product.video_url and product._get_video_embed_url()">
+                <section class="fm-video-section pt-4 pb-4">
+                    <div class="fm-video-title">Vidéo produit</div>
+                    <div class="fm-video-wrapper">
+                        <iframe t-att-src="product._get_video_embed_url()"
+                                frameborder="0" allowfullscreen="allowfullscreen"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                loading="lazy"
+                                title="Vidéo produit Freemoov"/>
+                    </div>
+                </section>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

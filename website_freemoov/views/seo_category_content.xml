@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- ================================================================
+         SEO Introduction above product grid (per-category, editable)
+         ================================================================ -->
+    <template id="seo_category_intro" inherit_id="website_sale.products" name="SEO: Category Intro" priority="30">
+        <xpath expr="//div[hasclass('oe_website_sale')]" position="before">
+            <t t-if="category and category.seo_intro">
+                <section class="fm-category-intro">
+                    <div class="container">
+                        <div t-field="category.seo_intro" class="fm-category-intro-content"/>
+                    </div>
+                </section>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
+         "Decouvrez aussi" — sibling category pills
+         Shows links to categories under the same parent.
+         ================================================================ -->
+    <template id="seo_category_siblings" inherit_id="website_sale.products" name="SEO: Sibling Categories" priority="30">
+        <xpath expr="//div[@id='oe_structure_website_sale_products_2']" position="after">
+            <t t-if="category and category.parent_id and category.parent_id.child_id">
+                <t t-set="siblings" t-value="category.parent_id.child_id.filtered(lambda c: c.id != category.id)"/>
+                <t t-if="siblings">
+                    <section class="fm-sibling-categories pt-4 pb-4">
+                        <div class="container">
+                            <div class="fm-section-title">Découvrez aussi</div>
+                            <div class="fm-category-pills">
+                                <t t-foreach="siblings[:8]" t-as="sib">
+                                    <a t-attf-href="/shop/category/#{slug(sib)}"
+                                       class="fm-category-pill">
+                                        <t t-esc="sib.name"/>
+                                    </a>
+                                </t>
+                            </div>
+                        </div>
+                    </section>
+                </t>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
+         Blog articles related to category
+         Fetches the 3 latest published posts from the category's blog_id.
+         ================================================================ -->
+    <template id="seo_category_blog" inherit_id="website_sale.products" name="SEO: Category Blog" priority="30">
+        <xpath expr="//div[@id='oe_structure_website_sale_products_2']" position="after">
+            <t t-if="category and category.blog_id">
+                <t t-set="blog_posts" t-value="request.env['blog.post'].sudo().search([
+                    ('blog_id', '=', category.blog_id.id),
+                    ('website_published', '=', True),
+                ], limit=3, order='published_date desc')"/>
+                <t t-if="blog_posts">
+                    <section class="fm-category-blog pt-4 pb-4">
+                        <div class="container">
+                            <div class="fm-section-title">Nos guides et conseils</div>
+                            <div class="row g-3">
+                                <t t-foreach="blog_posts" t-as="post">
+                                    <div class="col-md-4">
+                                        <a t-attf-href="/blog/#{post.blog_id.id}/#{post.id}"
+                                           class="fm-blog-card d-block">
+                                            <div class="fm-blog-card-img"
+                                                 t-attf-style="background-image: url('/web/image/blog.post/#{post.id}/image_512')"/>
+                                            <div class="fm-blog-card-title" t-esc="post.name"/>
+                                        </a>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </section>
+                </t>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>
