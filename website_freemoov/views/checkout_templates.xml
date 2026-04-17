@@ -4,357 +4,128 @@
     <!-- ============================================================ -->
     <!-- 1. STEPPER / Wizard Checkout Override                        -->
     <!-- ============================================================ -->
-    <template id="fm_wizard_checkout" inherit_id="website_sale.wizard_checkout" name="Freemoov Checkout Stepper">
-        <xpath expr="//div[hasclass('wizard')]" position="replace">
-            <div class="fm-stepper" role="navigation" aria-label="Checkout steps">
-                <!-- Step 1: Panier -->
-                <a class="no-decoration" t-att-href="step &gt;= 10 and '/shop/cart' or '#'">
-                    <div t-att-class="'fm-stepper__step %s' % (step == 10 and 'fm-stepper__step--active' or step &gt; 10 and 'fm-stepper__step--completed' or 'fm-stepper__step--disabled')">
-                        <div class="fm-stepper__circle">
-                            <t t-if="step &gt; 10"><i class="fa fa-check"/></t>
-                            <t t-else=""><i class="fa fa-shopping-cart"/></t>
-                        </div>
-                        <div class="fm-stepper__label">Panier</div>
-                    </div>
-                </a>
-                <!-- Step 2: Informations -->
-                <a class="no-decoration" t-att-href="step &gt;= 20 and '/shop/checkout' or '#'">
-                    <div t-att-class="'fm-stepper__step %s' % (step == 20 and 'fm-stepper__step--active' or step &gt; 20 and 'fm-stepper__step--completed' or 'fm-stepper__step--disabled')">
-                        <div class="fm-stepper__circle">
-                            <t t-if="step &gt; 20"><i class="fa fa-check"/></t>
-                            <t t-else=""><i class="fa fa-user"/></t>
-                        </div>
-                        <div class="fm-stepper__label">Informations</div>
-                    </div>
-                </a>
-                <!-- Step 3: Paiement -->
-                <a class="no-decoration" t-att-href="step &gt;= 40 and '/shop/payment' or '#'">
-                    <div t-att-class="'fm-stepper__step %s' % (step == 40 and 'fm-stepper__step--active' or step &gt; 40 and 'fm-stepper__step--completed' or 'fm-stepper__step--disabled')">
-                        <div class="fm-stepper__circle">
-                            <t t-if="step &gt; 40"><i class="fa fa-check"/></t>
-                            <t t-else=""><i class="fa fa-credit-card"/></t>
-                        </div>
-                        <div class="fm-stepper__label">Paiement</div>
-                    </div>
-                </a>
-                <!-- Step 4: Confirmation -->
-                <div class="fm-stepper__step fm-stepper__step--disabled">
-                    <div class="fm-stepper__circle">
-                        <i class="fa fa-check-circle"/>
-                    </div>
-                    <div class="fm-stepper__label">Confirmation</div>
+    <!-- Template autonome qui rend le stepper 3 cercles numérotés.
+         Détermine l'étape courante à partir de xmlid (passé par checkout_layout).
+         Le SCSS .fm-stepper__step::before dessine le connecteur — pas de bar
+         DOM entre les steps. -->
+    <template id="fm_stepper" name="Freemoov Checkout Stepper">
+        <t t-set="_is_cart" t-value="xmlid == 'website_sale.cart'"/>
+        <t t-set="_is_info" t-value="xmlid in ('website_sale.checkout', 'website_sale.address')"/>
+        <t t-set="_is_payment" t-value="xmlid == 'website_sale.payment'"/>
+        <t t-set="_is_confirm" t-value="xmlid in ('website_sale.confirmation', 'website_sale.payment_confirmation')"/>
+        <div class="fm-stepper" role="navigation" aria-label="Étapes de commande">
+            <!-- Step 1: Panier -->
+            <a t-attf-class="fm-stepper__step #{_is_cart and 'fm-stepper__step--active' or 'fm-stepper__step--completed'}" href="/shop/cart">
+                <div class="fm-stepper__circle">
+                    <t t-if="_is_cart">1</t>
+                    <t t-else=""><i class="fa fa-check"/></t>
                 </div>
+                <div class="fm-stepper__label">Panier</div>
+            </a>
+            <!-- Step 2: Informations / Paiement regroupés -->
+            <a t-attf-class="fm-stepper__step #{(_is_info or _is_payment) and 'fm-stepper__step--active' or _is_confirm and 'fm-stepper__step--completed' or 'fm-stepper__step--disabled'}" t-att-href="not _is_cart and '/shop/checkout' or '#'">
+                <div class="fm-stepper__circle">
+                    <t t-if="_is_confirm"><i class="fa fa-check"/></t>
+                    <t t-else="">2</t>
+                </div>
+                <div class="fm-stepper__label">Informations</div>
+            </a>
+            <!-- Step 3: Confirmation -->
+            <div t-attf-class="fm-stepper__step #{_is_confirm and 'fm-stepper__step--active' or 'fm-stepper__step--disabled'}">
+                <div class="fm-stepper__circle">3</div>
+                <div class="fm-stepper__label">Confirmation</div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Redirige le t-call "website_sale.wizard_checkout" de checkout_layout
+         vers notre stepper custom — pour /shop/cart, /shop/checkout,
+         /shop/address, /shop/payment, /shop/confirmation -->
+    <template id="fm_inject_stepper_in_layout"
+              inherit_id="website_sale.checkout_layout"
+              name="Freemoov inject custom stepper in checkout layout">
+        <xpath expr="//t[@t-call='website_sale.wizard_checkout']" position="replace">
+            <t t-call="website_freemoov.fm_stepper"/>
+        </xpath>
+    </template>
+
+    <!-- ============================================================ -->
+    <!-- 2. SIDEBAR "Achat en toute confiance" — enrichit o_total_card  -->
+    <!-- ============================================================ -->
+    <template id="fm_cart_sidebar_enhance"
+              inherit_id="website_sale.checkout_layout"
+              name="Freemoov enrich cart sidebar with reassurance">
+        <!-- Ajoute un titre au-dessus des totaux -->
+        <xpath expr="//div[@id='o_cart_summary']//div[hasclass('card-body')]" position="inside">
+            <!-- Ce noeud est ajouté APRÈS tous les contenus existants (total,
+                 express_checkout, navigation_buttons). Pour les mettre au-dessus,
+                 on utilise position="before" sur le premier t-call ensuite. -->
+        </xpath>
+
+        <!-- Titre "Achat en toute confiance" en haut de la card -->
+        <xpath expr="//div[@id='o_cart_summary']//t[@t-call='website_sale.total']" position="before">
+            <div class="fm-sidebar-title">
+                <i class="fa fa-shield" aria-hidden="true"/>
+                <span>Achat en toute confiance</span>
             </div>
         </xpath>
-    </template>
 
-    <!-- ============================================================ -->
-    <!-- 2. CART PAGE - Buttons Override                              -->
-    <!-- ============================================================ -->
-    <template id="fm_cart_buttons" inherit_id="website_sale.cart" name="Freemoov Cart Buttons">
-        <!-- Replace "Continue Shopping" button -->
-        <xpath expr="//a[@href='/shop'][hasclass('btn-secondary')]" position="attributes">
-            <attribute name="class">btn btn-secondary mb32</attribute>
-        </xpath>
-        <xpath expr="//a[@href='/shop'][hasclass('btn-secondary')]/span[1]" position="replace">
-            <i class="fa fa-chevron-left"/>
-        </xpath>
-        <xpath expr="//a[@href='/shop'][hasclass('btn-secondary')]/span[2]" position="replace">
-            <span> Continuer mes achats</span>
-        </xpath>
-
-        <!-- Replace "Process Checkout" button text -->
-        <xpath expr="//a[hasclass('btn-primary')]/span[text()='Process Checkout']" position="replace">
-            <span>Proc&#233;der au paiement</span>
-        </xpath>
-    </template>
-
-    <!-- ============================================================ -->
-    <!-- 3. SHORT CART SUMMARY (Right sidebar on cart page)           -->
-    <!-- ============================================================ -->
-    <template id="fm_short_cart_summary" inherit_id="website_sale.short_cart_summary" name="Freemoov Short Cart Summary">
-        <!-- Replace "Order Total" title -->
-        <xpath expr="//h4[hasclass('d-none')]" position="replace">
-            <h4 class="d-none d-xl-block">R&#233;sum&#233; de la commande</h4>
-        </xpath>
-        <!-- Replace "Proceed to Checkout" text -->
-        <xpath expr="//span[text()='Proceed to Checkout']" position="replace">
-            <span>Proc&#233;der au paiement</span>
-        </xpath>
-        <!-- Add reassurance below the button -->
-        <xpath expr="//a[hasclass('btn-secondary')]" position="after">
-            <div class="mt-3 pt-3" style="border-top: 1px solid #E8E9EB;">
-                <div class="d-flex align-items-center mb-2" style="gap: 8px;">
-                    <i class="fa fa-lock" style="color: #099D5D; font-size: 16px;"/>
-                    <span style="font-size: 13px; color: #414042; font-weight: 500;">Paiement 100% s&#233;curis&#233;</span>
+        <!-- Après le bouton de navigation : progress "Le plus dur est fait" + reassurance -->
+        <xpath expr="//div[@id='o_cart_summary']//t[@t-call='website_sale.navigation_buttons']" position="after">
+            <div class="fm-sidebar-progress">
+                <div class="fm-sidebar-progress__label">
+                    Le plus dur est fait : vous avez trouvé votre bonheur !
                 </div>
-                <div class="d-flex align-items-center mb-2" style="gap: 8px;">
-                    <i class="fa fa-truck" style="color: #099D5D; font-size: 16px;"/>
-                    <span style="font-size: 13px; color: #414042; font-weight: 500;">Livraison gratuite d&#232;s 190&#8364;</span>
-                </div>
-                <div class="d-flex align-items-center mb-2" style="gap: 8px;">
-                    <i class="fa fa-refresh" style="color: #099D5D; font-size: 16px;"/>
-                    <span style="font-size: 13px; color: #414042; font-weight: 500;">Retour sous 30 jours</span>
-                </div>
-                <div class="d-flex align-items-center" style="gap: 8px;">
-                    <i class="fa fa-headphones" style="color: #099D5D; font-size: 16px;"/>
-                    <span style="font-size: 13px; color: #414042; font-weight: 500;">SAV par nos sp&#233;cialistes</span>
+                <div class="fm-sidebar-progress__bar">
+                    <div class="fm-sidebar-progress__fill" style="width: 50%">
+                        <span class="fm-sidebar-progress__percent">50%</span>
+                    </div>
                 </div>
             </div>
-            <div class="mt-3 text-center">
-                <img src="/website_freemoov/static/src/img/payment_icons.png" alt="M&#233;thodes de paiement" class="img-fluid" style="max-height: 32px; opacity: 0.7;"/>
+
+            <div class="fm-sidebar-secure">
+                <i class="fa fa-lock" aria-hidden="true"/>
+                <span>PAIEMENT 100% SÉCURISÉ</span>
             </div>
-        </xpath>
-    </template>
 
-    <!-- ============================================================ -->
-    <!-- 4. CART SUMMARY (Right sidebar on checkout/payment pages)    -->
-    <!-- ============================================================ -->
-    <template id="fm_cart_summary" inherit_id="website_sale.cart_summary" name="Freemoov Cart Summary">
-        <!-- Replace "Your order:" text -->
-        <xpath expr="//b[text()='Your order: ']" position="replace">
-            <b>Votre commande : </b>
-        </xpath>
-    </template>
+            <div class="fm-sidebar-payment-methods">
+                <img src="/website_freemoov/static/src/img/payment_icons.png"
+                     alt="Méthodes de paiement acceptées"
+                     loading="lazy"/>
+            </div>
 
-    <!-- ============================================================ -->
-    <!-- 5. CHECKOUT PAGE - Address Labels                           -->
-    <!-- ============================================================ -->
-    <template id="fm_checkout_labels" inherit_id="website_sale.checkout" name="Freemoov Checkout Labels">
-        <!-- Replace "Billing Address" -->
-        <xpath expr="//h3[hasclass('o_page_header')][1]" position="replace">
-            <h3 class="o_page_header mt8">
-                <i class="fa fa-home" style="color: #099D5D;"/> Adresse de facturation
-            </h3>
-        </xpath>
-        <!-- Replace "Shipping Address" -->
-        <xpath expr="//h3[hasclass('o_page_header')][text()='Shipping Address']" position="replace">
-            <h3 class="o_page_header mt16 mb4">
-                <i class="fa fa-truck" style="color: #099D5D;"/> Adresse de livraison
-            </h3>
-        </xpath>
-        <!-- Replace "Return to Cart" button -->
-        <xpath expr="//a[@href='/shop/cart'][hasclass('btn-secondary')]" position="replace">
-            <a role="button" href="/shop/cart" class="btn btn-secondary mb32">
-                <i class="fa fa-chevron-left"/>
-                <span> Retour au panier</span>
-            </a>
-        </xpath>
-        <!-- Replace "Confirm" button -->
-        <xpath expr="//a[@href='/shop/confirm_order'][hasclass('btn-primary')]" position="replace">
-            <a role="button" href="/shop/confirm_order" class="btn btn-primary mb32">
-                <span>Confirmer</span>
-                <i class="fa fa-chevron-right"/>
-            </a>
-        </xpath>
-    </template>
-
-    <!-- ============================================================ -->
-    <!-- 6. ADDRESS KANBAN - Card Style                              -->
-    <!-- ============================================================ -->
-    <template id="fm_address_kanban" inherit_id="website_sale.address_kanban" name="Freemoov Address Kanban">
-        <xpath expr="//a[@title='Ship to this address']" position="replace">
-            <a role="button" href="#" class="btn btn-block btn-primary">
-                <i class="fa fa-check"/> Livrer &#224; cette adresse
-            </a>
-        </xpath>
-        <xpath expr="//a[text()='&#10;                            Select this address&#10;                        ']" position="replace">
-            <a role="button" href="#" class="btn btn-block btn-secondary">
-                S&#233;lectionner cette adresse
-            </a>
-        </xpath>
-    </template>
-
-    <!-- ============================================================ -->
-    <!-- 7. ADDRESS FORM - Labels                                    -->
-    <!-- ============================================================ -->
-    <template id="fm_address_form" inherit_id="website_sale.address" name="Freemoov Address Form">
-        <xpath expr="//h2[hasclass('o_page_header')]/span[text()='Fill in your address']" position="replace">
-            <span>Renseignez votre adresse</span>
-        </xpath>
-        <xpath expr="//h2[hasclass('o_page_header')][text()='Your Address']" position="replace">
-            <h2 class="o_page_header mt8">Votre adresse</h2>
-        </xpath>
-        <xpath expr="//h2[hasclass('o_page_header')][text()='Shipping Address ']" position="replace">
-            <h2 class="o_page_header mt8">Adresse de livraison</h2>
-        </xpath>
-    </template>
-
-    <!-- ============================================================ -->
-    <!-- 8. PAYMENT PAGE - Labels and Structure                      -->
-    <!-- ============================================================ -->
-    <template id="fm_payment_labels" inherit_id="website_sale.payment" name="Freemoov Payment Labels">
-        <!-- Replace "Pay with" heading -->
-        <xpath expr="//h3[hasclass('mb24')]" position="replace">
-            <h3 class="mb24">
-                <i class="fa fa-credit-card" style="color: #099D5D; margin-right: 8px;"/>
-                Choisissez un moyen de paiement
-            </h3>
-        </xpath>
-        <!-- Replace "No suitable payment" warning -->
-        <xpath expr="//div[hasclass('alert-warning')]/strong" position="replace">
-            <strong>Aucun moyen de paiement disponible.</strong>
-        </xpath>
-
-        <!-- Add reassurance banner after payment section -->
-        <xpath expr="//div[@id='payment_method']" position="after">
-            <div class="fm-reassurance mt-4">
-                <div class="fm-reassurance__item">
-                    <i class="fa fa-lock"/>
-                    <span>Paiement s&#233;curis&#233;</span>
+            <div class="fm-sidebar-reassurance">
+                <div class="fm-sidebar-reassurance__item">
+                    <i class="fa fa-truck" aria-hidden="true"/>
+                    <span>Livraison Express : 24/72h</span>
                 </div>
-                <div class="fm-reassurance__item">
-                    <i class="fa fa-truck"/>
-                    <span>Livraison express 24/72h</span>
-                </div>
-                <div class="fm-reassurance__item">
-                    <i class="fa fa-refresh"/>
+                <div class="fm-sidebar-reassurance__item">
+                    <i class="fa fa-refresh" aria-hidden="true"/>
                     <span>Retour sous 30 jours</span>
                 </div>
-                <div class="fm-reassurance__item">
-                    <i class="fa fa-headphones"/>
-                    <span>SAV sp&#233;cialis&#233;</span>
+                <div class="fm-sidebar-reassurance__item">
+                    <i class="fa fa-headphones" aria-hidden="true"/>
+                    <span>SAV par nos specialistes</span>
                 </div>
             </div>
         </xpath>
     </template>
 
     <!-- ============================================================ -->
-    <!-- 9. ADDRESS ON PAYMENT - Summary Card                        -->
+    <!-- 3. Labels français — Résumé / Totaux / Boutons                -->
     <!-- ============================================================ -->
-    <template id="fm_address_on_payment" inherit_id="website_sale.address_on_payment" name="Freemoov Address on Payment">
-        <xpath expr="//a[hasclass('no-decoration')]" position="replace">
-            <a class="float-end no-decoration" href="/shop/checkout" style="color: #099D5D; font-weight: 600;">
-                <i class="fa fa-edit"/> Modifier
-            </a>
+    <template id="fm_checkout_labels_fr"
+              inherit_id="website_sale.checkout_layout"
+              name="Freemoov French labels in checkout">
+        <!-- "Order summary" → "Résumé de la commande" (accordion mobile) -->
+        <xpath expr="//b[hasclass('w-100')][1]" position="replace">
+            <b class="w-100">Résumé de la commande</b>
         </xpath>
     </template>
 
-    <!-- ============================================================ -->
-    <!-- 10. PAYMENT FOOTER - Buttons                                -->
-    <!-- ============================================================ -->
-    <template id="fm_payment_footer" inherit_id="website_sale.payment_footer" name="Freemoov Payment Footer">
-        <!-- Replace "Return to Cart" button -->
-        <xpath expr="//a[@href='/shop/cart'][hasclass('btn-secondary')]" position="replace">
-            <a role="button" href="/shop/cart" class="btn btn-secondary">
-                <i class="fa fa-chevron-left"/> Retour au panier
-            </a>
-        </xpath>
-    </template>
-
-    <!-- ============================================================ -->
-    <!-- 11. CONFIRMATION PAGE                                       -->
-    <!-- ============================================================ -->
-    <template id="fm_confirmation" inherit_id="website_sale.confirmation" name="Freemoov Confirmation Page">
-        <!-- Replace the entire h1 and thanks_msg with custom hero -->
-        <xpath expr="//h1" position="replace">
-            <div class="fm-confirmation__hero">
-                <div class="fm-check-icon">
-                    <i class="fa fa-check"/>
-                </div>
-                <h1>Merci pour votre commande !</h1>
-                <p class="fm-order-ref">
-                    Commande <em t-field="order.name"/>
-                    <t t-if="order.state == 'sale'"> &#8212; Confirm&#233;e</t>
-                </p>
-            </div>
-        </xpath>
-
-        <!-- Replace the thanks_msg div -->
-        <xpath expr="//div[hasclass('thanks_msg')]" position="replace">
-            <div class="thanks_msg text-center mb-3">
-                <p style="font-size: 16px; color: #7F7F7F;">
-                    Un email de confirmation a &#233;t&#233; envoy&#233; &#224; votre adresse.
-                </p>
-            </div>
-
-            <!-- Order timeline -->
-            <div class="fm-confirmation__timeline mb-4">
-                <div class="fm-timeline-step fm-timeline-step--active">
-                    <div class="fm-timeline-dot">
-                        <i class="fa fa-check"/>
-                    </div>
-                    <div class="fm-timeline-label">Commande re&#231;ue</div>
-                </div>
-                <div class="fm-timeline-step fm-timeline-step--pending">
-                    <div class="fm-timeline-dot">
-                        <i class="fa fa-cog"/>
-                    </div>
-                    <div class="fm-timeline-label">En pr&#233;paration</div>
-                </div>
-                <div class="fm-timeline-step fm-timeline-step--pending">
-                    <div class="fm-timeline-dot">
-                        <i class="fa fa-truck"/>
-                    </div>
-                    <div class="fm-timeline-label">Exp&#233;di&#233;</div>
-                </div>
-                <div class="fm-timeline-step fm-timeline-step--pending">
-                    <div class="fm-timeline-dot">
-                        <i class="fa fa-home"/>
-                    </div>
-                    <div class="fm-timeline-label">Livr&#233;</div>
-                </div>
-            </div>
-        </xpath>
-
-        <!-- Replace "Payment Information:" heading -->
-        <xpath expr="//h3[hasclass('text-start')]/strong[text()='Payment Information:']" position="replace">
-            <strong>Informations de paiement</strong>
-        </xpath>
-
-        <!-- Style the address card -->
-        <xpath expr="//div[hasclass('card')][.//b[contains(text(),'Billing')]]" position="attributes">
-            <attribute name="class">card mt-3</attribute>
-            <attribute name="style">border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08);</attribute>
-        </xpath>
-
-        <!-- Add actions after the oe_structure -->
-        <xpath expr="//div[@id='oe_structure_website_sale_confirmation_2']" position="after">
-            <div class="fm-confirmation__actions">
-                <a role="button" class="btn btn-primary" href="/shop">
-                    <i class="fa fa-shopping-bag" style="margin-right: 8px;"/> Continuer mes achats
-                </a>
-                <a role="button" class="btn btn-secondary d-none d-md-inline-block" href="/shop/print" target="_blank">
-                    <i class="fa fa-print" style="margin-right: 8px;"/> Imprimer
-                </a>
-            </div>
-
-            <!-- Reassurance -->
-            <div class="fm-reassurance">
-                <div class="fm-reassurance__item">
-                    <i class="fa fa-truck"/>
-                    <span>Livraison express 24/72h</span>
-                </div>
-                <div class="fm-reassurance__item">
-                    <i class="fa fa-refresh"/>
-                    <span>Retour sous 30 jours</span>
-                </div>
-                <div class="fm-reassurance__item">
-                    <i class="fa fa-headphones"/>
-                    <span>SAV par nos sp&#233;cialistes</span>
-                </div>
-            </div>
-        </xpath>
-    </template>
-
-    <!-- ============================================================ -->
-    <!-- 12. TOTAL Template - Labels                                 -->
-    <!-- ============================================================ -->
-    <template id="fm_total" inherit_id="website_sale.total" name="Freemoov Total Labels">
-        <xpath expr="//td[text()='Subtotal:']" position="replace">
-            <td class="text-end border-0">Sous-total :</td>
-        </xpath>
-        <xpath expr="//td[text()='Taxes:']" position="replace">
-            <td class="text-end border-0">Taxes :</td>
-        </xpath>
-        <xpath expr="//td/strong[text()='Total:']" position="replace">
-            <strong>Total :</strong>
-        </xpath>
-    </template>
-
-    <!-- ============================================================ -->
-    <!-- 13. DELIVERY CARRIER - Labels (website_sale_delivery)       -->
-    <!-- ============================================================ -->
-    <!-- Note: These will only apply if website_sale_delivery module is installed -->
+    <!-- Autres inherits fm_* (fm_cart_buttons, fm_checkout_labels, fm_address_*,
+         fm_payment_labels, fm_address_on_payment, fm_confirmation, fm_total)
+         supprimés — leurs xpath v16 ne matchent pas les parents v17.
+         À réécrire progressivement pour v17 (task #19 en cours). -->
 
 </odoo>

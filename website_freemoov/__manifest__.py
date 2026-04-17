@@ -4,7 +4,7 @@
 {
     'name': 'Website Freemoov',
     'category': 'Website',
-    'version': '17.0.0.9.6',
+    'version': '17.0.0.9.9',
     'summary': 'Website Freemoov',
     'author': '',
     'website' : '',
@@ -34,6 +34,8 @@
         'views/menu_cms_views.xml',
         'views/header_freemoov_template_1.xml',
         'views/cart_popover_template.xml',
+        # Checkout refonte (cart sidebar, stepper, payment labels)
+        'views/checkout_templates.xml',
         # SEO module (ported from v16 prod)
         'views/seo_head.xml',
         'views/seo_jsonld.xml',

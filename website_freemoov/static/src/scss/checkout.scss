@@ -541,8 +541,9 @@ $fm-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             }
         }
 
-        // Checkout button in sidebar
-        .btn-secondary {
+        // Checkout button in sidebar — exclut le bouton Apply du coupon_form
+        // (qui est dans .input-group et a la classe .a-submit)
+        .btn-secondary:not(.a-submit):not(.input-group .btn-secondary) {
             background: $fm-gradient;
             border: none;
             color: $fm-white;
@@ -1509,6 +1510,135 @@ $fm-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
         &.active .fa-chevron-down {
             transform: rotate(180deg);
+        }
+    }
+}
+
+// ============================================================
+// SIDEBAR ENRICHMENT — titre, progress, reassurance, payment icons
+// ============================================================
+.oe_website_sale {
+    #o_cart_summary,
+    #o_wsale_total_accordion {
+        .fm-sidebar-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 700;
+            color: $fm-black;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid $fm-border;
+
+            i.fa {
+                color: $fm-primary;
+                font-size: 18px;
+            }
+        }
+
+        .fm-sidebar-progress {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid $fm-border;
+
+            &__label {
+                font-size: 14px;
+                font-weight: 600;
+                color: $fm-black;
+                margin-bottom: 10px;
+                line-height: 1.4;
+            }
+
+            &__bar {
+                position: relative;
+                height: 10px;
+                background: #E8E9EB;
+                border-radius: 6px;
+                overflow: hidden;
+            }
+
+            &__fill {
+                height: 100%;
+                background: repeating-linear-gradient(
+                    45deg,
+                    $fm-primary,
+                    $fm-primary 8px,
+                    darken($fm-primary, 4%) 8px,
+                    darken($fm-primary, 4%) 16px
+                );
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: width 0.4s ease;
+            }
+
+            &__percent {
+                color: $fm-white;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+            }
+        }
+
+        .fm-sidebar-secure {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+            padding: 12px;
+            border: 1px solid $fm-border;
+            border-radius: $fm-radius-sm;
+            background: #F7F8F9;
+
+            i.fa {
+                color: $fm-primary;
+                font-size: 14px;
+            }
+
+            span {
+                font-size: 12px;
+                font-weight: 700;
+                color: $fm-dark;
+                letter-spacing: 0.4px;
+            }
+        }
+
+        .fm-sidebar-payment-methods {
+            margin-top: 12px;
+            text-align: center;
+
+            img {
+                max-height: 22px;
+                max-width: 100%;
+                opacity: 0.75;
+            }
+        }
+
+        .fm-sidebar-reassurance {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid $fm-border;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+
+            &__item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                font-size: 13px;
+                color: $fm-dark;
+
+                i.fa {
+                    color: $fm-primary;
+                    font-size: 15px;
+                    width: 18px;
+                    text-align: center;
+                }
+            }
         }
     }
 }
