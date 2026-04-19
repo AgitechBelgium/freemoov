@@ -4,7 +4,7 @@
 {
     'name': 'Website Freemoov',
     'category': 'Website',
-    'version': '17.0.1.1.0',
+    'version': '17.0.1.1.1',
     'summary': 'Website Freemoov',
     'author': '',
     'website' : '',
@@ -24,7 +24,6 @@
     ],
     'data':[
         'security/ir.model.access.csv',
-        'data/ir_config_parameter_data.xml',
         'views/header_freemoov_template.xml',
         'views/footer_template.xml',
         'views/modal_customize_template.xml',
