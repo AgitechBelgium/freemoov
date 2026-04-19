@@ -24,10 +24,11 @@ class IrHttp(models.AbstractModel):
     })
 
     @classmethod
-    def _dispatch(cls, endpoint):
+    def _dispatch(cls, *args, **kwargs):
+        # Signature-agnostic: v16 has _dispatch(cls), v17+ has _dispatch(cls, endpoint).
         if cls._fm_maintenance_should_intercept():
             return cls._fm_maintenance_response()
-        return super()._dispatch(endpoint)
+        return super()._dispatch(*args, **kwargs)
 
     @classmethod
     def _fm_maintenance_should_intercept(cls):
