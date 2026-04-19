@@ -41,3 +41,6 @@ update_cow*.sql
 
 # Documents client confidentiels (devis, audits internes)
 DEVIS_*.md
+
+# Runbooks ops internes (ne pas push chez le client)
+docs/MIGRATION_PROD_RUNBOOK.md
