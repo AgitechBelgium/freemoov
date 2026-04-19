@@ -1,0 +1,41 @@
+/* ------------------------------------------------------------------------
+   Portal /my — Mon compte
+   Les cartes o_portal_index_card ont un fond navy (branding v17). Les
+   classes Bootstrap par défaut (text-bg-light) donnent un titre noir +
+   texte gris sur fond sombre, illisibles. On force la lisibilité.
+   ------------------------------------------------------------------------ */
+.o_portal_my_home {
+    .o_portal_index_card {
+        a,
+        a:hover,
+        a:focus {
+            color: #fff !important;
+            text-decoration: none;
+        }
+
+        h5 {
+            color: #fff !important;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        p,
+        .text-600,
+        small {
+            color: rgba(255, 255, 255, 0.85) !important;
+        }
+
+        .o_portal_icon img {
+            filter: brightness(0) invert(1);
+            opacity: 0.95;
+        }
+
+        a {
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+            }
+        }
+    }
+}
