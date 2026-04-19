@@ -4,7 +4,7 @@
 {
     'name': 'Website Freemoov',
     'category': 'Website',
-    'version': '17.0.1.1.1',
+    'version': '17.0.1.1.2',
     'summary': 'Website Freemoov',
     'author': '',
     'website' : '',

@@ -136,15 +136,23 @@
     <template id="fm_ensure_order_delivery_dom"
               inherit_id="website_sale.total"
               name="Freemoov ensure #order_delivery always in DOM">
+        <!-- Always render #order_delivery (not conditional on carrier_id).
+             The native v17 website_sale.total only renders it when carrier_id
+             is set, so on first carrier click the JS _handleCarrierUpdateResult
+             crashes with "Cannot set properties of null (setting 'innerHTML')"
+             because querySelector('#order_delivery .monetary_field') returns
+             null before the re-render. Rendering unconditionally — hidden
+             initially when no carrier — guarantees the DOM target exists.
+             JS overwrites innerHTML when carrier is picked, so placeholder
+             content doesn't matter. -->
         <xpath expr="//tr[@id='order_total_untaxed']" position="before">
             <tr id="order_delivery"
-                t-if="not website_sale_order or not website_sale_order.carrier_id"
-                style="display: none;">
+                t-att-style="'' if website_sale_order and website_sale_order.carrier_id else 'display: none;'">
                 <td colspan="2" class="ps-0 pt-0 pb-2 border-0 text-muted">
                     Livraison
                 </td>
                 <td class="text-end pe-0 pt-0 pb-2 border-0 text-muted">
-                    <span class="monetary_field" style="white-space: nowrap;">0,00&#160;€</span>
+                    <span class="monetary_field" style="white-space: nowrap;">0,00&#160;&#8364;</span>
                 </td>
             </tr>
         </xpath>
