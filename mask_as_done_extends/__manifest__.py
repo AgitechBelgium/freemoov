@@ -2,7 +2,7 @@
 
 {
 	'name': 'Mark As Done ',
-	'version': '17.0.1.0.3',
+	'version': '18.0.1.0.3',
 	'depends': [
 		'timesheet_grid', 'industry_fsm_stock'
 	],

@@ -2,7 +2,7 @@
 {
     'name': 'Google Merchant Center',
     'category': 'Website',
-    'version': '17.0.2.1',
+    'version': '18.0.2.1',
     'summary': 'Sync produits vers Google Merchant Center via Merchant API',
     'description': """
         Synchronisation des produits Odoo vers Google Merchant Center.

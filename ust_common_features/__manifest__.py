@@ -5,7 +5,7 @@
 {
     'name': 'Upstackers E-commerce Common Features',
     'category': 'Website',
-    'version': '17.0.0.0.1',
+    'version': '18.0.0.0.1',
     'summary': 'Upstackers E-commerce Common Features',
     'author': 'Upstackers Technologies',
     'website' : 'https://www.upstackers.com',
