@@ -52,10 +52,17 @@ $fm-maint-secondary: #7AC144;
         }
     }
 
-    @media (max-width: 575.98px) {
+    @media (max-width: 767.98px) {
+        // On mobile, a long custom message can wrap to 3+ lines.
+        // Switch to normal flow (relative) so the banner pushes the
+        // header down naturally instead of overlapping it. Trades
+        // the "always visible on scroll" behavior on mobile for
+        // guaranteed header visibility — a better UX when the banner
+        // is tall.
+        position: relative;
+        min-height: auto;
         font-size: 13px;
-        min-height: $fm-maint-banner-h-mobile;
-        padding: 8px 12px;
+        padding: 10px 12px;
 
         &__inner {
             gap: 8px;
@@ -65,9 +72,10 @@ $fm-maint-secondary: #7AC144;
 }
 
 // ============================================================
-// Offset the page when the banner is rendered.
+// Offset the page when the banner is rendered (desktop only).
 // Uses :has() for a zero-JS setup. Supported by all evergreen
 // browsers since 2023.
+// On mobile the banner is in natural flow — no offset needed.
 // ============================================================
 body:has(> #wrapwrap #fm-maintenance-banner),
 body:has(#fm-maintenance-banner) {
@@ -80,13 +88,13 @@ body:has(#fm-maintenance-banner) {
         top: $fm-maint-banner-h-desktop !important;
     }
 
-    @media (max-width: 575.98px) {
-        padding-top: $fm-maint-banner-h-mobile;
+    @media (max-width: 767.98px) {
+        padding-top: 0;
 
         header.o_header_standard,
         header.o_header_standard.o_header_affixed,
         .o_header_affix {
-            top: $fm-maint-banner-h-mobile !important;
+            top: 0 !important;
         }
     }
 }
