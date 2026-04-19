@@ -11,4 +11,4 @@ class ProjectTask(models.Model):
 		task_ids = super(ProjectTask, self).create(vals_list)
 		for task in task_ids:
 			task.reparation_number = self.env['ir.sequence'].sudo().next_by_code('project.task')
-		return task
+		return task_ids
