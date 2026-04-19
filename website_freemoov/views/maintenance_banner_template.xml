@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="maintenance_banner_layout"
+              inherit_id="website.layout"
+              name="Bandeau Maintenance Freemoov">
+        <xpath expr="//header" position="before">
+            <t t-set="_fm_banner_on"
+               t-value="request.env['ir.config_parameter'].sudo().get_param('website_freemoov.maintenance_banner_active') == 'True'"/>
+            <t t-if="_fm_banner_on">
+                <t t-set="_fm_banner_msg"
+                   t-value="request.env['ir.config_parameter'].sudo().get_param('website_freemoov.maintenance_message')"/>
+                <t t-set="_fm_banner_start_raw"
+                   t-value="request.env['ir.config_parameter'].sudo().get_param('website_freemoov.maintenance_start_datetime')"/>
+                <t t-set="_fm_banner_start"
+                   t-value="_fm_banner_start_raw and request.env['ir.qweb.field.datetime'].value_to_html(_fm_banner_start_raw, {}) or ''"/>
+                <div id="fm-maintenance-banner"
+                     class="fm-maintenance-banner"
+                     role="alert"
+                     aria-live="polite">
+                    <div class="fm-maintenance-banner__inner">
+                        <span class="fm-maintenance-banner__icon" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 2L1 21h22L12 2zm0 4.5L19.5 19h-15L12 6.5zM11 10v5h2v-5h-2zm0 6v2h2v-2h-2z"
+                                      fill="currentColor"/>
+                            </svg>
+                        </span>
+                        <span class="fm-maintenance-banner__text">
+                            <t t-if="_fm_banner_msg">
+                                <t t-esc="_fm_banner_msg"/>
+                            </t>
+                            <t t-else="">
+                                <strong>Maintenance programmée.</strong>
+                                <span>Le site sera temporairement indisponible</span>
+                                <t t-if="_fm_banner_start">
+                                    <span>à partir du <t t-esc="_fm_banner_start"/></span>
+                                </t>
+                                <t t-else="">
+                                    <span>à partir de 21:00</span>
+                                </t>
+                                <span>pour une opération de mise à jour. Merci de votre patience.</span>
+                            </t>
+                        </span>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </template>
+</odoo>

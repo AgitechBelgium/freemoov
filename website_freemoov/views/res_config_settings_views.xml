@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_freemoov_maintenance" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.freemoov.maintenance</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="website.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='website_info_settings']" position="after">
+                <block title="Maintenance Freemoov"
+                       name="freemoov_maintenance_settings"
+                       id="freemoov_maintenance_settings">
+                    <setting id="fm_maintenance_banner_setting"
+                             string="Bandeau de pré-annonce"
+                             help="Affiche un bandeau en haut de toutes les pages du site pour annoncer l'opération de maintenance à venir.">
+                        <field name="fm_maintenance_banner_active"/>
+                    </setting>
+                    <setting id="fm_maintenance_mode_setting"
+                             string="Mode maintenance (site fermé)"
+                             help="Redirige tout visiteur non authentifié (interne) vers la page de maintenance. Les accès backoffice restent disponibles via /web.">
+                        <field name="fm_maintenance_mode_active"/>
+                    </setting>
+                    <setting id="fm_maintenance_start_setting"
+                             string="Début de la maintenance"
+                             help="Affiché dans le bandeau si renseigné.">
+                        <field name="fm_maintenance_start_datetime"/>
+                    </setting>
+                    <setting id="fm_maintenance_message_setting"
+                             string="Message personnalisé"
+                             help="Remplace le message par défaut du bandeau et de la page de maintenance.">
+                        <field name="fm_maintenance_message"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

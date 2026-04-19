@@ -157,6 +157,7 @@ header.o_header_standard {
 		flex: 0 0 auto;
 
 		.fm-nav-link {
+			position: relative;
 			display: flex;
 			align-items: center;
 			gap: 4px;
@@ -170,6 +171,19 @@ header.o_header_standard {
 			transition: color 0.2s;
 			white-space: nowrap;
 			border-bottom: 2px solid transparent;
+
+			// Invisible hit-area extension below the link so the mouse can
+			// traverse the container's bottom padding without leaving the
+			// trigger. Using ::after (absolute, out of flow) instead of
+			// padding-bottom so the flex row height stays correct.
+			&::after {
+				content: '';
+				position: absolute;
+				top: 100%;
+				left: 0;
+				right: 0;
+				height: 24px;
+			}
 
 			.fa-chevron-down {
 				font-size: 8px;
@@ -188,10 +202,7 @@ header.o_header_standard {
 
 	.fm-mega-trigger {
 		// Keep position:static so .fm-mega-panel (absolute top:100%) fills the
-		// full width of #top_menu_container. Extend hit-area downward via a
-		// tall padding-bottom so the mouse can traverse the container's
-		// bottom padding without leaving the trigger.
-		padding-bottom: 24px;
+		// full width of #top_menu_container.
 
 		&:hover > .fm-mega-panel,
 		&.show > .fm-mega-panel { display: block; }

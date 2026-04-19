@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="maintenance_page" name="Page Maintenance Freemoov">
+        <html lang="fr">
+            <head>
+                <meta charset="utf-8"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+                <meta name="robots" content="noindex, nofollow"/>
+                <meta name="theme-color" content="#099D5D"/>
+                <title>Maintenance en cours — Freemoov</title>
+                <link rel="icon" type="image/png" href="/website_freemoov/static/src/img/logo.png"/>
+                <style>
+                    *,*::before,*::after{box-sizing:border-box}
+                    html,body{margin:0;padding:0}
+                    body{
+                        font-family:"Noto Sans","Helvetica Neue",Arial,sans-serif;
+                        color:#1a1a1a;
+                        background:#F5F6F7;
+                        min-height:100vh;
+                        display:flex;
+                        flex-direction:column;
+                        -webkit-font-smoothing:antialiased;
+                    }
+                    .fm-maint-hero{
+                        flex:1 0 auto;
+                        display:flex;
+                        align-items:center;
+                        justify-content:center;
+                        padding:48px 24px;
+                        background:
+                            radial-gradient(circle at 20% 10%, rgba(9,157,93,.08) 0%, transparent 45%),
+                            radial-gradient(circle at 85% 80%, rgba(122,193,68,.1) 0%, transparent 50%),
+                            #F5F6F7;
+                    }
+                    .fm-maint-card{
+                        width:100%;
+                        max-width:560px;
+                        background:#fff;
+                        border-radius:20px;
+                        padding:48px 40px;
+                        box-shadow:0 8px 40px rgba(0,0,0,.08),0 2px 8px rgba(0,0,0,.04);
+                        text-align:center;
+                    }
+                    .fm-maint-card__logo{
+                        display:block;
+                        max-width:180px;
+                        height:auto;
+                        margin:0 auto 32px;
+                    }
+                    .fm-maint-card__badge{
+                        display:inline-flex;
+                        align-items:center;
+                        gap:8px;
+                        padding:6px 14px;
+                        border-radius:999px;
+                        background:linear-gradient(135deg,#099D5D,#7AC144);
+                        color:#fff;
+                        font-size:12px;
+                        font-weight:600;
+                        letter-spacing:.03em;
+                        text-transform:uppercase;
+                        margin-bottom:24px;
+                    }
+                    .fm-maint-card__badge-dot{
+                        width:6px;height:6px;border-radius:50%;
+                        background:#fff;
+                        animation:fm-pulse 1.4s ease-in-out infinite;
+                    }
+                    @keyframes fm-pulse{
+                        0%,100%{opacity:1;transform:scale(1)}
+                        50%{opacity:.4;transform:scale(.85)}
+                    }
+                    .fm-maint-card h1{
+                        font-size:28px;
+                        font-weight:700;
+                        margin:0 0 16px;
+                        line-height:1.2;
+                        color:#000;
+                    }
+                    .fm-maint-card p{
+                        font-size:16px;
+                        line-height:1.6;
+                        color:#4a4a4a;
+                        margin:0 0 12px;
+                    }
+                    .fm-maint-card__info{
+                        margin-top:32px;
+                        padding:20px;
+                        background:#F5F6F7;
+                        border-radius:12px;
+                        font-size:14px;
+                        color:#414042;
+                    }
+                    .fm-maint-card__info strong{color:#099D5D}
+                    .fm-maint-card__contact{
+                        margin-top:24px;
+                        display:inline-flex;
+                        align-items:center;
+                        gap:8px;
+                        color:#099D5D;
+                        text-decoration:none;
+                        font-weight:600;
+                        font-size:15px;
+                        border-bottom:1px solid transparent;
+                        transition:border-color .2s;
+                    }
+                    .fm-maint-card__contact:hover{border-bottom-color:#099D5D}
+                    .fm-maint-footer{
+                        flex-shrink:0;
+                        padding:24px;
+                        text-align:center;
+                        font-size:13px;
+                        color:#7F7F7F;
+                    }
+                    .fm-maint-footer a{color:#7F7F7F;text-decoration:none}
+                    .fm-maint-footer a:hover{color:#099D5D}
+                    @media (max-width:575px){
+                        .fm-maint-hero{padding:24px 16px}
+                        .fm-maint-card{padding:32px 24px;border-radius:16px}
+                        .fm-maint-card h1{font-size:22px}
+                        .fm-maint-card p{font-size:15px}
+                    }
+                </style>
+            </head>
+            <body>
+                <main class="fm-maint-hero">
+                    <div class="fm-maint-card" role="status" aria-live="polite">
+                        <img class="fm-maint-card__logo"
+                             src="/website_freemoov/static/src/img/logo.png"
+                             alt="Freemoov"/>
+                        <span class="fm-maint-card__badge">
+                            <span class="fm-maint-card__badge-dot"/>
+                            Maintenance en cours
+                        </span>
+                        <h1>Nous revenons très vite</h1>
+                        <t t-if="maintenance_message">
+                            <p><t t-esc="maintenance_message"/></p>
+                        </t>
+                        <t t-else="">
+                            <p>
+                                Notre site est momentanément indisponible le temps d'une opération technique.
+                                Vos commandes, comptes et données sont en sécurité.
+                            </p>
+                            <p>
+                                Nous faisons le maximum pour rétablir le service dans les plus brefs délais.
+                            </p>
+                        </t>
+                        <t t-if="maintenance_start">
+                            <div class="fm-maint-card__info">
+                                Maintenance initiée le <strong><t t-esc="maintenance_start"/></strong>.
+                            </div>
+                        </t>
+                        <a class="fm-maint-card__contact" href="mailto:contact@freemoov.be">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zm0 2l8 5 8-5H4zm0 2.2V18h16V8.2l-8 5-8-5z"
+                                      fill="currentColor"/>
+                            </svg>
+                            Nous contacter
+                        </a>
+                    </div>
+                </main>
+                <footer class="fm-maint-footer">
+                    © Freemoov — <a href="mailto:contact@freemoov.be">contact@freemoov.be</a>
+                </footer>
+            </body>
+        </html>
+    </template>
+</odoo>

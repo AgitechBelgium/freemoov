@@ -4,7 +4,7 @@
 {
     'name': 'Website Freemoov',
     'category': 'Website',
-    'version': '17.0.1.0.1',
+    'version': '17.0.1.1.0',
     'summary': 'Website Freemoov',
     'author': '',
     'website' : '',
@@ -24,6 +24,7 @@
     ],
     'data':[
         'security/ir.model.access.csv',
+        'data/ir_config_parameter_data.xml',
         'views/header_freemoov_template.xml',
         'views/footer_template.xml',
         'views/modal_customize_template.xml',
@@ -43,6 +44,10 @@
         'views/seo_category_content.xml',
         'views/seo_backend_form.xml',
         'views/performance_hints.xml',
+        # Maintenance (banner + landing page + settings)
+        'views/maintenance_banner_template.xml',
+        'views/maintenance_page_template.xml',
+        'views/res_config_settings_views.xml',
     ],
 
     'assets': {
@@ -56,6 +61,7 @@
             'website_freemoov/static/src/scss/product_detail.scss',
             'website_freemoov/static/src/scss/search.scss',
             'website_freemoov/static/src/scss/checkout.scss',
+            'website_freemoov/static/src/scss/maintenance.scss',
             'website_freemoov/static/src/js/common.js',
             'website_freemoov/static/src/js/variant.js',
             'website_freemoov/static/src/js/checkout.js',

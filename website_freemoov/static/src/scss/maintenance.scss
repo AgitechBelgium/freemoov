@@ -1,0 +1,92 @@
+// ============================================================
+// Freemoov - Bandeau de maintenance (site-wide, fixed top)
+// ============================================================
+
+$fm-maint-banner-h-desktop: 44px;
+$fm-maint-banner-h-mobile: 64px;
+$fm-maint-primary: #099D5D;
+$fm-maint-secondary: #7AC144;
+
+.fm-maintenance-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1040; // above sticky header (1030) / sticky-top (1020), below modal backdrop (1050)
+    min-height: $fm-maint-banner-h-desktop;
+    background: linear-gradient(135deg, $fm-maint-primary 0%, $fm-maint-secondary 100%);
+    color: #ffffff;
+    font-family: "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.35;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    pointer-events: auto;
+    user-select: none;
+
+    &__inner {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        max-width: 1200px;
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+
+    &__icon {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+        color: #ffffff;
+        opacity: 0.95;
+    }
+
+    &__text {
+        strong {
+            font-weight: 700;
+            margin-right: 4px;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        font-size: 13px;
+        min-height: $fm-maint-banner-h-mobile;
+        padding: 8px 12px;
+
+        &__inner {
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+    }
+}
+
+// ============================================================
+// Offset the page when the banner is rendered.
+// Uses :has() for a zero-JS setup. Supported by all evergreen
+// browsers since 2023.
+// ============================================================
+body:has(> #wrapwrap #fm-maintenance-banner),
+body:has(#fm-maintenance-banner) {
+    padding-top: $fm-maint-banner-h-desktop;
+
+    // Push Odoo's sticky / affixed header below the banner
+    header.o_header_standard,
+    header.o_header_standard.o_header_affixed,
+    .o_header_affix {
+        top: $fm-maint-banner-h-desktop !important;
+    }
+
+    @media (max-width: 575.98px) {
+        padding-top: $fm-maint-banner-h-mobile;
+
+        header.o_header_standard,
+        header.o_header_standard.o_header_affixed,
+        .o_header_affix {
+            top: $fm-maint-banner-h-mobile !important;
+        }
+    }
+}
