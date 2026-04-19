@@ -8,3 +8,5 @@ from . import product_attribute
 from . import menu_cms
 from . import seo
 from . import product_faq
+from . import res_config_settings
+from . import ir_http
