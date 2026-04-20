@@ -1168,9 +1168,30 @@
 	#product_detail #o-carousel-product .carousel-control-next { right: 4px; }
 	#product_detail {
 		padding-top: 8px;
-		// Mobile: never sticky
+		// Mobile: never sticky + neutralize Odoo JS inline `top: Xpx` that shifts
+		// the column down by the desktop sticky offset (caused a 76px phantom gap).
 		.o_wsale_product_images {
 			position: relative !important;
+			top: 0 !important;
+		}
+		// Mobile: reserve image space via aspect-ratio ON THE IMG ITSELF
+		// (container-level aspect-ratio breaks flex parent's layout calc → overlap).
+		// Also clip any ribbon overflow so it can't bleed onto the title below.
+		#o-carousel-product {
+			.o_carousel_product_outer {
+				overflow: hidden !important;
+			}
+			.carousel-inner {
+				overflow: hidden !important;
+			}
+			.carousel-item img {
+				width: 100% !important;
+				max-width: 100% !important;
+				aspect-ratio: 1 / 1;
+				height: auto !important;
+				max-height: none !important;
+				object-fit: contain;
+			}
 		}
 		// Mobile: indicators always visible + centered
 		#o-carousel-product .o_carousel_product_indicators {
