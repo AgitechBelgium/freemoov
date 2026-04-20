@@ -34,17 +34,10 @@ class WebUstSlider(http.Controller):
 
 
 class CustomWebsiteSale(WebsiteSale):
-    """
-    Odoo 17 Migration: This controller now extends the parent shop() method
-    instead of overriding it completely. This ensures compatibility with
-    Odoo 17's changed method signatures.
-    
-    Customization: Forces layout_mode based on category presence.
-    """
+    """Force grid layout as default; user can still switch manually via the toggle."""
 
     @http.route()
     def shop(self, page=0, category=None, search='', min_price=0.0, max_price=0.0, ppg=False, **post):
-        # Call parent shop method (Odoo 17 compatible)
         response = super().shop(
             page=page,
             category=category,
@@ -54,12 +47,10 @@ class CustomWebsiteSale(WebsiteSale):
             ppg=ppg,
             **post
         )
-        
-        # Apply custom layout_mode logic
+
         if hasattr(response, 'qcontext'):
-            if category:
-                response.qcontext['layout_mode'] = 'list'
-            else:
+            session_layout = request.session.get('website_sale_shop_layout_mode')
+            if not session_layout:
                 response.qcontext['layout_mode'] = 'grid'
-        
+
         return response
