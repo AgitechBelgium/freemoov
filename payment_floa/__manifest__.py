@@ -25,7 +25,7 @@
             'payment_floa/static/src/js/floa_widget.js',
         ],
     },
-    'installable': False,
+    'installable': True,
     'application': False,
     'auto_install': False,
     'license': 'OPL-1',
