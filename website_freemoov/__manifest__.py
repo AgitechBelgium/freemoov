@@ -65,6 +65,7 @@
             'website_freemoov/static/src/js/common.js',
             'website_freemoov/static/src/js/variant.js',
             'website_freemoov/static/src/js/checkout.js',
+            'website_freemoov/static/src/js/carrier_update_safe.js',
             'website_freemoov/static/src/xml/stock_availability.xml',
         ],
 
