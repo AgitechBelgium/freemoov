@@ -30,20 +30,8 @@
         </xpath>
     </template>
 
-    <!-- ============================================================
-         CART PAGE — Add FLOA widget in sidebar after trust block
-         ============================================================ -->
-    <template id="floa_widget_cart"
-              inherit_id="website_freemoov.inherit_short_cart_summary"
-              name="FLOA Widget on Cart Page">
-        <xpath expr="//div[hasclass('fm-trust-block')]" position="after">
-            <t t-if="website_sale_order and website_sale_order.amount_total >= 50 and website_sale_order.amount_total &lt;= 6000">
-                <div class="floa-widget-container floa-widget-cart mt-3"
-                     data-floa-offers=""
-                     t-att-data-floa-amount="int(website_sale_order.amount_total * 100)">
-                </div>
-            </t>
-        </xpath>
-    </template>
+    <!-- CART PAGE widget removed: legacy v16 target website_freemoov.inherit_short_cart_summary
+         no longer exists after the v17 checkout refonte. To be re-added on a v17 template
+         before re-enabling in production. -->
 
 </odoo>
