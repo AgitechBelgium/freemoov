@@ -5,6 +5,28 @@ from odoo import fields, models,api,_
 class Website(models.Model):
 	_inherit = 'website'
 
+	def _get_current_fiscal_position(self):
+		"""Force the Belgian fiscal position for every website visitor.
+
+		Freemoov sells exclusively to Belgium, with prices stored HTVA in the
+		catalog and a 21% VAT mapped through the auto-apply BE fiscal position.
+		The native implementation resolves the fpos from GeoIP, which can fail
+		on the very first hit of the product page (no geoip context yet) while
+		the subsequent JS get_combination_info call resolves correctly. The
+		result was a visible flash of the HTVA price (e.g. 825,62 EUR) that
+		jumped to the TVAC price (999 EUR) once the variant JS booted.
+
+		Forcing the BE fpos on every request matches the catalog behaviour
+		already enforced by ProductTemplate._get_sales_prices and removes the
+		FOUC. Drop this override the day Freemoov starts shipping outside BE.
+		"""
+		belgian_fp = self.env['account.fiscal.position'].sudo().search([
+			('country_id.code', '=', 'BE'),
+			('auto_apply', '=', True),
+		], limit=1)
+		if belgian_fp:
+			return belgian_fp
+		return super()._get_current_fiscal_position()
 
 	def check_stock_availability(self,product_variant) :
 		qty_avail = 0
