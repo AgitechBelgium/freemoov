@@ -154,4 +154,11 @@ VariantMixin._onChangeCombination = function (ev, $parent, combination) {
     });
 };
 
-document.addEventListener('DOMContentLoaded', _initFromDataAttribute);
+// Odoo loads the lazy frontend bundle asynchronously, so by the time this
+// module runs DOMContentLoaded has often already fired and a plain listener
+// would never trigger. Run immediately if the DOM is ready, otherwise wait.
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _initFromDataAttribute);
+} else {
+    _initFromDataAttribute();
+}
