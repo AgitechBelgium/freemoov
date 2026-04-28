@@ -1,6 +1,10 @@
 /** @odoo-module **/
 
-import VariantMixin from "website_sale.VariantMixin";
+// Odoo 17 module path. The legacy "website_sale.VariantMixin" alias was
+// removed during the v16 -> v17 module path migration; using it makes the
+// whole bundle fail to load with "module not defined" and the widget never
+// initializes, so the data-floa-* container stays visually empty.
+import VariantMixin from "@website_sale/js/sale_variant_mixin";
 
 /*
  * FLOA Pay Widget — dynamic initialization & variant-price sync.
