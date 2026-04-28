@@ -14,6 +14,7 @@
             <field name="name">FLOA Pay</field>
             <field name="code">floa</field>
             <field name="active">True</field>
+            <field name="image" type="base64" file="payment_floa/static/description/icon.png"/>
         </record>
 
         <record id="payment_provider_floa" model="payment.provider">
