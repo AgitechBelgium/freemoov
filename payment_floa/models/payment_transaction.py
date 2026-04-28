@@ -88,14 +88,29 @@ class PaymentTransaction(models.Model):
                 _("FLOA: impossible de finaliser le dossier. %s") % str(e)
             )
 
-        # Extract payment page URL from links
+        # Extract payment page URL from the finalize response.
+        # Per FLOA spec the response contains a HAL-style "links" array with
+        # entries shaped {href, rel, method}. The customer-facing redirect is
+        # the link whose rel hints at the payment page; if FLOA stops tagging
+        # rels we fall back to the first https URL.
         payment_url = None
-        for link in finalize_response.get('links', []):
-            if link.get('href'):
-                payment_url = link['href']
+        links = finalize_response.get('links') or []
+        preferred_rels = ('paymentPage', 'payment-page', 'payment_page', 'self')
+        for rel in preferred_rels:
+            for link in links:
+                if link.get('rel') == rel and link.get('href', '').startswith('https://'):
+                    payment_url = link['href']
+                    break
+            if payment_url:
                 break
+        if not payment_url:
+            for link in links:
+                if link.get('href', '').startswith('https://'):
+                    payment_url = link['href']
+                    break
 
         if not payment_url:
+            _logger.error("FLOA finalize returned no usable link: %s", finalize_response)
             raise ValidationError(
                 _("FLOA: aucune URL de paiement reçue.")
             )

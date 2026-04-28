@@ -19,6 +19,9 @@
         'views/floa_widget_templates.xml',
         'data/payment_provider_data.xml',
     ],
+    'demo': [
+        'data/payment_provider_sandbox_demo.xml',
+    ],
     'assets': {
         'web.assets_frontend': [
             'payment_floa/static/src/scss/floa_widget.scss',

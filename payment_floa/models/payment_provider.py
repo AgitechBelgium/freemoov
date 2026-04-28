@@ -117,12 +117,26 @@ class PaymentProvider(models.Model):
         self.ensure_one()
         return self.state == 'enabled'
 
+    # In-process cache: {(provider_id, state): (token, expires_at_epoch)}
+    # FLOA tokens are valid 3600s; we keep a 60s safety margin so the
+    # second hop of a checkout (create deal -> finalize) reuses one token.
+    _FLOA_TOKEN_CACHE = {}
+    _FLOA_TOKEN_SAFETY_MARGIN = 60
+
     def _floa_get_access_token(self):
         """Obtain an OAuth2 access token from FLOA.
 
-        Returns the access_token string. Raises if the request fails.
+        Returns the access_token string. Tokens are cached in-process for
+        their advertised lifetime minus a small safety margin so a single
+        checkout (create deal + finalize) does not trigger two OAuth round
+        trips. Raises if the request fails.
         """
         self.ensure_one()
+        cache_key = (self.id, self.state)
+        cached = self._FLOA_TOKEN_CACHE.get(cache_key)
+        if cached and cached[1] > time.time():
+            return cached[0]
+
         base_url = self._floa_get_api_url()
         url = f"{base_url}/oauth/token?grant_type=client_credentials"
 
@@ -141,11 +155,29 @@ class PaymentProvider(models.Model):
         response.raise_for_status()
         data = response.json()
 
-        _logger.info("FLOA OAuth token obtained, expires in %s seconds", data.get('expires_in'))
-        return data['access_token']
+        token = data['access_token']
+        expires_in = int(data.get('expires_in') or 3600)
+        expires_at = time.time() + max(expires_in - self._FLOA_TOKEN_SAFETY_MARGIN, 60)
+        self._FLOA_TOKEN_CACHE[cache_key] = (token, expires_at)
+
+        _logger.info("FLOA OAuth token obtained, expires in %s seconds", expires_in)
+        return token
+
+    def _floa_invalidate_token_cache(self):
+        """Drop the cached OAuth token for this provider.
+
+        Call this after a 401 from the FLOA API to force a fresh token on the
+        next request.
+        """
+        self.ensure_one()
+        self._FLOA_TOKEN_CACHE.pop((self.id, self.state), None)
 
     def _floa_make_request(self, method, endpoint, payload=None, params=None, extra_headers=None):
         """Make an authenticated request to the FLOA API.
+
+        On a 401 the cached token is invalidated and the request is retried
+        once with a fresh token, to recover from a token expiring mid-flight
+        (the in-process cache cannot see clock drift on the FLOA side).
 
         :param str method: HTTP method (GET, POST)
         :param str endpoint: API endpoint path (e.g., '/api/v1/deals')
@@ -157,28 +189,34 @@ class PaymentProvider(models.Model):
         """
         self.ensure_one()
         base_url = self._floa_get_api_url()
-        token = self._floa_get_access_token()
-
         url = f"{base_url}{endpoint}"
-        headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {token}',
-        }
-        if extra_headers:
-            headers.update(extra_headers)
 
-        _logger.info("FLOA API %s %s params=%s", method, url, params)
-        response = requests.request(
-            method, url, headers=headers,
-            json=payload, params=params, timeout=30,
-        )
+        for attempt in range(2):
+            token = self._floa_get_access_token()
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {token}',
+            }
+            if extra_headers:
+                headers.update(extra_headers)
 
-        if response.status_code not in (200, 201):
-            _logger.error(
-                "FLOA API error %s: %s", response.status_code, response.text
+            _logger.info("FLOA API %s %s params=%s", method, url, params)
+            response = requests.request(
+                method, url, headers=headers,
+                json=payload, params=params, timeout=30,
             )
-        response.raise_for_status()
-        return response.json()
+
+            if response.status_code == 401 and attempt == 0:
+                _logger.warning("FLOA API 401, invalidating token and retrying")
+                self._floa_invalidate_token_cache()
+                continue
+
+            if response.status_code not in (200, 201):
+                _logger.error(
+                    "FLOA API error %s: %s", response.status_code, response.text
+                )
+            response.raise_for_status()
+            return response.json()
 
     def _floa_create_deal(self, values, use_customer_form=False):
         """Create a FLOA deal (step 1).

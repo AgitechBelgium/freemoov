@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!--
+          FLOA sandbox credentials, loaded only via Odoo demo data so they
+          never ship to a production database. These are FLOA's public test creds
+          (preprod environment, no real money) but committing them as data
+          would still be wrong because reinstalling the module on prod would
+          reset the merchant's real credentials. Keep them gated by demo.
+        -->
+        <record id="payment_provider_floa" model="payment.provider">
+            <field name="floa_client_id">3db10eb0269c463998242bdd55045689</field>
+            <field name="floa_client_secret">MDIxYzhiZGEtZjcwMS00YzJkLWEyOWUtZjFjNDgwNDljMTNi</field>
+            <field name="floa_hmac_key">iV+z[heBl>wj(ssdwDRWHk[kkSQsX-8N</field>
+            <field name="state">test</field>
+            <field name="is_published">True</field>
+        </record>
+    </data>
+</odoo>

@@ -6,36 +6,50 @@ import VariantMixin from "website_sale.VariantMixin";
  * FLOA Pay Widget — dynamic initialization & variant-price sync.
  *
  * Loads the external FLOA widget script on-demand and initializes
- * the installment simulation wherever [data-floa-offers] appears
- * (product page, cart sidebar).
+ * the installment simulation wherever [data-floa-offers] appears.
  *
- * On variant change the widget is reinitialized with the new price.
+ * Per-provider config (widget URL, production flag, offer code) is read
+ * from data-* attributes set by the QWeb template, so the same JS bundle
+ * works for sandbox and production providers without a rebuild.
  */
 
-// -------------------------------------------------------------------------
-// Configuration
-// -------------------------------------------------------------------------
-
-var FLOA_CONFIG = {
-    widgetUrl: 'https://prp-widget.floa.com/floa-widget.js',  // preprod
+var FLOA_DEFAULTS = {
+    widgetUrl: 'https://prp-widget.floa.com/floa-widget.js',
     offers: ['BC3XFBE'],
     country: 'BE',
     locale: 'fr',
     theme: 'brand',
     pnf: 'https://www.floapay.be/CGV-belgium',
     production: false,
-    minAmount: 5000,   // 50 € in cents
-    maxAmount: 600000, // 6 000 € in cents
+    minAmount: 5000,
+    maxAmount: 600000,
 };
 
-// -------------------------------------------------------------------------
-// Script loader
-// -------------------------------------------------------------------------
-
+var _runtimeConfig = null;
 var _floaLoaded = false;
 var _floaLoadPromise = null;
 
-function _loadFloaScript() {
+function _readContainerConfig(container) {
+    if (!container) {
+        return null;
+    }
+    var widgetUrl = container.getAttribute('data-floa-widget-url') || FLOA_DEFAULTS.widgetUrl;
+    var production = container.getAttribute('data-floa-production') === 'true';
+    var productCode = container.getAttribute('data-floa-product-code') || FLOA_DEFAULTS.offers[0];
+    return {
+        widgetUrl: widgetUrl,
+        offers: [productCode],
+        production: production,
+        country: FLOA_DEFAULTS.country,
+        locale: FLOA_DEFAULTS.locale,
+        theme: FLOA_DEFAULTS.theme,
+        pnf: FLOA_DEFAULTS.pnf,
+        minAmount: FLOA_DEFAULTS.minAmount,
+        maxAmount: FLOA_DEFAULTS.maxAmount,
+    };
+}
+
+function _loadFloaScript(widgetUrl) {
     if (_floaLoaded) {
         return Promise.resolve();
     }
@@ -45,13 +59,13 @@ function _loadFloaScript() {
     _floaLoadPromise = new Promise(function (resolve, reject) {
         var script = document.createElement('script');
         script.type = 'module';
-        script.src = FLOA_CONFIG.widgetUrl;
+        script.src = widgetUrl;
         script.onload = function () {
             _floaLoaded = true;
             resolve();
         };
         script.onerror = function () {
-            console.warn('[FLOA] Failed to load widget script');
+            console.warn('[FLOA] Failed to load widget script from', widgetUrl);
             reject();
         };
         document.head.appendChild(script);
@@ -59,26 +73,24 @@ function _loadFloaScript() {
     return _floaLoadPromise;
 }
 
-// -------------------------------------------------------------------------
-// Widget initialization
-// -------------------------------------------------------------------------
-
 function _initFloaWidget(amountCents) {
-    if (!amountCents || amountCents < FLOA_CONFIG.minAmount || amountCents > FLOA_CONFIG.maxAmount) {
+    if (!_runtimeConfig) {
+        return;
+    }
+    if (!amountCents || amountCents < _runtimeConfig.minAmount || amountCents > _runtimeConfig.maxAmount) {
         return;
     }
 
     var config = {
-        offers: FLOA_CONFIG.offers,
-        theme: FLOA_CONFIG.theme,
+        offers: _runtimeConfig.offers,
+        theme: _runtimeConfig.theme,
         amount: amountCents,
-        locale: FLOA_CONFIG.locale,
-        country: FLOA_CONFIG.country,
-        pnf: FLOA_CONFIG.pnf,
-        production: FLOA_CONFIG.production,
+        locale: _runtimeConfig.locale,
+        country: _runtimeConfig.country,
+        pnf: _runtimeConfig.pnf,
+        production: _runtimeConfig.production,
     };
 
-    // Cleanup previous instance before reinitializing
     if (window.cleanupFloaWidget) {
         try { window.cleanupFloaWidget(); } catch (e) { /* ignore */ }
     }
@@ -88,39 +100,25 @@ function _initFloaWidget(amountCents) {
     }
 }
 
-/**
- * Read the initial amount from the data attribute set by the QWeb template,
- * load the FLOA script, and initialize the widget.
- */
 function _initFromDataAttribute() {
-    var containers = document.querySelectorAll('[data-floa-offers]');
-    if (!containers.length) {
+    var container = document.querySelector('[data-floa-offers]');
+    if (!container) {
         return;
     }
 
-    // Use the first container's data-floa-amount as the initial price
-    var amount = 0;
-    for (var i = 0; i < containers.length; i++) {
-        var attr = containers[i].getAttribute('data-floa-amount');
-        if (attr) {
-            amount = parseInt(attr, 10);
-            break;
-        }
+    _runtimeConfig = _readContainerConfig(container);
+
+    var amount = parseInt(container.getAttribute('data-floa-amount') || '0', 10);
+    if (!amount) {
+        return;
     }
 
-    if (amount) {
-        _loadFloaScript().then(function () {
-            // Small delay to let the FLOA script register window.initFloaWidget
-            setTimeout(function () {
-                _initFloaWidget(amount);
-            }, 200);
-        });
-    }
+    _loadFloaScript(_runtimeConfig.widgetUrl).then(function () {
+        setTimeout(function () {
+            _initFloaWidget(amount);
+        }, 200);
+    });
 }
-
-// -------------------------------------------------------------------------
-// Hook into Odoo variant changes (product page)
-// -------------------------------------------------------------------------
 
 var _origOnChangeCombination = VariantMixin._onChangeCombination;
 
@@ -133,21 +131,23 @@ VariantMixin._onChangeCombination = function (ev, $parent, combination) {
 
     var amountCents = Math.round(combination.price * 100);
 
-    // Update data attribute for potential re-reads
     var containers = document.querySelectorAll('.floa-widget-product[data-floa-offers]');
     for (var i = 0; i < containers.length; i++) {
         containers[i].setAttribute('data-floa-amount', amountCents);
     }
 
-    _loadFloaScript().then(function () {
+    if (!_runtimeConfig && containers.length) {
+        _runtimeConfig = _readContainerConfig(containers[0]);
+    }
+    if (!_runtimeConfig) {
+        return;
+    }
+
+    _loadFloaScript(_runtimeConfig.widgetUrl).then(function () {
         setTimeout(function () {
             _initFloaWidget(amountCents);
         }, 100);
     });
 };
-
-// -------------------------------------------------------------------------
-// Initial load
-// -------------------------------------------------------------------------
 
 document.addEventListener('DOMContentLoaded', _initFromDataAttribute);

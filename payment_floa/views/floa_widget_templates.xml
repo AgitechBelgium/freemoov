@@ -3,22 +3,27 @@
 
     <!-- ============================================================
          PRODUCT DETAIL PAGE — Replace installment-badge-inline (near price)
-         with FLOA 3x widget
+         with FLOA 3x widget. Provider config (sandbox vs prod widget URL,
+         product code) is read at render time so /shop and /shop/product
+         render with the correct widget mode without a JS rebuild.
          ============================================================ -->
     <template id="floa_widget_price"
               inherit_id="website_freemoov.product_details_inherited"
               name="FLOA Widget near Product Price">
-        <!-- Replace "Payez en 3x ou 24x" badge below price -->
         <xpath expr="//div[hasclass('installment-badge-inline')]" position="replace">
-            <t t-if="combination_info['price'] >= 50 and combination_info['price'] &lt;= 6000">
+            <t t-set="floa_provider"
+               t-value="request.env['payment.provider'].sudo().search([('code', '=', 'floa'), ('state', 'in', ('test', 'enabled'))], limit=1)"/>
+            <t t-if="floa_provider and combination_info['price'] &gt;= 50 and combination_info['price'] &lt;= 6000">
                 <div class="floa-widget-container floa-widget-product mt-1 mb-3"
                      data-floa-offers=""
-                     t-att-data-floa-amount="int(combination_info['price'] * 100)">
+                     t-att-data-floa-amount="int(combination_info['price'] * 100)"
+                     t-att-data-floa-widget-url="floa_provider._floa_get_widget_url()"
+                     t-att-data-floa-production="'true' if floa_provider._floa_is_production() else 'false'"
+                     t-att-data-floa-product-code="floa_provider.floa_product_code or 'BC3XFBE'">
                 </div>
             </t>
         </xpath>
 
-        <!-- Replace installment-block in trust-block with simple text -->
         <xpath expr="//div[hasclass('installment-block')]" position="replace">
             <div class="installment-block">
                 <i class="fa fa-credit-card"></i>
