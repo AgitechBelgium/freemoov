@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Payment Provider: FLOA Pay',
-    'version': '17.0.1.0.2',
+    'version': '17.0.1.0.3',
     'category': 'Accounting/Payment Providers',
     'summary': 'FLOA BNPL — Paiement en 3x pour la Belgique',
     'author': 'Freemoov',

@@ -11,7 +11,7 @@
           the load-demo flag to also load payment_provider_sandbox_demo.xml.
         -->
         <record id="payment_method_floa" model="payment.method">
-            <field name="name">FLOA Pay</field>
+            <field name="name">Floa Pay (3x sans frais)</field>
             <field name="code">floa</field>
             <field name="active">True</field>
             <field name="image" type="base64" file="payment_floa/static/description/icon.png"/>
