@@ -18,9 +18,8 @@ class ProductTemplate(models.Model):
 	tab_ids = fields.One2many('ust.product.tabs', 'product_id', string="Tab")
 
 	def dropship_product(self):
-		dropship_route = self.env.ref('stock_dropshipping.route_drop_shipping')
-		is_dropship = dropship_route.id in self.route_ids.ids
-		return is_dropship
+		dropship_route_id = self.env['website'].sudo()._freemoov_get_dropship_route_id()
+		return bool(dropship_route_id and dropship_route_id in self.route_ids.ids)
 
 	def get_stock_availability(self, website=None):
 		if self.detailed_type == 'product' and not self.allow_out_of_stock_order:
@@ -35,20 +34,22 @@ class ProductTemplate(models.Model):
 				qty_avail = sum(quant.quantity for quant in stock_quant_ids)
 		else:
 			qty_avail = 1
-		
-		dropship_route = self.env.ref('stock_dropshipping.route_drop_shipping')
-		is_dropship = dropship_route.id in self.route_ids.ids
+
+		dropship_route_id = self.env['website'].sudo()._freemoov_get_dropship_route_id()
+		is_dropship = bool(dropship_route_id and dropship_route_id in self.route_ids.ids)
 
 		return {'qty_avail': qty_avail, 'is_dropship': is_dropship}
 
 	def _get_sales_prices(self, pricelist, fiscal_position):
-		"""Force Belgian fiscal position (21% VAT) for all website visitors."""
-		belgian_fp = self.env['account.fiscal.position'].sudo().search([
-			('country_id.code', '=', 'BE'),
-			('auto_apply', '=', True),
-		], limit=1)
-		if belgian_fp:
-			fiscal_position = belgian_fp
+		"""Force Belgian fiscal position (21% VAT) for all website visitors.
+
+		Reuses the website-level ormcache (Website._freemoov_get_belgian_fp_id)
+		to avoid running the BE fpos search() once per product on the catalog
+		grid. See website.py for invalidation semantics.
+		"""
+		fp_id = self.env['website'].sudo()._freemoov_get_belgian_fp_id()
+		if fp_id:
+			fiscal_position = self.env['account.fiscal.position'].sudo().browse(fp_id)
 		return super()._get_sales_prices(pricelist, fiscal_position)
 
 

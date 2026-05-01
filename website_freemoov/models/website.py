@@ -1,9 +1,41 @@
 
 # -*- coding: utf-8 -*-
-from odoo import fields, models,api,_
+from odoo import fields, models, api, tools, _
 
 class Website(models.Model):
 	_inherit = 'website'
+
+	@api.model
+	@tools.ormcache()
+	def _freemoov_get_belgian_fp_id(self):
+		"""Cached lookup of the auto-apply Belgian fiscal position id.
+
+		ormcache invalidation: the cache is keyed at the registry level (no
+		args). It survives the lifetime of the worker. If an admin modifies
+		`auto_apply` or the country on the BE fiscal position, restart the
+		service or clear the registry cache via Settings → Technical.
+		Returns the id (not a recordset) — never store recordsets in ormcache.
+		"""
+		fp = self.env['account.fiscal.position'].sudo().search([
+			('country_id.code', '=', 'BE'),
+			('auto_apply', '=', True),
+		], limit=1)
+		return fp.id
+
+	@api.model
+	@tools.ormcache()
+	def _freemoov_get_dropship_route_id(self):
+		"""Cached lookup of the stock_dropshipping route id.
+
+		Returns False if the module is not installed. Same invalidation
+		semantics as _freemoov_get_belgian_fp_id (registry-level cache,
+		stable for the worker lifetime).
+		"""
+		route = self.env.ref(
+			'stock_dropshipping.route_drop_shipping',
+			raise_if_not_found=False,
+		)
+		return route.id if route else False
 
 	def _get_current_fiscal_position(self):
 		"""Force the Belgian fiscal position for every website visitor.
@@ -20,12 +52,9 @@ class Website(models.Model):
 		already enforced by ProductTemplate._get_sales_prices and removes the
 		FOUC. Drop this override the day Freemoov starts shipping outside BE.
 		"""
-		belgian_fp = self.env['account.fiscal.position'].sudo().search([
-			('country_id.code', '=', 'BE'),
-			('auto_apply', '=', True),
-		], limit=1)
-		if belgian_fp:
-			return belgian_fp
+		fp_id = self._freemoov_get_belgian_fp_id()
+		if fp_id:
+			return self.env['account.fiscal.position'].sudo().browse(fp_id)
 		return super()._get_current_fiscal_position()
 
 	def check_stock_availability(self,product_variant) :
@@ -36,9 +65,9 @@ class Website(models.Model):
 			warehouse_location_id = website.warehouse_id.lot_stock_id
 			stock_quant_ids = self.env['stock.quant'].sudo().search([('product_id','=',product_variant_id.id),('location_id','=',warehouse_location_id.id),('on_hand','=',True)])
 			qty_avail = sum(quant.quantity for quant in stock_quant_ids)
-		
-		dropship_route = self.env.ref('stock_dropshipping.route_drop_shipping')
-		is_dropship = dropship_route.id in product_variant_id.route_ids.ids
+
+		dropship_route_id = self.sudo()._freemoov_get_dropship_route_id()
+		is_dropship = bool(dropship_route_id and dropship_route_id in product_variant_id.route_ids.ids)
 
 
 		return {'qty_avail' : qty_avail,'is_dropship':is_dropship}
