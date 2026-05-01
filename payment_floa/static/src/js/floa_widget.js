@@ -1,10 +1,26 @@
 /** @odoo-module **/
 
-// Odoo 17 module path. The legacy "website_sale.VariantMixin" alias was
-// removed during the v16 -> v17 module path migration; using it makes the
-// whole bundle fail to load with "module not defined" and the widget never
-// initializes, so the data-floa-* container stays visually empty.
-import VariantMixin from "@website_sale/js/sale_variant_mixin";
+// Odoo 17 — patch the WebsiteSale widget directly, NOT the VariantMixin object.
+//
+// Why: the bundle loads in this order:
+//   1) sale_variant_mixin.js  → defines VariantMixin object
+//   2) variant_mixin.js       → wraps VariantMixin._onChangeCombination
+//   3) website_sale.js        → publicWidget.Widget.extend(VariantMixin, ...) — this
+//                               COPIES the current _onChangeCombination into the
+//                               WebsiteSale prototype. Modifications to VariantMixin
+//                               AFTER this point are invisible to widget instances.
+//   4) website_sale_stock/variant_mixin.js
+//   5) payment_floa/floa_widget.js   ← we are here, way too late.
+//
+// The previous implementation modified `VariantMixin._onChangeCombination`, which
+// the widget had already snapshot-copied four steps earlier. The hook never fired,
+// so the FLOA installment amount stayed at the value rendered by the server (the
+// first variant) and never tracked the user's variant selection.
+//
+// Using WebsiteSale.include({...}) targets the live prototype and runs after the
+// native combination handlers via _super, like website_sale_stock does.
+import publicWidget from "@web/legacy/js/public/public_widget";
+import "@website_sale/js/website_sale"; // ensures WebsiteSale is registered before we include
 
 /*
  * FLOA Pay Widget — dynamic initialization & variant-price sync.
@@ -124,15 +140,10 @@ function _initFromDataAttribute() {
     });
 }
 
-var _origOnChangeCombination = VariantMixin._onChangeCombination;
-
-VariantMixin._onChangeCombination = function (ev, $parent, combination) {
-    _origOnChangeCombination.apply(this, arguments);
-
+function _syncFloaToCombination(combination) {
     if (!combination || !combination.price) {
         return;
     }
-
     var amountCents = Math.round(combination.price * 100);
 
     var containers = document.querySelectorAll('.floa-widget-product[data-floa-offers]');
@@ -152,7 +163,18 @@ VariantMixin._onChangeCombination = function (ev, $parent, combination) {
             _initFloaWidget(amountCents);
         }, 100);
     });
-};
+}
+
+if (publicWidget.registry.WebsiteSale) {
+    publicWidget.registry.WebsiteSale.include({
+        _onChangeCombination: function (ev, $parent, combination) {
+            this._super.apply(this, arguments);
+            _syncFloaToCombination(combination);
+        },
+    });
+} else {
+    console.warn('[FLOA] WebsiteSale registry not available; variant-price sync disabled');
+}
 
 // Odoo loads the lazy frontend bundle asynchronously, so by the time this
 // module runs DOMContentLoaded has often already fired and a plain listener
