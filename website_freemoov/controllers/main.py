@@ -29,3 +29,71 @@ class WebsiteCategoryController(http.Controller):
             {'website_sale_order': order}
         )
         return {'html': html}
+
+
+class WebsiteSaleFreemoov(WebsiteSale):
+    """Performance overrides for the catalog grid.
+
+    Replaces the per-product N+1 stock lookup driven by
+    `ProductTemplate.get_stock_availability(website)` (called in the QWeb
+    `inherit_buttons` template) with a single `_read_group` for the whole
+    grid, exposed via the `get_stock_availability(product)` qcontext callable.
+    Wrapped in `lazy(...)` so that the batch query only fires if the template
+    actually consumes the value.
+    """
+
+    def _get_additional_extra_shop_values(self, values, **post):
+        res = super()._get_additional_extra_shop_values(values, **post)
+        products = values.get('products')
+        if products:
+            website = request.website
+            stock_data = lazy(lambda: self._freemoov_batch_stock_availability(products, website))
+            res['get_stock_availability'] = lambda product: stock_data[product.id]
+        return res
+
+    def _freemoov_batch_stock_availability(self, products, website):
+        """Build {template_id: {qty_avail, is_dropship, allow_out_of_stock}}
+        for the whole grid in one stock.quant read_group.
+
+        Mirrors the contract of ProductTemplate.get_stock_availability() so
+        the template can keep using the same dict keys.
+        """
+        env = request.env
+        dropship_route_id = env['website'].sudo()._freemoov_get_dropship_route_id()
+
+        # Single prefetch for fields touched in the loop below
+        products.read(['detailed_type', 'allow_out_of_stock_order', 'route_ids', 'product_variant_ids'])
+
+        stockable = products.filtered(
+            lambda p: p.detailed_type == 'product' and not p.allow_out_of_stock_order
+        )
+
+        qty_per_variant = {}
+        if stockable and website and website.warehouse_id:
+            loc_id = website.warehouse_id.lot_stock_id.id
+            variant_ids = stockable.product_variant_ids.ids
+            if variant_ids:
+                groups = env['stock.quant'].sudo()._read_group(
+                    domain=[
+                        ('product_id', 'in', variant_ids),
+                        ('location_id', '=', loc_id),
+                        ('on_hand', '=', True),
+                    ],
+                    groupby=['product_id'],
+                    aggregates=['quantity:sum'],
+                )
+                qty_per_variant = {product.id: qty for product, qty in groups}
+
+        result = {}
+        for tmpl in products:
+            if tmpl.detailed_type != 'product' or tmpl.allow_out_of_stock_order:
+                qty_avail = 1
+            else:
+                qty_avail = sum(qty_per_variant.get(v.id, 0) for v in tmpl.product_variant_ids)
+            is_dropship = bool(dropship_route_id and dropship_route_id in tmpl.route_ids.ids)
+            result[tmpl.id] = {
+                'qty_avail': qty_avail,
+                'is_dropship': is_dropship,
+                'allow_out_of_stock': tmpl.allow_out_of_stock_order,
+            }
+        return result

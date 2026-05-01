@@ -209,9 +209,15 @@
     <template id="inherit_buttons" inherit_id="website_sale.products_item" name="Inherit Buttons">
         <xpath expr="//form//div[hasclass('o_wsale_product_information')]" position="inside">
             <div class="compare-button">
-                 <t t-set="categories" t-value="product.valid_product_template_attribute_line_ids._prepare_categories_for_display()"/>
+                <!-- v17 perf refactor: replaced
+                       categories = product.valid_product_template_attribute_line_ids
+                                          ._prepare_categories_for_display()
+                     (an OrderedDict groupby on product.attribute.category, designed for
+                     the comparison module, not the grid) by a direct truthy check on
+                     valid_product_template_attribute_line_ids. Same condition outcome,
+                     no needless prefetch / dict construction per card. -->
                 <t t-set="product_variant_id" t-value="product._get_first_possible_variant_id()"/>
-                <button t-if="product_variant_id and categories" type="button" role="button" class="d-block d-md-none btn o_add_compare" title="Compare" aria-label="Compare" t-att-data-product-product-id="product_variant_id" data-action="o_comparelist">
+                <button t-if="product_variant_id and product.valid_product_template_attribute_line_ids" type="button" role="button" class="d-block d-md-none btn o_add_compare" title="Compare" aria-label="Compare" t-att-data-product-product-id="product_variant_id" data-action="o_comparelist">
                     Comparez<i class="icon-circle-plus" style=""></i></button>
             </div>
         </xpath>
@@ -345,115 +351,21 @@
                         </t>
 
                     </ul>
-                    <t t-set="attribute_exclusions" t-value="product._get_attribute_exclusions(parent_combination, parent_name)"/>
-                    <ul t-attf-class="d-none list-unstyled js_add_cart_variants mb-0 #{ul_class}" t-att-data-attribute_exclusions="json.dumps(attribute_exclusions)">
-                        <t t-foreach="product.valid_product_template_attribute_line_ids" t-as="ptal">
-                            <li t-att-data-attribute_id="ptal.attribute_id.id"
-                                t-att-data-attribute_name="ptal.attribute_id.name"
-                                t-att-data-attribute_display_type="ptal.attribute_id.display_type"
-                                t-attf-class="variant_attribute d-flex justify-content-between align-items-end #{'d-none' if len(ptal.product_template_value_ids._only_active()) == 1 and not ptal.product_template_value_ids._only_active()[0].is_custom else ''}">
+                    <!-- v17 perf refactor (feature/perf-shop):
+                         the previous hidden <ul class="d-none js_add_cart_variants"> rendered
+                         the variant configurator with `data-attribute_exclusions` populated
+                         from product._get_attribute_exclusions(parent_combination, parent_name).
+                         That call is a Cartesian computation across archived combinations and
+                         exclusions that scales with attribute_lines × values. With Freemoov's
+                         worst products (35-39 attribute lines per template), it cost up to
+                         hundreds of ms per card × 36 cards on a category page.
 
-                                <t t-set="single" t-value="len(ptal.product_template_value_ids._only_active()) == 1"/>
-                                <t t-set="single_and_custom" t-value="single and ptal.product_template_value_ids._only_active()[0].is_custom" />
-                                <p t-field="ptal.attribute_id.name" class="attribute_name"/>
-
-                                <t t-if="ptal.attribute_id.display_type == 'select'">
-                                    <select
-                                        t-att-data-attribute_id="ptal.attribute_id.id"
-                                        t-attf-class="form-select css_attribute_select o_wsale_product_attribute js_variant_change #{ptal.attribute_id.create_variant} #{'d-none' if single_and_custom else ''}"
-                                        t-att-name="'ptal-%s' % ptal.id">
-                                        <t t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav">
-                                            <option t-att-value="ptav.id"
-                                                t-att-data-value_id="ptav.id"
-                                                t-att-data-value_name="ptav.name"
-                                                t-att-data-attribute_name="ptav.attribute_id.name"
-                                                t-att-data-is_custom="ptav.is_custom"
-                                                t-att-data-is_single="single"
-                                                t-att-data-is_single_and_custom="single_and_custom">
-                                                <span t-field="ptav.name"/>
-                                                <!-- removed v17: badge_extra_price requires combination_info not available in shop listing --> 
-                                            </option>
-                                        </t>
-                                    </select>
-                                </t>
-
-                                <t t-if="ptal.attribute_id.display_type == 'radio'">
-                                    <ul t-att-data-attribute_id="ptal.attribute_id.id" t-attf-class="list-inline list-unstyled o_wsale_product_attribute #{'d-none' if single_and_custom else ''}">
-                                        <t t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav">
-                                            <li class="list-inline-item mb-3 js_attribute_value" style="margin: 0;">
-                                                <label class="col-form-label">
-                                                    <div class="form-check">
-                                                        <input type="radio"
-                                                            t-attf-class="form-check-input js_variant_change #{ptal.attribute_id.create_variant}"
-                                                            t-att-name="'ptal-%s' % ptal.id"
-                                                            t-att-value="ptav.id"
-                                                            t-att-data-value_id="ptav.id"
-                                                            t-att-data-value_name="ptav.name"
-                                                            t-att-data-attribute_name="ptav.attribute_id.name"
-                                                            t-att-data-is_custom="ptav.is_custom"
-                                                            t-att-data-is_single="single"
-                                                            t-att-data-is_single_and_custom="single_and_custom" />
-                                                        <div class="radio_input_value form-check-label">
-                                                            <span t-field="ptav.name"/>
-                                                            <!-- removed v17: badge_extra_price requires combination_info not available in shop listing --> 
-                                                        </div>
-                                                    </div>
-                                                </label>
-                                            </li>
-                                        </t>
-                                    </ul>
-                                </t>
-
-                                <t t-if="ptal.attribute_id.display_type == 'pills'">
-                                    <ul t-att-data-attribute_id="ptal.attribute_id.id"
-                                        t-attf-class="btn-group-toggle list-inline list-unstyled o_wsale_product_attribute #{'d-none' if single_and_custom else ''}"
-                                        data-bs-toggle="buttons">
-                                        <t t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav">
-                                            <li class="o_variant_pills btn btn-primary mb-1 list-inline-item js_attribute_value">
-                                                <input type="radio"
-                                                    t-attf-class="js_variant_change #{ptal.attribute_id.create_variant}"
-                                                    t-att-name="'ptal-%s' % ptal.id"
-                                                    t-att-value="ptav.id"
-                                                    t-att-data-value_id="ptav.id"
-                                                    t-att-id="ptav.id"
-                                                    t-att-data-value_name="ptav.name"
-                                                    t-att-data-attribute_name="ptav.attribute_id.name"
-                                                    t-att-data-is_custom="ptav.is_custom"
-                                                    t-att-data-is_single_and_custom="single_and_custom"
-                                                    t-att-autocomplete="off"/>
-                                                <label class="radio_input_value o_variant_pills_input_value"
-                                                       t-att-for="ptav.id">
-                                                    <span t-field="ptav.name"/>
-                                                    <!-- removed v17: badge_extra_price requires combination_info not available in shop listing --> 
-                                                </label>
-                                            </li>
-                                        </t>
-                                    </ul>
-                                </t>
-
-                                <t t-if="ptal.attribute_id.display_type == 'color'">
-                                    <ul t-att-data-attribute_id="ptal.attribute_id.id" t-attf-class="list-inline o_wsale_product_attribute #{'d-none' if single_and_custom else ''}">
-                                        <li t-foreach="ptal.product_template_value_ids._only_active()" t-as="ptav" class="list-inline-item me-1">
-                                            <label t-attf-style="background-color:#{ptav.html_color or ptav.product_attribute_value_id.name if not ptav.is_custom else ''}"
-                                                t-attf-class="css_attribute_color #{'custom_value' if ptav.is_custom else ''} #{'transparent' if (not ptav.is_custom and not ptav.html_color) else ''}">
-                                                <input type="radio"
-                                                    t-attf-class="js_variant_change  #{ptal.attribute_id.create_variant}"
-                                                    t-att-name="'ptal-%s' % ptal.id"
-                                                    t-att-value="ptav.id"
-                                                    t-att-title="ptav.name"
-                                                    t-att-data-value_id="ptav.id"
-                                                    t-att-data-value_name="ptav.name"
-                                                    t-att-data-attribute_name="ptav.attribute_id.name"
-                                                    t-att-data-is_custom="ptav.is_custom"
-                                                    t-att-data-is_single="single"
-                                                    t-att-data-is_single_and_custom="single_and_custom"/>
-                                            </label>
-                                        </li>
-                                    </ul>
-                                </t>
-                            </li>
-                        </t>
-                    </ul>
+                         Odoo's variant-configurator JS (sale_variant_mixin.js, website_sale.js)
+                         only binds inside `.js_main_product` and `oe_advanced_configurator_modal`,
+                         neither of which exists on the grid. The hidden block was therefore
+                         dead HTML on the catalog. Removed safely. The visible variant pills
+                         above (lines 240-347) carry the `js_add_cart_variants` class needed by
+                         the inline "Add to cart" form submit. -->
                 </div>
             </div>
         </xpath>
@@ -483,7 +395,11 @@
                         <span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name" />
                     </div>
 
-                    <t t-set="stock_available" t-value="product.get_stock_availability(website)"/>
+                    <!-- Stock pulled from the batched grid lookup (1 read_group for the
+                         whole grid) injected by WebsiteSaleFreemoov._get_additional_extra_shop_values.
+                         Same dict shape as ProductTemplate.get_stock_availability(): keys
+                         qty_avail / is_dropship / allow_out_of_stock. -->
+                    <t t-set="stock_available" t-value="get_stock_availability(product)"/>
                     <t t-if="not stock_available['is_dropship']">
                         <t t-if="stock_available['qty_avail'] &gt; 0 or stock_available.get('allow_out_of_stock')">
                             <span class="stock_badge stock_available"><span class="stock_dot"/>Disponible en ligne</span>
