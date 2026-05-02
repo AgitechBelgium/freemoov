@@ -17,6 +17,18 @@
             <field name="image" type="base64" file="payment_floa/static/description/icon.png"/>
         </record>
 
+        <!--
+          Without this account.payment.method, payment_provider._ensure_payment_method_line()
+          returns silently and no account.payment.method.line is created when the provider is
+          enabled. The post-processing cron then keeps failing with "Please define a payment
+          method line on your payment." every time a FLOA transaction reaches state=done.
+        -->
+        <record id="account_payment_method_floa" model="account.payment.method">
+            <field name="name">FLOA Pay</field>
+            <field name="code">floa</field>
+            <field name="payment_type">inbound</field>
+        </record>
+
         <record id="payment_provider_floa" model="payment.provider">
             <field name="name">FLOA Pay — 3x sans frais</field>
             <field name="code">floa</field>
