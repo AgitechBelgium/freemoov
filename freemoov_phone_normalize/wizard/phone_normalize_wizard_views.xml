@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_phone_normalize_wizard_form" model="ir.ui.view">
+        <field name="name">freemoov.phone.normalize.wizard.form</field>
+        <field name="model">freemoov.phone.normalize.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Phone Normalization">
+                <group>
+                    <field name="mode" widget="radio"/>
+                    <field name="scope" widget="radio"/>
+                </group>
+                <group string="Results" invisible="not processed_count">
+                    <field name="processed_count"/>
+                    <field name="valid_count"/>
+                    <field name="invalid_count"/>
+                    <field name="repaired_count"/>
+                    <field name="inferred_country_count"/>
+                    <field name="set_country_count"/>
+                    <field name="report_file" filename="report_filename"/>
+                    <field name="report_filename" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="action_run" type="object" string="Run" class="btn-primary"/>
+                    <button special="cancel" string="Close"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_phone_normalize_wizard" model="ir.actions.act_window">
+        <field name="name">Normalize Phone Numbers</field>
+        <field name="res_model">freemoov.phone.normalize.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

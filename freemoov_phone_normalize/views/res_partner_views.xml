@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_partner_form_phone_normalize" model="ir.ui.view">
+        <field name="name">res.partner.form.phone.normalize</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='phone']" position="after">
+                <field name="phone_invalid" invisible="not phone_invalid" readonly="1" widget="boolean_toggle"/>
+                <field name="phone_invalid_reason" invisible="not phone_invalid" readonly="1"/>
+            </xpath>
+            <xpath expr="//field[@name='mobile']" position="after">
+                <field name="mobile_invalid" invisible="not mobile_invalid" readonly="1" widget="boolean_toggle"/>
+                <field name="mobile_invalid_reason" invisible="not mobile_invalid" readonly="1"/>
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <group invisible="not phone_country_inferred">
+                    <field name="phone_country_inferred" readonly="1"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_partner_tree_phone_normalize" model="ir.ui.view">
+        <field name="name">res.partner.list.phone.normalize</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='phone']" position="after">
+                <field name="phone_invalid" optional="hide"/>
+                <field name="mobile_invalid" optional="hide"/>
+                <field name="phone_country_inferred" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_partner_phone_invalid" model="ir.actions.act_window">
+        <field name="name">Partners with Invalid Phone</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">['|', ('phone_invalid', '=', True), ('mobile_invalid', '=', True)]</field>
+    </record>
+</odoo>

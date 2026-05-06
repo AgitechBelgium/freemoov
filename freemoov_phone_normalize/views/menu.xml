@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="menu_phone_normalize_root"
+        name="Phone Normalization"
+        parent="contacts.menu_contacts"
+        sequence="90"/>
+
+    <menuitem
+        id="menu_phone_normalize_wizard"
+        name="Run Normalization Wizard"
+        parent="menu_phone_normalize_root"
+        action="freemoov_phone_normalize.action_phone_normalize_wizard"
+        sequence="10"/>
+
+    <menuitem
+        id="menu_phone_normalize_invalid"
+        name="Invalid Phone Numbers"
+        parent="menu_phone_normalize_root"
+        action="freemoov_phone_normalize.action_partner_phone_invalid"
+        sequence="20"/>
+</odoo>
