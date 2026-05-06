@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="menu_qty_delivered_reconcile"
+        name="Reconcile Qty Delivered (POS-FSM)"
+        parent="sale.sale_order_menu"
+        action="freemoov_pos_fsm_qty.action_qty_delivered_reconcile"
+        sequence="200"
+        groups="base.group_system"/>
+</odoo>

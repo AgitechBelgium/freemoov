@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_freemoov_qty_reconcile_admin,freemoov.qty.delivered.reconcile.admin,model_freemoov_qty_delivered_reconcile_wizard,base.group_system,1,1,1,1
