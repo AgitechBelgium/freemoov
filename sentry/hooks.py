@@ -2,6 +2,8 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 import logging
+import os
+import subprocess
 import warnings
 from collections import abc
 
@@ -71,6 +73,23 @@ def get_odoo_commit(odoo_dir):
     """Attempts to get Odoo git commit from :param:`odoo_dir`."""
     if not odoo_dir:
         return
+    # Odoo.sh: the repository under ~/.repositories is a bare-like clone
+    # holding all branches; HEAD points to the legacy default branch (e.g. 16.0)
+    # which gives the wrong SHA for the deployed branch. Resolve via ODOO_STAGE
+    # which matches the deployed branch name (production / staging).
+    odoo_stage = os.environ.get("ODOO_STAGE")
+    if odoo_stage:
+        try:
+            result = subprocess.run(
+                ["git", "-C", odoo_dir, "rev-parse", "refs/heads/%s" % odoo_stage],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=True,
+            )
+            return result.stdout.strip()
+        except (subprocess.SubprocessError, FileNotFoundError) as exc:
+            _logger.debug("Could not resolve SHA via ODOO_STAGE=%s: %s", odoo_stage, exc)
     try:
         return fetch_git_sha(odoo_dir)
     except InvalidGitRepository:
