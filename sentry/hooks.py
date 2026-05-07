@@ -143,10 +143,9 @@ def initialize_sentry(config):
     # Patch the wsgi server in case of further registration
     odoo.http.Application = SentryWsgiMiddleware(odoo.http.Application)
 
-    with sentry_sdk.push_scope() as scope:
-        scope.set_extra("debug", False)
-        sentry_sdk.capture_message("Starting Odoo Server", "info")
-
+    # Note: upstream OCA emits a `capture_message("Starting Odoo Server")` here.
+    # Removed: on Odoo.sh socket activation generates dozens of restarts per day,
+    # which floods Sentry with no signal value (~46 events in 24h on staging).
     return client
 
 
