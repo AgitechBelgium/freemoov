@@ -398,7 +398,13 @@ class PaymentTransaction(models.Model):
         Fields follow FLOA's schema: customers[].history.{firstOrderDate,
         lastOrderDate, validatedOrderCount, validatedOrderAmount,
         canceledOrderCount, createdDate}. The current in-progress order is
-        excluded so counts reflect past activity only.
+        excluded from the counts so they reflect past activity only.
+
+        ``firstOrderDate`` and ``lastOrderDate`` are always sent — FLOA's
+        integration validation rejects payloads where they are missing. For
+        first-time buyers we default both to the current order's date; the
+        ``validatedOrderCount: 0`` alongside makes the primo-acheteur status
+        unambiguous.
         """
         SaleOrder = self.env['sale.order'].sudo()
         domain_base = [('partner_id', '=', partner.id)]
@@ -425,4 +431,11 @@ class PaymentTransaction(models.Model):
         if validated:
             history['firstOrderDate'] = _fmt(validated[0].date_order)
             history['lastOrderDate'] = _fmt(validated[-1].date_order)
+        else:
+            current_so = self.sale_order_ids[:1]
+            current_date = (current_so.date_order if current_so else None) \
+                or self.create_date \
+                or fields.Datetime.now()
+            history['firstOrderDate'] = _fmt(current_date)
+            history['lastOrderDate'] = _fmt(current_date)
         return history
