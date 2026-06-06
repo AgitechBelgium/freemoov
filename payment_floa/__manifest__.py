@@ -7,6 +7,7 @@
     'author': 'Freemoov',
     'website': 'https://freemoov.be',
     'depends': [
+        'account_payment',
         'payment',
         'website_sale',
         'website_freemoov',
