@@ -402,9 +402,11 @@ class PaymentTransaction(models.Model):
 
         ``firstOrderDate`` and ``lastOrderDate`` are always sent — FLOA's
         integration validation rejects payloads where they are missing. For
-        first-time buyers we default both to the current order's date; the
-        ``validatedOrderCount: 0`` alongside makes the primo-acheteur status
-        unambiguous.
+        first-time buyers FLOA requires both to match the day the deal is
+        created, so we use the deal creation time — not the order's
+        ``date_order``, which on website carts is the cart creation date and
+        may predate the payment by days. The ``validatedOrderCount: 0``
+        alongside makes the primo-acheteur status unambiguous.
         """
         SaleOrder = self.env['sale.order'].sudo()
         domain_base = [('partner_id', '=', partner.id)]
@@ -432,10 +434,7 @@ class PaymentTransaction(models.Model):
             history['firstOrderDate'] = _fmt(validated[0].date_order)
             history['lastOrderDate'] = _fmt(validated[-1].date_order)
         else:
-            current_so = self.sale_order_ids[:1]
-            current_date = (current_so.date_order if current_so else None) \
-                or self.create_date \
-                or fields.Datetime.now()
-            history['firstOrderDate'] = _fmt(current_date)
-            history['lastOrderDate'] = _fmt(current_date)
+            deal_date = fields.Datetime.now()
+            history['firstOrderDate'] = _fmt(deal_date)
+            history['lastOrderDate'] = _fmt(deal_date)
         return history
