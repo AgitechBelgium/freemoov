@@ -57,9 +57,14 @@ class ProductCategoryTemplate(models.Model):
 	
 	brand_ids = fields.Many2many('ust.product.brand', string="Brand")
 	category_description = fields.Text(string="Category Text Description")
+	# Mêmes flags de sanitisation que website_sale.website_description :
+	# indispensable pour que l'éditeur web puisse sauvegarder les snippets
+	# (styles inline, grilles, formulaires) sans les tronquer.
 	category_bottom_content = fields.Html(
 		string="Contenu sous les produits",
 		translate=html_translate,
+		sanitize_overridable=True,
 		sanitize_attributes=False,
+		sanitize_form=False,
 		help="Contenu HTML affiché en dessous de la liste des produits pour cette catégorie"
 	)

@@ -121,23 +121,8 @@
             </t>
         </xpath>
         <xpath expr="//div[hasclass('o_wsale_products_page')]" position="after">
-            <!-- Per-category editable zone below products (Odoo website editor) -->
-            <t t-if="category">
-                <div t-attf-class="oe_structure oe_empty" t-attf-id="oe_structure_category_bottom_#{category.id}"/>
-            </t>
             <t t-if="not category">
                 <div class="oe_structure oe_empty" id="oe_structure_shop_bottom"/>
-            </t>
-            <t t-if="category and category.category_bottom_content">
-                <section class="category-bottom-content pt32 pb32 bg-white">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-12">
-                                <t t-out="category.category_bottom_content"/>
-                            </div>
-                        </div>
-                    </div>
-                </section>
             </t>
             <section class="faqs pt64 pb32">
                 <div class="container">
@@ -205,6 +190,20 @@
     </template>
 
     
+
+    <!-- Zone éditable par catégorie en bas de page : même mécanique que le
+         #category_header du core (t-field sur product.public.category), donc
+         le contenu est propre à chaque catégorie et se modifie par glisser-
+         déposer de blocs dans l'éditeur web. Placée avant
+         #oe_structure_website_sale_products_2, c.-à-d. sous la pagination. -->
+    <template id="category_footer_editable" inherit_id="website_sale.products" name="Category Footer Editable">
+        <xpath expr="//div[@id='oe_structure_website_sale_products_2']" position="before">
+            <t t-if="category">
+                <t t-set="footer_editor_msg">Faites glisser des blocs ici pour personnaliser le bas de page pour "<t t-esc="category.name"/>" catégorie.</t>
+                <div class="mt16 mb16" id="category_footer" t-att-data-editor-message="footer_editor_msg" t-field="category.category_bottom_content"/>
+            </t>
+        </xpath>
+    </template>
 
     <template id="inherit_buttons" inherit_id="website_sale.products_item" name="Inherit Buttons">
         <xpath expr="//form//div[hasclass('o_wsale_product_information')]" position="inside">
