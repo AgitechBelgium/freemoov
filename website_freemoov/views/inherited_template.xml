@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 	<template id="inherit_header_cart_link" inherit_id="website_sale.header_cart_link" name="Inherit Header Cart Link">
-        <xpath expr="//i[contains(@t-attf-class, 'fa-shopping-cart') or contains(@class, 'fa-shopping-cart')]" position="replace">
+        <xpath expr="//i[hasclass('fa-shopping-cart')]" position="replace">
             <img t-if="_icon" class="img img-fluid" src="/website_freemoov/static/src/img/shopping-cart.png"/>
         </xpath>
     </template>
 
     <template id="inherit_user_dropdown" inherit_id="portal.user_dropdown" name="Inherit User Dropdown">
-        <xpath expr="//i[contains(@t-attf-class, 'fa-user') or contains(@class, 'fa-user')]" position="replace">
+        <!-- L'icône core est en t-attf-class (classe dynamique), hasclass() ne
+             s'applique qu'à l'attribut class statique. -->
+        <xpath expr="//i[contains(@t-attf-class, 'fa-user')]" position="replace">
             <img t-if="_icon" t-attf-class="img img-fluid #{_icon_class}" src="/website_freemoov/static/src/img/user.png"/>
         </xpath>
     </template>
 
     <template id="inherit_header_wishlist_link" inherit_id="website_sale_wishlist.header_wishlist_link" name="Inherit Header Wishlist Link">
-        <xpath expr="//i[contains(@t-attf-class, 'fa-heart') or contains(@class, 'fa-heart')]" position="replace">
+        <xpath expr="//i[hasclass('fa-heart')]" position="replace">
             <img t-if="_icon" class="img img-fluid" src="/website_freemoov/static/src/img/wishlist.png"/>
         </xpath>
     </template>

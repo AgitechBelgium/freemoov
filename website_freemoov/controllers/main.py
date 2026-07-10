@@ -4,7 +4,23 @@ from datetime import datetime
 from odoo.addons.http_routing.models.ir_http import slug, unslug_url
 from odoo import fields, http, SUPERUSER_ID, tools, _
 from odoo.tools import lazy
+from odoo.addons.website.controllers.main import Website
 from odoo.addons.website_sale.controllers.main import WebsiteSale
+
+
+class WebsiteFreemoov(Website):
+
+    @http.route()
+    def get_dynamic_filter(self, filter_id, template_key, limit=None, search_domain=None, with_sample=False, productTemplateId=None):
+        """Déclare productTemplateId, envoyé par le JS core des snippets
+        produits dynamiques (s_dynamic_snippet_products) mais absent de la
+        signature du contrôleur core, ce qui génère un WARNING "called
+        ignoring args" à chaque appel. Le paramètre est consommé côté serveur
+        via request.params dans les actions serveur de website_sale
+        (data/data.xml), donc il suffit de le déclarer sans le transmettre.
+        """
+        return super().get_dynamic_filter(filter_id, template_key, limit, search_domain, with_sample)
+
 
 class WebsiteCategoryController(http.Controller):
 
