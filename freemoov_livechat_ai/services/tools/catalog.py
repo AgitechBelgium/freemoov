@@ -129,11 +129,15 @@ def _is_commandable(env, tmpl):
     would get wrong: a reserved unit is not sellable, and stock sitting in
     another warehouse does not make a product orderable online.
     """
+    # Cheap branches first: they gate the stock read out for most of the
+    # catalog, and the site skips the check for exactly the same reasons.
+    if tmpl.allow_out_of_stock_order or tmpl.detailed_type != "product":
+        return True
     website = env["website"].sudo().get_current_website()
     variants = tmpl.product_variant_ids.sudo()
-    if sum(website._get_product_available_qty(variant) for variant in variants) > 0:
-        return True
-    if tmpl.allow_out_of_stock_order or tmpl.detailed_type != "product":
+    # any(), not sum(): the site sells variant by variant, so an oversold
+    # sibling (negative free_qty) must never mask a variant in stock.
+    if any(website._get_product_available_qty(variant) > 0 for variant in variants):
         return True
     return bool(tmpl.dropship_product())
 

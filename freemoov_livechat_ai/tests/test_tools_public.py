@@ -63,6 +63,11 @@ class TestPublicTools(FreemoovAiCase):
         wh_a = self.env["stock.warehouse"].create({"name": "Entrepot AI A", "code": "AIA"})
         wh_b = self.env["stock.warehouse"].create({"name": "Entrepot AI B", "code": "AIB"})
         self._pin_warehouses({"liege": wh_a.id, "namur": wh_b.id, "charleroi": None})
+        # The site sells from a third warehouse, so the `commandable is False`
+        # asserted below holds by construction rather than by accident.
+        website = self.env["website"].sudo().get_current_website()
+        website.warehouse_id = self.env["stock.warehouse"].create(
+            {"name": "Entrepot AI Web", "code": "AIW"}).id
 
         attribute = self.env["product.attribute"].create({
             "name": "Couleur AI",
@@ -133,6 +138,38 @@ class TestPublicTools(FreemoovAiCase):
         # Same stock situation, but the product accepts out-of-stock orders:
         # the site takes the order, so the bot must not refuse it.
         tmpl.allow_out_of_stock_order = True
+        res = tools.run_tool(self.env, self.channel, "fiche_produit", {"product_id": tmpl.id})
+        self.assertIs(res["commandable"], True)
+
+    def test_commandable_with_one_oversold_variant(self):
+        """One oversold sibling must not hide a variant that is in stock.
+
+        The site adds a specific variant to the cart, so it happily sells the
+        healthy one while another sits at a negative free_qty. Summing the
+        variants would net out to -2 here and refuse that sale.
+        """
+        wh = self.env["stock.warehouse"].create({"name": "Entrepot AI E", "code": "AIE"})
+        self._pin_warehouses({"liege": wh.id, "namur": None, "charleroi": None})
+        website = self.env["website"].sudo().get_current_website()
+        website.warehouse_id = wh.id
+
+        attribute = self.env["product.attribute"].create({
+            "name": "Taille AI",
+            "create_variant": "always",
+            "value_ids": [(0, 0, {"name": "S AI"}), (0, 0, {"name": "M AI"})],
+        })
+        tmpl = self._storable(
+            "Survente AI",
+            allow_out_of_stock_order=False,
+            attribute_line_ids=[(0, 0, {
+                "attribute_id": attribute.id,
+                "value_ids": [(6, 0, attribute.value_ids.ids)],
+            })],
+        )
+        Quant = self.env["stock.quant"].sudo()
+        Quant._update_available_quantity(tmpl.product_variant_ids[0], wh.lot_stock_id, quantity=3)
+        Quant._update_available_quantity(tmpl.product_variant_ids[1], wh.lot_stock_id, quantity=-5)
+
         res = tools.run_tool(self.env, self.channel, "fiche_produit", {"product_id": tmpl.id})
         self.assertIs(res["commandable"], True)
 
