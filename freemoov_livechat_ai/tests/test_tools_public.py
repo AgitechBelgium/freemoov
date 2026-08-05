@@ -69,10 +69,14 @@ class TestPublicTools(FreemoovAiCase):
             "create_variant": "always",
             "value_ids": [(0, 0, {"name": "Noir AI"}), (0, 0, {"name": "Blanc AI"})],
         })
-        tmpl = self._storable("Multi Variant AI", attribute_line_ids=[(0, 0, {
-            "attribute_id": attribute.id,
-            "value_ids": [(6, 0, attribute.value_ids.ids)],
-        })])
+        tmpl = self._storable(
+            "Multi Variant AI",
+            allow_out_of_stock_order=False,
+            attribute_line_ids=[(0, 0, {
+                "attribute_id": attribute.id,
+                "value_ids": [(6, 0, attribute.value_ids.ids)],
+            })],
+        )
         self.assertEqual(len(tmpl.product_variant_ids), 2)
 
         Quant = self.env["stock.quant"].sudo()
@@ -84,7 +88,10 @@ class TestPublicTools(FreemoovAiCase):
         res = tools.run_tool(self.env, self.channel, "fiche_produit", {"product_id": tmpl.id})
         # Charleroi has no warehouse: null, not 0 — untracked is not out of stock.
         self.assertEqual(res["dispo"], {"Liège": 3, "Namur": 5, "Charleroi": None})
-        self.assertIs(res["commandable"], True)
+        # The two semantics diverge here, and that is the point: 8 units sit in
+        # the shops, none in the website warehouse, so the site refuses the
+        # online order while the visitor can still collect in store.
+        self.assertIs(res["commandable"], False)
 
     def test_commandable_without_stock(self):
         wh = self.env["stock.warehouse"].create({"name": "Entrepot AI C", "code": "AIC"})
@@ -100,16 +107,19 @@ class TestPublicTools(FreemoovAiCase):
         res = tools.run_tool(self.env, self.channel, "fiche_produit", {"product_id": blocked.id})
         self.assertIs(res["commandable"], False)
 
-    def test_commandable_ignores_reservations(self):
-        """The site sells from on-hand stock and ignores reservations.
+    def test_commandable_follows_site_sale_gate(self):
+        """`commandable` mirrors the real sale gate, not a display badge.
 
-        A single unit already reserved by an open order is still sellable, so
-        `commandable` must stay True while `dispo` honestly shows 0: never
-        promise a visitor a unit that is already spoken for, never refuse a
-        sale the site accepts.
+        website_sale_stock refuses the cart line when free_qty in the website's
+        own warehouse is short (sale_order._verify_updated_quantity), so a unit
+        already reserved by an open order is NOT sellable online — even though
+        the `get_stock_availability` badge, which sums on-hand quants, still
+        shows the product as available.
         """
         wh = self.env["stock.warehouse"].create({"name": "Entrepot AI D", "code": "AID"})
         self._pin_warehouses({"liege": wh.id, "namur": None, "charleroi": None})
+        website = self.env["website"].sudo().get_current_website()
+        website.warehouse_id = wh.id
 
         tmpl = self._storable("Reserve AI", allow_out_of_stock_order=False)
         self.env["stock.quant"].sudo()._update_available_quantity(
@@ -118,12 +128,19 @@ class TestPublicTools(FreemoovAiCase):
 
         res = tools.run_tool(self.env, self.channel, "fiche_produit", {"product_id": tmpl.id})
         self.assertEqual(res["dispo"]["Liège"], 0)
+        self.assertIs(res["commandable"], False)
+
+        # Same stock situation, but the product accepts out-of-stock orders:
+        # the site takes the order, so the bot must not refuse it.
+        tmpl.allow_out_of_stock_order = True
+        res = tools.run_tool(self.env, self.channel, "fiche_produit", {"product_id": tmpl.id})
         self.assertIs(res["commandable"], True)
 
     def test_store_warehouse_map_tolerates_garbage(self):
         """A misconfigured parameter degrades to 'untracked', never raises:
         the exception would surface in the middle of a visitor conversation."""
-        for raw in ('{"liege": "wh_liege"}', "not json at all", '{"liege": 999999999}'):
+        for raw in ('{"liege": "wh_liege"}', "not json at all", '{"liege": 999999999}',
+                    "3", "[]"):
             self.env["ir.config_parameter"].sudo().set_param(_WAREHOUSE_MAP_PARAM, raw)
             res = tools.run_tool(self.env, self.channel, "chercher_produits", {})
             self.assertIn("produits", res)

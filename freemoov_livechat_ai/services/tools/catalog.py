@@ -1,17 +1,24 @@
 """Product search & detail.
 
 Availability is never read from the website publication flag (known to be
-stale). Two orthogonal facts are exposed, and the model needs both:
+stale). Two questions a visitor actually asks, answered separately — both are
+``free_qty``, read at different places:
 
-  * ``dispo`` — free stock per store, aggregated over every variant.
-    ``null`` means the store has no warehouse mapped: stock is *not tracked*
-    there, which is not the same as zero.
-  * ``commandable`` — whether the site actually accepts an order. A product
-    with no stock anywhere is still orderable when it allows out-of-stock
-    ordering, is not a storable good, or ships by dropshipping. Mirrors
-    ``website_freemoov.product_template.get_stock_availability``; most of the
-    catalog falls in that case, so deriving a rupture from ``dispo`` alone
-    would be wrong for the majority of products.
+  * ``dispo`` — **retrait en magasin**: free stock per store, aggregated over
+    every variant. ``null`` means the store has no warehouse mapped: stock is
+    *not tracked* there, which is not the same as zero.
+  * ``commandable`` — **commande en ligne**: what the site accepts, i.e.
+    free stock in the website's own warehouse (``website_sale_stock``), or no
+    stock condition at all when the product allows out-of-stock ordering, is
+    not a storable good, or ships by dropshipping. That last case covers most
+    of the catalog, so deriving a rupture from ``dispo`` alone would be wrong
+    for the majority of products.
+
+The two can legitimately disagree: stock in the Liège shop but not in the
+website warehouse means "orderable? no — but two units waiting in Liège".
+Note ``website_freemoov.get_stock_availability`` is only the display badge on
+the product page; the gate that refuses a cart line lives in
+``website_sale_stock.sale_order._verify_updated_quantity``.
 """
 import json
 import logging
@@ -23,9 +30,11 @@ _logger = logging.getLogger(__name__)
 
 _SEARCH_LIMIT = 5
 _DISPO_NOTE = (
-    "Stock indicatif — à confirmer en magasin. dispo=null : stock non suivi dans "
-    "ce magasin, ce n'est pas une rupture. Ne jamais annoncer un produit "
-    "indisponible quand commandable vaut true."
+    "Stock indicatif — à confirmer en magasin. dispo = retrait en magasin, "
+    "commandable = commande en ligne : les deux peuvent différer (stock en "
+    "magasin mais commande en ligne refusée, ou l'inverse). dispo=null : stock "
+    "non suivi dans ce magasin, ce n'est pas une rupture. Ne jamais annoncer un "
+    "produit indisponible quand commandable vaut true."
 )
 _WAREHOUSE_MAP_PARAM = "freemoov_livechat_ai.store_warehouse_map"
 
@@ -61,6 +70,10 @@ def _store_warehouses(env):
             _logger.warning(
                 "Invalid JSON in %s, falling back to name matching", _WAREHOUSE_MAP_PARAM
             )
+        if not isinstance(override, dict):
+            # A valid but scalar JSON ("3", "[]") would blow up on `key in`.
+            _logger.warning("%s is not a JSON object, ignoring it", _WAREHOUSE_MAP_PARAM)
+            override = {}
     warehouses = Warehouse.search([])
     mapping = {}
     for key, store in env["website"]._STORES.items():
@@ -94,10 +107,10 @@ def _dispo_by_store(env, tmpl, warehouse_map):
         elif not variants:
             dispo[store["locality"]] = 0
         else:
-            # free_qty (on hand minus reservations), not qty_available: what
-            # is shown to a visitor must exclude units already promised to an
-            # open order. `_is_commandable` deliberately uses the other
-            # semantics — see there.
+            # free_qty, not qty_available: never show a visitor a unit that is
+            # already promised to an open order. Same semantics as the sale
+            # gate in `_is_commandable`, read per store instead of on the
+            # website warehouse.
             # Sum over every variant: a template is routinely out of stock on
             # its first variant while a sibling colour or battery sits on the
             # shelf.
@@ -106,20 +119,19 @@ def _dispo_by_store(env, tmpl, warehouse_map):
     return dispo
 
 
-def _is_commandable(tmpl):
-    """Whether the website lets a visitor order the product right now.
+def _is_commandable(env, tmpl):
+    """Whether the website actually accepts the order.
 
-    Stock criterion is `qty_available` (on hand), NOT the `free_qty` behind
-    `dispo`. `get_stock_availability` sums `stock.quant.quantity`, so the site
-    still sells its last unit while that unit is reserved by an open order;
-    gating on free_qty would refuse a sale the site accepts. The asymmetry is
-    intentional and runs one way only: `commandable` must never be False while
-    the site sells, `dispo` must never promise a reserved unit.
-
-    Read across every internal location rather than the mapped stores alone,
-    for the same reason: any stock the site can draw on counts.
+    The gate is `website_sale_stock`, not the `get_stock_availability` badge:
+    `sale_order._verify_updated_quantity` refuses (or trims) the cart line when
+    `website._get_product_available_qty` is short, and that helper reads
+    `free_qty` **in the website's own warehouse**. Two consequences the badge
+    would get wrong: a reserved unit is not sellable, and stock sitting in
+    another warehouse does not make a product orderable online.
     """
-    if sum(tmpl.product_variant_ids.sudo().mapped("qty_available")) > 0:
+    website = env["website"].sudo().get_current_website()
+    variants = tmpl.product_variant_ids.sudo()
+    if sum(website._get_product_available_qty(variant) for variant in variants) > 0:
         return True
     if tmpl.allow_out_of_stock_order or tmpl.detailed_type != "product":
         return True
@@ -135,7 +147,7 @@ def _serialize(env, tmpl, warehouse_map, with_description=False):
         "marque": _brand(tmpl),
         "url": "https://www.freemoov.com%s" % (tmpl.website_url or ""),
         "dispo": dispo,
-        "commandable": _is_commandable(tmpl),
+        "commandable": _is_commandable(env, tmpl),
     }
     if with_description:
         data["description"] = (tmpl.description_sale or tmpl.name)[:500]
@@ -146,10 +158,12 @@ def _serialize(env, tmpl, warehouse_map, with_description=False):
     "chercher_produits",
     "Recherche dans le catalogue Freemoov (trottinettes, vélos, gyroroues, pièces, "
     "accessoires) par texte libre, budget maximum, marque ou catégorie. "
-    "Retourne au plus 5 produits avec prix TVAC, le stock par magasin (dispo) et "
-    "commandable. Un stock à 0 ne signifie pas indisponible : si commandable vaut "
-    "true, le produit se commande en ligne (précommande, dropshipping). Un magasin "
-    "à null n'a pas de stock suivi, ne pas l'annoncer en rupture.",
+    "Retourne au plus 5 produits avec prix TVAC, dispo (stock disponible pour un "
+    "retrait, magasin par magasin) et commandable (true = le site accepte la "
+    "commande en ligne). Les deux sont indépendants : un produit peut être en "
+    "magasin sans être commandable en ligne, ou commandable sans stock "
+    "(précommande, dropshipping). Un magasin à null n'a pas de stock suivi, ce "
+    "n'est pas une rupture.",
     {
         "type": "object",
         "properties": {
@@ -182,8 +196,9 @@ def chercher_produits(env, channel, recherche=None, budget_max=None, marque=None
 @register(
     "fiche_produit",
     "Détail d'un produit (id retourné par chercher_produits) : description, prix, "
-    "stock par magasin (dispo, null = stock non suivi dans ce magasin), commandable "
-    "(true = commande possible en ligne même sans stock), lien.",
+    "dispo (stock disponible pour un retrait, magasin par magasin ; null = stock "
+    "non suivi dans ce magasin), commandable (true = le site accepte la commande "
+    "en ligne, même sans stock en magasin), lien.",
     {
         "type": "object",
         "properties": {"product_id": {"type": "integer"}},
