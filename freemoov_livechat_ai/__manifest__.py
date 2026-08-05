@@ -16,6 +16,17 @@
         'views/verification_view.xml',
         'views/menu.xml',
     ],
+    # `assets_embed_core` and not `web.assets_frontend`: it is the bundle every
+    # flavour of the widget is built from — the one served on freemoov.com
+    # includes it, and so do the external and CORS embeds.
+    'assets': {
+        'im_livechat.assets_embed_core': [
+            'freemoov_livechat_ai/static/src/scss/assistant_theme.scss',
+            'freemoov_livechat_ai/static/src/js/assistant_typing.js',
+            'freemoov_livechat_ai/static/src/js/assistant_suggestions.js',
+            'freemoov_livechat_ai/static/src/xml/assistant_thread.xml',
+        ],
+    },
     'installable': True,
     'application': False,
     'license': 'LGPL-3',

@@ -1,0 +1,200 @@
+// Freemoov livechat assistant — widget theme.
+//
+// Loaded in `im_livechat.assets_embed_core`, the bundle every flavour of the
+// widget is built from: the one served on freemoov.com (through
+// `web.assets_frontend`) and the ones embedded on a third-party page
+// (`assets_embed_external`, `assets_embed_cors`).
+//
+// Literal hex values rather than `o-color(1)` and friends. Odoo's SCSS helpers
+// do reach this file (every bundle that includes `assets_embed_core` includes
+// `web._assets_helpers` first), but `o-color()` resolves through the palette the
+// *website* has selected — and the CORS embed renders on someone else's page,
+// out of reach of that setting. Hardcoding is also what
+// website_freemoov/static/src/scss/checkout.scss does with the same values, so
+// the charte lives in one form across the repo rather than two.
+
+// Charte Freemoov, same values as website_freemoov/static/src/scss/checkout.scss.
+$fm-primary: #099d5d;
+$fm-secondary: #7ac144;
+$fm-dark: #414042;
+$fm-gray: #7f7f7f;
+$fm-light-bg: #f5f6f7;
+$fm-border: #e8e9eb;
+$fm-radius-sm: 8px;
+$fm-radius-md: 12px;
+$fm-gradient: linear-gradient(135deg, $fm-primary, $fm-secondary);
+
+// --------------------------------------------------------------------------
+// Launcher
+// --------------------------------------------------------------------------
+// `!important` is not a shortcut here: `im_livechat.LivechatButton` writes its
+// colours in an inline `style` attribute, fed by the `button_background_color`
+// / `button_text_color` fields of the `im_livechat.channel` record, and no
+// selector outranks an inline style. The trade-off is explicit: those two
+// colour pickers (Settings > Live Chat > channel) no longer drive the button.
+// Drop the three declarations below to hand them back.
+.o-livechat-LivechatButton {
+    background: $fm-gradient !important;
+    color: #fff !important;
+    box-shadow: 0 4px 16px rgba($fm-primary, 0.35) !important;
+
+    &:hover {
+        filter: brightness(105%);
+    }
+}
+
+.o-livechat-LivechatButton-notification {
+    border-radius: $fm-radius-sm;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+
+// --------------------------------------------------------------------------
+// Chat window header
+// --------------------------------------------------------------------------
+// `background-image` rather than `background`, and the difference matters:
+// im_livechat's own `chat_window_patch.xml` appends
+// `background-color: {{ header_background_color }} !important` to the header's
+// inline style, and an inline `!important` declaration outranks everything a
+// stylesheet can say. `background-image` is a property that inline style never
+// sets, so the gradient goes on top of the configured colour and wins on
+// screen. Same trade-off as the launcher: the per-channel colour picker no
+// longer shows through — remove this declaration to hand it back.
+.o-mail-ChatWindow-header {
+    background-image: $fm-gradient !important;
+    border-bottom: 0 !important;
+    // Beats the inline `color:` of the same patch (no `!important` there), and
+    // is what the window title inherits — that element carries no class of its
+    // own to target.
+    color: #fff !important;
+
+    // The fold / close / restart commands are Bootstrap `.btn`, which sets its
+    // own colour instead of inheriting the header's. Deliberately not extended
+    // to `.o-mail-ChatWindow-counter`: that badge paints its own background,
+    // and white text on it is as likely to disappear as to read.
+    .o-mail-ChatWindow-command {
+        color: #fff !important;
+        opacity: 0.85;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+// --------------------------------------------------------------------------
+// Product cards
+// --------------------------------------------------------------------------
+// Server-rendered markup, posted as a message body — see
+// views/product_cards_template.xml. The chat window is ~340px wide, so the
+// cards are full-width rows rather than a grid of tiles: a scooter name and a
+// per-store availability line do not survive a 140px column.
+.fm-assistant-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 8px;
+
+    .fm-assistant-card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px;
+        border: 1px solid $fm-border;
+        border-radius: $fm-radius-md;
+        background: #fff;
+        text-decoration: none;
+        color: $fm-dark;
+        transition: border-color 0.2s, box-shadow 0.2s;
+
+        &:hover,
+        &:focus {
+            border-color: $fm-primary;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            text-decoration: none;
+            color: $fm-dark;
+        }
+
+        img {
+            width: 56px;
+            height: 56px;
+            flex: 0 0 56px;
+            object-fit: contain;
+            border-radius: $fm-radius-sm;
+            background: $fm-light-bg;
+        }
+    }
+
+    .fm-assistant-card-body {
+        min-width: 0; // lets the name ellipsize instead of stretching the row
+        flex: 1 1 auto;
+    }
+
+    .fm-assistant-card-name {
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.25;
+        // Two lines, then ellipsis: product names run long and a card that
+        // grows to four lines pushes the answer above it out of view.
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .fm-assistant-card-price {
+        font-size: 13px;
+        font-weight: 700;
+        color: $fm-primary;
+        margin-top: 2px;
+    }
+
+    // Availability line, added in Task 6: "Charleroi 2 · Gosselies 1",
+    // "Sur commande" or "Nous contacter". Secondary to the price.
+    .fm-assistant-card-stock {
+        font-size: 11px;
+        color: $fm-gray;
+        margin-top: 1px;
+    }
+}
+
+// --------------------------------------------------------------------------
+// Start suggestions
+// --------------------------------------------------------------------------
+.fm-assistant-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px 12px 12px;
+}
+
+.fm-assistant-suggestion {
+    border: 1px solid $fm-border;
+    border-radius: 16px;
+    background: #fff;
+    color: $fm-dark;
+    padding: 5px 12px;
+    // Buttons do not inherit the font: without this the chips render in the
+    // browser's default face while every bubble around them uses Odoo's.
+    font-family: inherit;
+    font-size: 12px;
+    line-height: 1.3;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, color 0.2s;
+
+    // "Je veux parler à un conseiller" — the way out of the bot. Last of the
+    // five and deliberately quieter than the others: it is the fallback, not
+    // the invitation. Declared before `:hover`, which carries the same
+    // specificity and would otherwise lose to it on source order — this one
+    // chip would be the only one with no hover feedback.
+    &:last-child {
+        color: $fm-gray;
+    }
+
+    &:hover,
+    &:focus {
+        border-color: $fm-primary;
+        background: rgba($fm-primary, 0.08);
+        color: $fm-primary;
+    }
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!--
+        Both blocks go at the very end of `.o-mail-Thread` rather than around
+        the `content` node im_livechat aims at: that node sits between a `t-if`
+        and its `t-else`, and appending there is only safe because OWL happens
+        to tolerate the gap. The end of the scroll container is unambiguous, and
+        it is where a chat puts what comes after the last message anyway.
+    -->
+    <t t-inherit="mail.Thread" t-inherit-mode="extension">
+        <xpath expr="//*[hasclass('o-mail-Thread')]" position="inside">
+            <div t-if="showAssistantSuggestions" class="fm-assistant-suggestions"
+                 role="group" aria-label="Suggestions">
+                <button t-foreach="assistantSuggestions" t-as="suggestion" t-key="suggestion"
+                        type="button"
+                        class="fm-assistant-suggestion"
+                        t-esc="suggestion"
+                        t-on-click="() => this.sendAssistantSuggestion(suggestion)"/>
+            </div>
+            <Message t-if="showAssistantTyping"
+                     message="props.thread.assistantTypingMessage"
+                     hasActions="false"
+                     isInChatWindow="env.inChatWindow"
+                     isTypingMessage="true"
+                     thread="props.thread"/>
+        </xpath>
+    </t>
+
+</templates>
