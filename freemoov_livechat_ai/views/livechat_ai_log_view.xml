@@ -11,6 +11,7 @@
                 <field name="model"/>
                 <field name="visitor_message"/>
                 <field name="bot_response"/>
+                <field name="tools_used"/>
                 <field name="input_tokens"/>
                 <field name="output_tokens"/>
                 <field name="cost_eur" widget="monetary" sum="Total"/>
@@ -34,12 +35,16 @@
                         <field name="output_tokens"/>
                         <field name="cost_eur"/>
                         <field name="latency_ms"/>
+                        <field name="tools_used"/>
                     </group>
                     <group string="Visitor message">
                         <field name="visitor_message" nolabel="1"/>
                     </group>
                     <group string="Bot response">
                         <field name="bot_response" nolabel="1"/>
+                    </group>
+                    <group string="Tool calls">
+                        <field name="tool_calls_json" nolabel="1" readonly="1"/>
                     </group>
                     <group string="Error">
                         <field name="error_message" nolabel="1"/>

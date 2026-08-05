@@ -32,4 +32,12 @@
         <field name="key">freemoov_livechat_ai.rate_limit_per_min</field>
         <field name="value">20</field>
     </record>
+    <record id="param_conversation_token_budget" model="ir.config_parameter">
+        <field name="key">freemoov_livechat_ai.conversation_token_budget</field>
+        <field name="value">50000</field>
+    </record>
+    <record id="param_client_timeout" model="ir.config_parameter">
+        <field name="key">freemoov_livechat_ai.client_timeout</field>
+        <field name="value">15</field>
+    </record>
 </odoo>

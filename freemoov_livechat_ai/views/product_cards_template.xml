@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="assistant_product_cards" name="Assistant: Product Cards">
+        <div class="fm-assistant-cards">
+            <t t-foreach="products" t-as="p">
+                <a t-att-href="p['url']" target="_blank" rel="noopener" class="fm-assistant-card">
+                    <img t-attf-src="/web/image/product.template/#{p['id']}/image_256"
+                         t-att-alt="p['nom']" loading="lazy"/>
+                    <div class="fm-assistant-card-body">
+                        <div class="fm-assistant-card-name" t-esc="p['nom']"/>
+                        <div class="fm-assistant-card-price">
+                            <t t-esc="'%.0f' % p['prix_tvac']"/> € TVAC
+                        </div>
+                    </div>
+                </a>
+            </t>
+        </div>
+    </template>
+</odoo>

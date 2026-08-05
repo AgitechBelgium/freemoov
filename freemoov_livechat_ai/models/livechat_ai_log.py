@@ -16,6 +16,13 @@ class LivechatAILog(models.Model):
     output_tokens = fields.Integer(string="Output tokens")
     cost_eur = fields.Float(string="Estimated cost (€)", digits=(10, 5))
     latency_ms = fields.Integer(string="Latency (ms)")
+    tools_used = fields.Char(string="Outils utilisés")
+    tool_calls_json = fields.Text(
+        string="Détail des appels d'outils",
+        help="Audit trail of the turn: one entry per tool call, with its "
+             "arguments, its outcome and its duration. Identifying arguments "
+             "are truncated before they are stored.",
+    )
     status = fields.Selection(
         [
             ("ok", "OK"),
@@ -23,6 +30,7 @@ class LivechatAILog(models.Model):
             ("skipped_human", "Skipped (human active)"),
             ("skipped_rate", "Skipped (rate limit)"),
             ("skipped_disabled", "Skipped (disabled)"),
+            ("skipped_budget", "Skipped (token budget spent)"),
             ("escalated", "Escalated to human"),
             ("error", "Error"),
         ],

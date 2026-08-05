@@ -12,6 +12,7 @@
         'data/res_partner_data.xml',
         'views/res_config_settings_view.xml',
         'views/livechat_ai_log_view.xml',
+        'views/product_cards_template.xml',
         'views/verification_view.xml',
         'views/menu.xml',
     ],
