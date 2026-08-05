@@ -40,4 +40,13 @@
         <field name="key">freemoov_livechat_ai.client_timeout</field>
         <field name="value">15</field>
     </record>
+    <!-- Empty token: the HTTP tool API answers 403 until one is set. -->
+    <record id="param_api_token" model="ir.config_parameter">
+        <field name="key">freemoov_livechat_ai.api_token</field>
+        <field name="value"></field>
+    </record>
+    <record id="param_api_rate_per_min" model="ir.config_parameter">
+        <field name="key">freemoov_livechat_ai.api_rate_per_min</field>
+        <field name="value">60</field>
+    </record>
 </odoo>
