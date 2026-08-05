@@ -65,8 +65,17 @@ def _store_warehouses(env):
     mapping = {}
     for key, store in env["website"]._STORES.items():
         if key in override:
-            warehouse_id = override[key]
-            mapping[key] = Warehouse.browse(int(warehouse_id)).exists() if warehouse_id else Warehouse
+            try:
+                warehouse_id = int(override[key]) if override[key] else 0
+            except (TypeError, ValueError):
+                # A typo in the parameter must not raise mid-conversation:
+                # degrade to "untracked" and leave a trace for the admin.
+                _logger.warning(
+                    "Invalid warehouse id %r for store '%s' in %s",
+                    override[key], key, _WAREHOUSE_MAP_PARAM,
+                )
+                warehouse_id = 0
+            mapping[key] = Warehouse.browse(warehouse_id).exists() if warehouse_id else Warehouse
             continue
         locality = _normalize(store["locality"])
         mapping[key] = next(
@@ -85,6 +94,10 @@ def _dispo_by_store(env, tmpl, warehouse_map):
         elif not variants:
             dispo[store["locality"]] = 0
         else:
+            # free_qty (on hand minus reservations), not qty_available: what
+            # is shown to a visitor must exclude units already promised to an
+            # open order. `_is_commandable` deliberately uses the other
+            # semantics — see there.
             # Sum over every variant: a template is routinely out of stock on
             # its first variant while a sibling colour or battery sits on the
             # shelf.
@@ -93,9 +106,20 @@ def _dispo_by_store(env, tmpl, warehouse_map):
     return dispo
 
 
-def _is_commandable(tmpl, dispo):
-    """Whether the website lets a visitor order the product right now."""
-    if any((qty or 0) > 0 for qty in dispo.values()):
+def _is_commandable(tmpl):
+    """Whether the website lets a visitor order the product right now.
+
+    Stock criterion is `qty_available` (on hand), NOT the `free_qty` behind
+    `dispo`. `get_stock_availability` sums `stock.quant.quantity`, so the site
+    still sells its last unit while that unit is reserved by an open order;
+    gating on free_qty would refuse a sale the site accepts. The asymmetry is
+    intentional and runs one way only: `commandable` must never be False while
+    the site sells, `dispo` must never promise a reserved unit.
+
+    Read across every internal location rather than the mapped stores alone,
+    for the same reason: any stock the site can draw on counts.
+    """
+    if sum(tmpl.product_variant_ids.sudo().mapped("qty_available")) > 0:
         return True
     if tmpl.allow_out_of_stock_order or tmpl.detailed_type != "product":
         return True
@@ -111,7 +135,7 @@ def _serialize(env, tmpl, warehouse_map, with_description=False):
         "marque": _brand(tmpl),
         "url": "https://www.freemoov.com%s" % (tmpl.website_url or ""),
         "dispo": dispo,
-        "commandable": _is_commandable(tmpl, dispo),
+        "commandable": _is_commandable(tmpl),
     }
     if with_description:
         data["description"] = (tmpl.description_sale or tmpl.name)[:500]

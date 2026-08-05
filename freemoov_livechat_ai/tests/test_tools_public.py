@@ -100,6 +100,40 @@ class TestPublicTools(FreemoovAiCase):
         res = tools.run_tool(self.env, self.channel, "fiche_produit", {"product_id": blocked.id})
         self.assertIs(res["commandable"], False)
 
+    def test_commandable_ignores_reservations(self):
+        """The site sells from on-hand stock and ignores reservations.
+
+        A single unit already reserved by an open order is still sellable, so
+        `commandable` must stay True while `dispo` honestly shows 0: never
+        promise a visitor a unit that is already spoken for, never refuse a
+        sale the site accepts.
+        """
+        wh = self.env["stock.warehouse"].create({"name": "Entrepot AI D", "code": "AID"})
+        self._pin_warehouses({"liege": wh.id, "namur": None, "charleroi": None})
+
+        tmpl = self._storable("Reserve AI", allow_out_of_stock_order=False)
+        self.env["stock.quant"].sudo()._update_available_quantity(
+            tmpl.product_variant_ids, wh.lot_stock_id, quantity=1, reserved_quantity=1,
+        )
+
+        res = tools.run_tool(self.env, self.channel, "fiche_produit", {"product_id": tmpl.id})
+        self.assertEqual(res["dispo"]["Liège"], 0)
+        self.assertIs(res["commandable"], True)
+
+    def test_store_warehouse_map_tolerates_garbage(self):
+        """A misconfigured parameter degrades to 'untracked', never raises:
+        the exception would surface in the middle of a visitor conversation."""
+        for raw in ('{"liege": "wh_liege"}', "not json at all", '{"liege": 999999999}'):
+            self.env["ir.config_parameter"].sudo().set_param(_WAREHOUSE_MAP_PARAM, raw)
+            res = tools.run_tool(self.env, self.channel, "chercher_produits", {})
+            self.assertIn("produits", res)
+
+        self.env["ir.config_parameter"].sudo().set_param(
+            _WAREHOUSE_MAP_PARAM, '{"liege": "wh_liege"}')
+        tmpl = self._storable("Garbage Param AI")
+        res = tools.run_tool(self.env, self.channel, "fiche_produit", {"product_id": tmpl.id})
+        self.assertIsNone(res["dispo"]["Liège"])
+
     def test_chercher_produits_limit_and_note(self):
         for index in range(7):
             self._storable("Limite AI %s" % index, list_price=100.0 + index)
