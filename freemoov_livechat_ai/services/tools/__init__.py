@@ -17,6 +17,8 @@ class ToolError(Exception):
 
 def register(name, description, input_schema, requires_verification=False):
     def decorator(fn):
+        if name in TOOLS:
+            raise ValueError("Tool already registered: %s" % name)
         TOOLS[name] = {
             "name": name,
             "description": description,
