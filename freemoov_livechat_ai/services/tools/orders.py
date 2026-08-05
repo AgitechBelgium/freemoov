@@ -5,8 +5,12 @@ so two rules hold throughout: the recordsets are explicitly `sudo()` (the
 livechat runs as the public user, and `verified_partner` only elevates the
 partner), and every domain is anchored on that verified partner.
 """
+import logging
+
 from . import ToolError, register, verified_partner
 from .verification_tools import VERIFICATION_HINT
+
+_logger = logging.getLogger(__name__)
 
 _STATE_FR = {
     "draft": "devis en attente", "sent": "devis envoyé",
@@ -89,12 +93,35 @@ def renvoyer_facture(env, channel, reference_commande):
         _partner_domain(partner) + [("name", "=ilike", reference)], limit=1)
     if not order:
         raise ToolError("Commande introuvable pour ce client.")
-    invoice = order.invoice_ids.filtered(lambda m: m.state == "posted")[:1]
+    # Explicit type and order, never "the first posted move on the order":
+    # a credit note is posted on the same order and would go out instead of the
+    # invoice. Searched rather than filtered, because a filter cannot sort.
+    invoice = env["account.move"].sudo().search([
+        ("id", "in", order.invoice_ids.ids),
+        ("move_type", "=", "out_invoice"),
+        ("state", "=", "posted"),
+    ], limit=1, order="invoice_date desc, id desc")
     if not invoice:
         raise ToolError("Aucune facture validée sur cette commande — proposer un transfert.")
     template = env.ref(INVOICE_TEMPLATE_XMLID, raise_if_not_found=False)
     if not template:
         raise ToolError("Envoi de facture indisponible — proposer un transfert.")
-    template.sudo().send_mail(invoice.id, email_layout_xmlid="mail.mail_notification_light")
+    # The template routes on `object.partner_id` — the invoice address, which
+    # is not always the verified customer (company parent, billing contact).
+    # Announcing their own address would be a lie: the mail leaves elsewhere.
+    recipient = invoice.partner_id.email
+    if not recipient:
+        raise ToolError(
+            "Aucune adresse e-mail enregistrée sur la facture — proposer un transfert "
+            "vers un conseiller pour mettre l'adresse à jour."
+        )
+    try:
+        template.sudo().send_mail(invoice.id, email_layout_xmlid="mail.mail_notification_light")
+    except Exception:
+        # Rendering the invoice PDF reaches deep into `account` (layouts,
+        # reports, attachments); whatever it raises must not surface raw in a
+        # visitor conversation.
+        _logger.exception("freemoov_ai: invoice resend failed for move id=%s", invoice.id)
+        raise ToolError("Impossible de générer la facture, je transfère vers un conseiller.")
     # No amount, no line, no PDF: the answer says where it went, nothing else.
-    return {"envoye_vers": _mask_email(env, partner.email)}
+    return {"envoye_vers": _mask_email(env, recipient)}

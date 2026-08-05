@@ -9,6 +9,7 @@
                 <field name="create_date"/>
                 <field name="channel_id"/>
                 <field name="partner_id"/>
+                <field name="outcome"/>
                 <field name="method"/>
                 <field name="expires_at"/>
                 <field name="attempts"/>
@@ -30,6 +31,7 @@
                     <group>
                         <field name="channel_id"/>
                         <field name="partner_id"/>
+                        <field name="outcome"/>
                         <field name="method"/>
                         <field name="create_date"/>
                         <field name="expires_at"/>

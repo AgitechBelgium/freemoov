@@ -1,9 +1,10 @@
 from unittest.mock import patch
 
+from odoo.exceptions import UserError
 from odoo.tests import tagged
 
 from ..services import tools
-from ..services.tools.verification_tools import MAX_SENDS_PER_HOUR, SEND_WINDOW_MIN
+from ..services.tools.verification_tools import MAX_REQUESTS_PER_HOUR, REQUEST_WINDOW_MIN
 from .common import FreemoovAiCase
 
 REPAIR_PARAM = "freemoov_livechat_ai.repair_tool_enabled"
@@ -43,6 +44,29 @@ class TestSensitiveTools(FreemoovAiCase):
         with patch.object(type(self.Verif), "_send_code"):
             for _ in range(count):
                 tools.run_tool(self.env, channel, "envoyer_code", {"identifiant": identifier})
+
+    def _expect_tool_error(self, *args):
+        """`run_tool` must raise, and the transaction must survive it.
+
+        Deliberately not `assertRaises`: Odoo's version wraps the block in a
+        savepoint and rolls back when the exception fires
+        (`odoo/tests/common.py:446`), which would erase the very row the quota
+        counts. The agent loop catches `ToolError` in plain Python, so in
+        production the row stays — this helper reproduces that.
+        """
+        try:
+            tools.run_tool(*args)
+        except tools.ToolError as error:
+            return error
+        self.fail("ToolError attendue")
+
+    def _failed_lookups(self, count, channel=None):
+        channel = channel or self.channel
+        with patch.object(type(self.Verif), "_send_code") as send:
+            for index in range(count):
+                self._expect_tool_error(self.env, channel, "envoyer_code",
+                                        {"identifiant": "inconnu%s@nulpart.be" % index})
+            self.assertFalse(send.called, "un identifiant non résolu n'envoie rien")
 
     def _age_verifications(self, minutes, channel=None):
         """Push this channel's verification records back in time.
@@ -115,7 +139,7 @@ class TestSensitiveTools(FreemoovAiCase):
         Without the cap, `_start_verification` hands out a new 3-attempt budget
         on demand — and mails the customer once per request while doing it.
         """
-        self._send_codes(MAX_SENDS_PER_HOUR)
+        self._send_codes(MAX_REQUESTS_PER_HOUR)
         with patch.object(type(self.Verif), "_send_code") as send:
             with self.assertRaisesRegex(tools.ToolError, "trop de codes"):
                 tools.run_tool(self.env, self.channel, "envoyer_code",
@@ -124,13 +148,38 @@ class TestSensitiveTools(FreemoovAiCase):
         # The count is carried by the records themselves: superseded, not deleted.
         self.assertEqual(
             self.Verif.sudo().search_count([("channel_id", "=", self.channel.id)]),
-            MAX_SENDS_PER_HOUR,
+            MAX_REQUESTS_PER_HOUR,
         )
+
+    def test_request_cap_counts_failed_lookups(self):
+        """Probing costs quota, or it costs nothing at all.
+
+        Order references are sequential: an uncapped lookup is a free existence
+        oracle, and every hit fires a real e-mail at a real customer. So the cap
+        counts *invocations*, resolved or not.
+        """
+        self._failed_lookups(MAX_REQUESTS_PER_HOUR)
+        with patch.object(type(self.Verif), "_send_code") as send:
+            with self.assertRaisesRegex(tools.ToolError, "trop de codes"):
+                tools.run_tool(self.env, self.channel, "envoyer_code",
+                               {"identifiant": "verif@test.be"})
+            self.assertFalse(send.called)
+
+    def test_request_cap_is_per_channel_not_per_identifier(self):
+        """Rotating the identifier must not buy a fresh quota."""
+        other = self.env["res.partner"].create({
+            "name": "Client Tiers", "email": "tiers@test.be",
+        })
+        for identifier in ("verif@test.be", self.order.name, "tiers@test.be"):
+            self._send_codes(1, identifier=identifier)
+        self.assertTrue(other.exists())
+        with self.assertRaisesRegex(tools.ToolError, "trop de codes"):
+            self._send_codes(1, identifier="verif@test.be")
 
     def test_resend_cap_does_not_lock_the_channel_forever(self):
         """The cap is a window, not a ban: an hour later the visitor can retry."""
-        self._send_codes(MAX_SENDS_PER_HOUR)
-        self._age_verifications(SEND_WINDOW_MIN + 1)
+        self._send_codes(MAX_REQUESTS_PER_HOUR)
+        self._age_verifications(REQUEST_WINDOW_MIN + 1)
         with patch.object(type(self.Verif), "_send_code") as send:
             tools.run_tool(self.env, self.channel, "envoyer_code",
                            {"identifiant": "verif@test.be"})
@@ -159,6 +208,13 @@ class TestSensitiveTools(FreemoovAiCase):
         self._verify_channel()
         res = tools.run_tool(self.env, self.channel, "statut_commande", {})
         self.assertTrue(any(c["reference"] == self.order.name for c in res["commandes"]))
+        # Exact key set, not a subset: this is what keeps an amount, a line or
+        # a customer name from being added to the payload without a decision.
+        self.assertEqual(set(res), {"commandes"})
+        self.assertEqual(
+            set(res["commandes"][0]),
+            {"reference", "date", "etat", "livraison", "transporteur", "numero_suivi"},
+        )
 
     def test_statut_commande_never_leaks_another_customer(self):
         other = self.env["res.partner"].create({
@@ -188,16 +244,115 @@ class TestSensitiveTools(FreemoovAiCase):
         invoice.action_post()
         return invoice
 
+    def _posted_credit_note(self, order=None, partner=None):
+        """A credit note booked on the order BEFORE its invoice.
+
+        Built by hand rather than reversed, so that it comes first in
+        `order.invoice_ids`: an implementation that takes the first posted move
+        it finds must pick the wrong one here, otherwise the test proves
+        nothing about the selection.
+        """
+        order = order or self.order
+        refund = self.env["account.move"].create({
+            "move_type": "out_refund",
+            "partner_id": (partner or order.partner_invoice_id).id,
+            "invoice_line_ids": [(0, 0, {
+                "product_id": self.product.id,
+                "quantity": 1,
+                "price_unit": 5,
+                "sale_line_ids": [(6, 0, order.order_line.ids)],
+            })],
+        })
+        refund.action_post()
+        self.assertIn(refund, order.invoice_ids, "l'avoir doit bien être rattaché à la commande")
+        return refund
+
+    def _run_renvoyer_facture(self, reference=None):
+        with patch("odoo.addons.mail.models.mail_template.MailTemplate.send_mail") as sm:
+            res = tools.run_tool(self.env, self.channel, "renvoyer_facture",
+                                 {"reference_commande": reference or self.order.name})
+        return res, sm
+
     def test_renvoyer_facture_no_amount_in_response(self):
         self._verify_channel()
         invoice = self._posted_invoice()
-        with patch("odoo.addons.mail.models.mail_template.MailTemplate.send_mail") as sm:
-            res = tools.run_tool(self.env, self.channel, "renvoyer_facture",
-                                 {"reference_commande": self.order.name})
+        res, sm = self._run_renvoyer_facture()
         self.assertTrue(sm.called)
         self.assertNotIn(str(invoice.amount_total), str(res))
         self.assertIn("***", res["envoye_vers"])
         self.assertNotIn("verif@test.be", res["envoye_vers"])
+        # Exact key set: no amount, no line, no PDF, no invoice number.
+        self.assertEqual(set(res), {"envoye_vers"})
+
+    def test_renvoyer_facture_blocked_without_verification(self):
+        with self.assertRaisesRegex(tools.ToolError, "verification_required"):
+            tools.run_tool(self.env, self.channel, "renvoyer_facture",
+                           {"reference_commande": self.order.name})
+
+    def test_renvoyer_facture_masks_the_billing_recipient(self):
+        """The template routes on `object.partner_id` — the invoice address.
+
+        Announcing the verified customer's own address would be a lie whenever
+        the order bills a different contact: the mail leaves elsewhere.
+        """
+        billing = self.env["res.partner"].create({
+            "name": "Service Comptabilité", "parent_id": self.partner.id,
+            "type": "invoice", "email": "compta@autre.be",
+        })
+        order = self.env["sale.order"].create({
+            "partner_id": self.partner.id,
+            "partner_invoice_id": billing.id,
+            "order_line": [(0, 0, {"product_id": self.product.id})],
+        })
+        order.action_confirm()
+        invoice = self._posted_invoice(order)
+        self.assertEqual(invoice.partner_id, billing)
+
+        self._verify_channel()
+        res, sm = self._run_renvoyer_facture(order.name)
+        self.assertTrue(sm.called)
+        self.assertEqual(res["envoye_vers"], self.Verif._mask("compta@autre.be"))
+        self.assertNotEqual(res["envoye_vers"], self.Verif._mask("verif@test.be"))
+
+    def test_renvoyer_facture_without_a_recipient_address(self):
+        """No address on the invoice contact: the mail goes nowhere, so the
+        tool must say so instead of reporting a send."""
+        billing = self.env["res.partner"].create({
+            "name": "Comptabilité Sans Mail", "parent_id": self.partner.id, "type": "invoice",
+        })
+        order = self.env["sale.order"].create({
+            "partner_id": self.partner.id,
+            "partner_invoice_id": billing.id,
+            "order_line": [(0, 0, {"product_id": self.product.id})],
+        })
+        order.action_confirm()
+        self._posted_invoice(order)
+        self._verify_channel()
+        with patch("odoo.addons.mail.models.mail_template.MailTemplate.send_mail") as sm:
+            with self.assertRaisesRegex(tools.ToolError, "adresse e-mail"):
+                tools.run_tool(self.env, self.channel, "renvoyer_facture",
+                               {"reference_commande": order.name})
+        self.assertFalse(sm.called, "rien ne part quand il n'y a pas de destinataire")
+
+    def test_renvoyer_facture_sends_the_invoice_not_the_credit_note(self):
+        self._verify_channel()
+        refund = self._posted_credit_note()
+        invoice = self._posted_invoice()
+        _, sm = self._run_renvoyer_facture()
+        self.assertTrue(sm.called)
+        self.assertEqual(sm.call_args.args[0], invoice.id)
+        self.assertNotEqual(sm.call_args.args[0], refund.id)
+
+    def test_renvoyer_facture_reports_a_failed_send(self):
+        """Rendering the PDF can raise (missing layout, broken template).
+        A raw UserError would surface as a stack trace in the conversation."""
+        self._verify_channel()
+        self._posted_invoice()
+        with patch("odoo.addons.mail.models.mail_template.MailTemplate.send_mail",
+                   side_effect=UserError("rendu impossible")):
+            with self.assertRaisesRegex(tools.ToolError, "transfère"):
+                tools.run_tool(self.env, self.channel, "renvoyer_facture",
+                               {"reference_commande": self.order.name})
 
     def test_renvoyer_facture_as_public_visitor(self):
         self._verify_channel()
@@ -265,6 +420,9 @@ class TestSensitiveTools(FreemoovAiCase):
         references = {r["reference"] for r in res["reparations"]}
         self.assertIn(self._task_reference(repair), references)
         self.assertNotIn(self._task_reference(internal), references)
+        self.assertEqual(set(res), {"reparations"})
+        self.assertEqual(
+            set(res["reparations"][0]), {"reference", "magasin", "etat", "ouvert_le"})
 
     def test_statut_reparation_never_leaks_another_customer(self):
         self._enable_repairs()

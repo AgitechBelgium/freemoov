@@ -3,7 +3,8 @@ import logging
 import secrets
 from datetime import timedelta
 
-from odoo import fields, models
+from odoo import api, fields, models
+from odoo.exceptions import ValidationError
 
 from ..services.tools import ToolError
 
@@ -36,10 +37,19 @@ class LivechatVerification(models.Model):
     _order = "id desc"
 
     channel_id = fields.Many2one("discuss.channel", required=True, index=True, ondelete="cascade")
-    partner_id = fields.Many2one("res.partner", required=True)
-    code_hash = fields.Char(required=True)
-    method = fields.Selection([("email", "E-mail"), ("sms", "SMS")], required=True)
-    expires_at = fields.Datetime(required=True)
+    # Optional for the sake of the `not_found` rows only — a row that claims a
+    # code was sent still has to carry one, see `_check_sent_is_complete`.
+    partner_id = fields.Many2one("res.partner")
+    code_hash = fields.Char()
+    method = fields.Selection([("email", "E-mail"), ("sms", "SMS")])
+    expires_at = fields.Datetime()
+    outcome = fields.Selection(
+        [("sent", "Code envoyé"), ("not_found", "Identifiant non résolu")],
+        required=True, default="sent",
+        help="Une demande de code dont l'identifiant n'a résolu aucun client "
+             "est enregistrée elle aussi : elle consomme le quota du canal, "
+             "sinon sonder des références séquentielles ne coûte rien.",
+    )
     attempts = fields.Integer(default=0)
     verified_at = fields.Datetime()
     superseded = fields.Boolean(
@@ -55,6 +65,17 @@ class LivechatVerification(models.Model):
         help="Rempli uniquement quand le mode test est actif, pour que les "
              "testeurs lisent le code sans envoi réel. Jamais rempli en production.",
     )
+
+    @api.constrains("outcome", "partner_id", "code_hash", "method", "expires_at")
+    def _check_sent_is_complete(self):
+        for rec in self:
+            if rec.outcome == "sent" and not (
+                rec.partner_id and rec.code_hash and rec.method and rec.expires_at
+            ):
+                raise ValidationError(
+                    "Une vérification 'Code envoyé' doit porter un client, une "
+                    "empreinte de code, un canal d'envoi et une expiration."
+                )
 
     # -- lookup -----------------------------------------------------------
     def _find_partner(self, identifier):
@@ -156,14 +177,20 @@ class LivechatVerification(models.Model):
     def _start_verification(self, channel, identifier):
         partner = self._find_partner(identifier)
         if not partner or not (partner.email or partner.phone):
+            # Recorded, not merely refused. Order and repair references are
+            # sequential: a lookup that costs nothing is a free existence
+            # oracle, and every hit fires a real message at a real customer.
+            # The row makes the attempt count against the channel's quota.
+            self.sudo().create({"channel_id": channel.id, "outcome": "not_found"})
             raise ToolError(NOT_FOUND_MSG)
         method = "email" if partner.email else "sms"
         code = "%06d" % secrets.randbelow(1_000_000)
-        # Superseded, not deleted: `_sends_since` counts these records, and a
-        # send counter erased by the next send would cap nothing. The pending
+        # Superseded, not deleted: `_requests_since` counts these records, and
+        # a counter erased by the next request would cap nothing. The pending
         # code still dies here — `_check_code` ignores superseded records.
         self.sudo().search([
             ("channel_id", "=", channel.id),
+            ("outcome", "=", "sent"),
             ("verified_at", "=", False),
             ("superseded", "=", False),
         ]).write({"superseded": True})
@@ -181,6 +208,9 @@ class LivechatVerification(models.Model):
     def _check_code(self, channel, code):
         rec = self.sudo().search([
             ("channel_id", "=", channel.id),
+            # `not_found` rows carry no code and no expiry: they exist to be
+            # counted, never to be checked against.
+            ("outcome", "=", "sent"),
             ("verified_at", "=", False),
             ("superseded", "=", False),
         ], limit=1)
@@ -192,12 +222,14 @@ class LivechatVerification(models.Model):
         rec.verified_at = fields.Datetime.now()
         return {"verified": True, "attempts_left": MAX_ATTEMPTS - rec.attempts}
 
-    def _sends_since(self, channel, minutes):
-        """How many codes this channel has had sent in the last `minutes`.
+    def _requests_since(self, channel, minutes):
+        """How many code requests this channel has made in the last `minutes`.
 
-        Counted on the verification records themselves, which is the whole
-        reason `_start_verification` supersedes instead of deleting. The policy
-        (how many is too many) belongs to the tool layer, not here: the model
+        Requests, not sends: a lookup that resolved nobody counts too (its
+        `not_found` row is right there), otherwise probing references would be
+        free. Counted on the records themselves, which is the whole reason
+        `_start_verification` supersedes instead of deleting. The policy (how
+        many is too many) belongs to the tool layer, not here: the model
         answers "how many", it does not decide.
         """
         since = fields.Datetime.now() - timedelta(minutes=minutes)

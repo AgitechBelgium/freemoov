@@ -3,6 +3,7 @@ from datetime import timedelta
 from unittest.mock import patch
 
 from odoo import fields
+from odoo.exceptions import ValidationError
 from odoo.tests import tagged
 
 from ..models.verification import TEST_MODE_PARAM, VERIFIED_TTL_MIN
@@ -87,6 +88,32 @@ class TestVerification(FreemoovAiCase):
         from ..services.tools import ToolError
         with self.assertRaises(ToolError):
             self.Verif._start_verification(self.channel, "inconnu@nulpart.be")
+
+    def test_unknown_identifier_is_still_recorded(self):
+        """An unresolved identifier leaves a trace: it consumes the channel's
+        quota, otherwise probing sequential references costs nothing.
+
+        Not `assertRaises` here: Odoo's version rolls back to a savepoint when
+        the exception fires (`odoo/tests/common.py:446`) and would erase the
+        very row under test. The tools layer catches `ToolError` in plain
+        Python, so the row survives in production.
+        """
+        try:
+            self.Verif._start_verification(self.channel, "inconnu@nulpart.be")
+            self.fail("ToolError attendue")
+        except tools.ToolError:
+            pass
+        rec = self._record()
+        self.assertEqual(rec.outcome, "not_found")
+        self.assertFalse(rec.partner_id)
+        self.assertEqual(self.Verif._requests_since(self.channel, 60), 1)
+
+    def test_a_sent_record_must_be_complete(self):
+        """`partner_id` and the code fields are optional for the sake of the
+        not-found rows only. A record that claims a code was sent still has to
+        carry one."""
+        with self.assertRaises(ValidationError):
+            self.Verif.sudo().create({"channel_id": self.channel.id, "outcome": "sent"})
 
     def test_expired_code_is_refused(self):
         _, code = self._start()
