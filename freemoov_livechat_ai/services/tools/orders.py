@@ -7,6 +7,8 @@ partner), and every domain is anchored on that verified partner.
 """
 import logging
 
+import psycopg2
+
 from . import ToolError, register, verified_partner
 from .verification_tools import VERIFICATION_HINT
 
@@ -117,6 +119,11 @@ def renvoyer_facture(env, channel, reference_commande):
         )
     try:
         template.sudo().send_mail(invoice.id, email_layout_xmlid="mail.mail_notification_light")
+    except psycopg2.Error:
+        # Not a "propose a transfer" situation: the cursor is gone. Odoo's
+        # retrying layer has to see this one, and the agent loop must not carry
+        # on issuing queries on a transaction that is already dead.
+        raise
     except Exception:
         # Rendering the invoice PDF reaches deep into `account` (layouts,
         # reports, attachments); whatever it raises must not surface raw in a

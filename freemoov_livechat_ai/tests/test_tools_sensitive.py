@@ -1,5 +1,7 @@
 from unittest.mock import patch
 
+import psycopg2
+
 from odoo.exceptions import UserError
 from odoo.tests import tagged
 
@@ -351,6 +353,23 @@ class TestSensitiveTools(FreemoovAiCase):
         with patch("odoo.addons.mail.models.mail_template.MailTemplate.send_mail",
                    side_effect=UserError("rendu impossible")):
             with self.assertRaisesRegex(tools.ToolError, "transfère"):
+                tools.run_tool(self.env, self.channel, "renvoyer_facture",
+                               {"reference_commande": self.order.name})
+
+    def test_renvoyer_facture_reraises_database_errors(self):
+        """A dead cursor is not a "please transfer me" situation.
+
+        `send_mail` writes (mail.mail, attachments), so it can genuinely raise
+        psycopg2 — a serialisation failure Odoo would retry, or an aborted
+        transaction. Converted to `ToolError`, the agent loop would carry on
+        querying a cursor the transaction has already lost, and the request
+        would fail much later with the real cause long gone.
+        """
+        self._verify_channel()
+        self._posted_invoice()
+        with patch("odoo.addons.mail.models.mail_template.MailTemplate.send_mail",
+                   side_effect=psycopg2.OperationalError("could not serialize access")):
+            with self.assertRaises(psycopg2.OperationalError):
                 tools.run_tool(self.env, self.channel, "renvoyer_facture",
                                {"reference_commande": self.order.name})
 
