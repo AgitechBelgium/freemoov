@@ -24,6 +24,10 @@
         <field name="key">freemoov_livechat_ai.verification_test_mode</field>
         <field name="value">False</field>
     </record>
+    <record id="param_repair_tool_enabled" model="ir.config_parameter">
+        <field name="key">freemoov_livechat_ai.repair_tool_enabled</field>
+        <field name="value">False</field>
+    </record>
     <record id="param_rate_limit" model="ir.config_parameter">
         <field name="key">freemoov_livechat_ai.rate_limit_per_min</field>
         <field name="value">20</field>

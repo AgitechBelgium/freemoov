@@ -42,6 +42,13 @@ class LivechatVerification(models.Model):
     expires_at = fields.Datetime(required=True)
     attempts = fields.Integer(default=0)
     verified_at = fields.Datetime()
+    superseded = fields.Boolean(
+        default=False,
+        help="Vérification remplacée par un envoi plus récent. Ces "
+             "enregistrements sont conservés (et non supprimés) parce qu'ils "
+             "portent le compteur d'envois : un plafond de renvois qui "
+             "s'effacerait au renvoi suivant ne plafonnerait rien.",
+    )
     test_code_plain = fields.Char(
         string="Code (mode test)",
         groups="base.group_system",
@@ -152,7 +159,14 @@ class LivechatVerification(models.Model):
             raise ToolError(NOT_FOUND_MSG)
         method = "email" if partner.email else "sms"
         code = "%06d" % secrets.randbelow(1_000_000)
-        self.sudo().search([("channel_id", "=", channel.id), ("verified_at", "=", False)]).unlink()
+        # Superseded, not deleted: `_sends_since` counts these records, and a
+        # send counter erased by the next send would cap nothing. The pending
+        # code still dies here — `_check_code` ignores superseded records.
+        self.sudo().search([
+            ("channel_id", "=", channel.id),
+            ("verified_at", "=", False),
+            ("superseded", "=", False),
+        ]).write({"superseded": True})
         verification = self.sudo().create({
             "channel_id": channel.id,
             "partner_id": partner.id,
@@ -166,7 +180,9 @@ class LivechatVerification(models.Model):
 
     def _check_code(self, channel, code):
         rec = self.sudo().search([
-            ("channel_id", "=", channel.id), ("verified_at", "=", False),
+            ("channel_id", "=", channel.id),
+            ("verified_at", "=", False),
+            ("superseded", "=", False),
         ], limit=1)
         if not rec or rec.expires_at < fields.Datetime.now() or rec.attempts >= MAX_ATTEMPTS:
             return {"verified": False, "attempts_left": 0}
@@ -175,6 +191,20 @@ class LivechatVerification(models.Model):
             return {"verified": False, "attempts_left": MAX_ATTEMPTS - rec.attempts}
         rec.verified_at = fields.Datetime.now()
         return {"verified": True, "attempts_left": MAX_ATTEMPTS - rec.attempts}
+
+    def _sends_since(self, channel, minutes):
+        """How many codes this channel has had sent in the last `minutes`.
+
+        Counted on the verification records themselves, which is the whole
+        reason `_start_verification` supersedes instead of deleting. The policy
+        (how many is too many) belongs to the tool layer, not here: the model
+        answers "how many", it does not decide.
+        """
+        since = fields.Datetime.now() - timedelta(minutes=minutes)
+        return self.sudo().search_count([
+            ("channel_id", "=", channel.id),
+            ("create_date", ">=", since),
+        ])
 
     # -- envoi ------------------------------------------------------------
     def _send_code(self, partner, method, code):

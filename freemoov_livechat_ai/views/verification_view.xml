@@ -4,7 +4,8 @@
         <field name="name">freemoov.livechat.verification.tree</field>
         <field name="model">freemoov.livechat.verification</field>
         <field name="arch" type="xml">
-            <tree decoration-success="verified_at != False" decoration-muted="attempts >= 3">
+            <tree decoration-success="verified_at != False"
+                  decoration-muted="attempts >= 3 or superseded">
                 <field name="create_date"/>
                 <field name="channel_id"/>
                 <field name="partner_id"/>
@@ -12,6 +13,7 @@
                 <field name="expires_at"/>
                 <field name="attempts"/>
                 <field name="verified_at"/>
+                <field name="superseded"/>
                 <!-- Rempli uniquement en mode test : c'est là que les testeurs
                      lisent le code, aucun envoi ni journalisation. -->
                 <field name="test_code_plain"/>
@@ -33,6 +35,7 @@
                         <field name="expires_at"/>
                         <field name="attempts"/>
                         <field name="verified_at"/>
+                        <field name="superseded"/>
                         <field name="test_code_plain"/>
                     </group>
                 </sheet>
