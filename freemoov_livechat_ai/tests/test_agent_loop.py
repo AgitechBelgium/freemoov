@@ -19,13 +19,20 @@ REQUESTS_POST = "odoo.addons.freemoov_livechat_ai.services.anthropic_client.requ
 
 
 def _resp(text=None, tool_use=None, stop="end_turn"):
+    """One model response.
+
+    Text block first, then the `tool_use` block — that is the order the API
+    really produces (the model announces what it is about to do, then calls the
+    tool), and the reverse order would hide what a dangling preamble does to
+    the answer shown at the cap.
+    """
     content = []
+    if text:
+        content.append({"type": "text", "text": text})
     if tool_use:
         content.append({"type": "tool_use", "id": "tu_1",
                         "name": tool_use[0], "input": tool_use[1]})
         stop = "tool_use"
-    if text:
-        content.append({"type": "text", "text": text})
     return {"text": text or "", "content": content, "stop_reason": stop,
             "input_tokens": 10, "output_tokens": 5, "latency_ms": 50}
 
@@ -79,6 +86,30 @@ class TestAgentLoop(FreemoovAiCase):
                                        [{"role": "user", "content": question}])
         return out, cm
 
+    def _verified_channel_with_invoice(self):
+        """A verified visitor holding a posted invoice — fictional data only.
+
+        The minimum needed to reach a tool that really sends something, which
+        is what makes "the cap must not execute" measurable.
+        """
+        partner = self.env["res.partner"].create({
+            "name": "Client Boucle AI", "email": "boucle@test.be",
+        })
+        product = self.env["product.product"].create({
+            "name": "Produit Boucle AI", "list_price": 5,
+        })
+        self.order = self.env["sale.order"].create({
+            "partner_id": partner.id,
+            "order_line": [(0, 0, {"product_id": product.id})],
+        })
+        self.order.action_confirm()
+        self.order._create_invoices().action_post()
+        Verification = self.env["freemoov.livechat.verification"]
+        with patch.object(type(Verification), "_send_code") as send:
+            Verification._start_verification(self.channel, "boucle@test.be")
+            code = send.call_args.args[2]  # (partner, method, code)
+        self.assertTrue(Verification._check_code(self.channel, code)["verified"])
+
     # -- boucle nominale --------------------------------------------------
     def test_tool_call_then_answer(self):
         responses = [
@@ -94,7 +125,9 @@ class TestAgentLoop(FreemoovAiCase):
         self.assertEqual(out["product_ids"], [])
         # Usage is summed over the whole turn, not just the last call.
         self.assertEqual((out["input_tokens"], out["output_tokens"]), (20, 10))
-        self.assertEqual(out["latency_ms"], 100)
+        # API time only — the tools' own time is in `tool_calls`.
+        self.assertEqual(out["api_latency_ms"], 100)
+        self.assertNotIn("latency_ms", out)
         self.assertEqual(
             set(out["tool_calls"][0]), {"name", "arguments", "ok", "duration_ms"})
         self.assertEqual(out["tool_calls"][0]["arguments"], {"ville": "namur"})
@@ -266,8 +299,81 @@ class TestAgentLoop(FreemoovAiCase):
         no text to show: the visitor still gets a sentence, not an empty bubble.
         """
         out, _ = self._run([_resp(tool_use=("infos_magasins", {}))] * 10, "boucle")
-        self.assertTrue(out["text"].strip())
-        self.assertEqual(len(out["tool_calls"]), agent_loop.MAX_TOOL_ITERATIONS + 1)
+        self.assertEqual(out["text"], agent_loop.CAP_REACHED_MSG)
+        self.assertEqual(len(out["tool_calls"]), agent_loop.MAX_TOOL_ITERATIONS)
+
+    def test_cap_replaces_a_dangling_preamble(self):
+        """The API nearly always emits a text preamble before its tool_use
+        blocks. At the cap that preamble is the last thing the model said — it
+        announces work that never completed, so relaying it would promise the
+        visitor a result nobody is going to produce.
+        """
+        responses = [_resp(text="Je vérifie ça tout de suite…",
+                           tool_use=("infos_magasins", {}))] * 10
+        out, _ = self._run(responses, "boucle")
+        self.assertEqual(out["text"], agent_loop.CAP_REACHED_MSG)
+        self.assertNotIn("Je vérifie", out["text"])
+        self.assertTrue(out["escalate"])
+
+    def test_cap_runs_no_tool_whose_result_it_cannot_report(self):
+        """The iteration past the budget must not execute anything.
+
+        Its results can no longer be sent back to the model, but the side
+        effects are real: `renvoyer_facture` posts an e-mail and carries no
+        per-channel cap, so one wasted round is one invoice mailed on behalf of
+        a conversation that then hands over to a human with no trace of it.
+        """
+        self._verified_channel_with_invoice()
+        responses = [_resp(text="Je vous renvoie ça.",
+                           tool_use=("renvoyer_facture",
+                                     {"reference_commande": self.order.name}))] * 10
+        with patch("odoo.addons.mail.models.mail_template.MailTemplate.send_mail") as send_mail:
+            out, cm = self._run(responses, "ma facture ?")
+        self.assertEqual(cm.call_count, agent_loop.MAX_TOOL_ITERATIONS + 1)
+        self.assertEqual(send_mail.call_count, agent_loop.MAX_TOOL_ITERATIONS)
+        self.assertEqual(len(out["tool_calls"]), agent_loop.MAX_TOOL_ITERATIONS)
+        self.assertEqual(out["text"], agent_loop.CAP_REACHED_MSG)
+
+    # -- troncature -------------------------------------------------------
+    def test_truncated_answer_escalates(self):
+        """`max_tokens` cuts mid-sentence, and the cut can land inside a price
+        or a URL. The half sentence is dropped, not shown."""
+        truncated = _resp(text="Le prix de ce modèle est de 1")
+        truncated["stop_reason"] = "max_tokens"
+        out, _ = self._run([truncated], "combien ?")
+        self.assertTrue(out["escalate"])
+        self.assertEqual(out["text"], agent_loop.TRUNCATED_MSG)
+        self.assertNotIn("est de 1", out["text"])
+
+    def test_truncated_tool_use_is_never_executed(self):
+        """The cut can also land inside a `tool_use` block, leaving an `input`
+        the model never finished writing. Running it would be running a tool on
+        arguments nobody wrote — on `renvoyer_facture`, a mail on a reference
+        the model was still in the middle of emitting.
+        """
+        truncated = _resp(text="Je vous renvoie",
+                          tool_use=("renvoyer_facture", {"reference_commande": "S0"}))
+        truncated["stop_reason"] = "max_tokens"
+        with patch.object(tools, "run_tool", wraps=tools.run_tool) as run:
+            out, cm = self._run([truncated, _resp(text="jamais atteint")], "ma facture ?")
+        self.assertFalse(run.called)
+        self.assertEqual(cm.call_count, 1)
+        self.assertTrue(out["escalate"])
+        self.assertEqual(out["tool_calls"], [])
+
+    def test_tool_use_stop_reason_without_a_block(self):
+        """Degenerate response: `tool_use` announced, no block to run.
+
+        Appending an empty `content` array is a 400, and carrying on would
+        re-send a dangling assistant turn the API also refuses. The turn ends
+        instead of spinning to the cap on a conversation nobody can answer.
+        """
+        degenerate = _resp(text="Je regarde.")
+        degenerate["stop_reason"] = "tool_use"
+        out, cm = self._run([degenerate] * 3, "?")
+        self.assertEqual(cm.call_count, 1)
+        self.assertEqual(out["tool_calls"], [])
+        self.assertTrue(out["escalate"])
 
     def test_text_answered_on_the_last_allowed_iteration_is_kept(self):
         """The cap must not throw away an answer the model did produce."""
@@ -300,6 +406,24 @@ class TestAgentLoop(FreemoovAiCase):
         self.assertEqual([c["name"] for c in out["tool_calls"]],
                          ["chercher_produits", "fiche_produit"])
         self.assertTrue(all(c["ok"] for c in out["tool_calls"]))
+
+    def test_a_collection_bug_does_not_fail_a_successful_tool(self):
+        """`_collect_product_ids` sits outside the reach of the `except` blocks.
+
+        Inside them, a malformed product payload would be relayed to the model
+        as "your lookup failed" on a lookup that in fact succeeded — and the
+        model would go on to explain a failure that never happened. A bug in
+        our own collection code stays loud instead.
+        """
+        responses = [
+            _resp(tool_use=("chercher_produits", {"recherche": "Boucle"})),
+            _resp(text="jamais atteint"),
+        ]
+        with patch.object(agent_loop, "_collect_product_ids", side_effect=KeyError("id")):
+            with patch.object(AnthropicClient, "create_message", side_effect=responses):
+                with self.assertRaises(KeyError):
+                    agent_loop.run_agent(self.env, self.channel, self._client(), "sys",
+                                         [{"role": "user", "content": "?"}])
 
     def test_failed_product_lookup_collects_nothing(self):
         responses = [

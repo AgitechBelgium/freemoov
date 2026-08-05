@@ -17,6 +17,10 @@ TOOL_CRASH_MSG = "Erreur interne de l'outil — proposer un transfert."
 CAP_REACHED_MSG = (
     "Je n'arrive pas à aboutir sur cette demande, je préfère vous passer un conseiller."
 )
+TRUNCATED_MSG = (
+    "Ma réponse a été coupée avant la fin, je préfère vous passer un conseiller "
+    "plutôt que de vous laisser une information incomplète."
+)
 
 
 def _collect_product_ids(name, result):
@@ -35,29 +39,57 @@ def _collect_product_ids(name, result):
 def run_agent(env, channel, client, system_prompt, messages):
     """Answer one visitor turn, running whatever tools the model asks for.
 
-    Two invariants hold in the tool block below, and neither is cosmetic:
+    Four invariants hold below, none of them cosmetic:
 
     * every call goes through `tools.run_tool` — the verification gate is read
       from the database there and nowhere else, so reaching a tool function
       directly would run a sensitive tool for an unverified visitor;
     * no savepoint wraps that call. Failed identity lookups deliberately leave
       a row behind (it is what meters probing, see Task 4), and rolling back
-      on `ToolError` would refund the quota it just spent.
+      on `ToolError` would refund the quota it just spent;
+    * nothing runs on the iteration past the budget. Its results could not be
+      sent back to the model anyway, and several tools have real side effects
+      (`envoyer_code` mails a code, `renvoyer_facture` mails an invoice and
+      has no per-channel cap of its own);
+    * a `max_tokens` stop is a truncation, not an answer: the cut lands
+      mid-block, so any `tool_use` in it carries arguments the model never
+      finished writing, and the text is half a sentence.
+
+    `api_latency_ms` is the API time alone. Wall time for the turn is that plus
+    `sum(call["duration_ms"] for call in tool_calls)`.
     """
     specs = tools.anthropic_tool_specs()
     convo = list(messages)
     tool_calls, product_ids = [], []
     total_in = total_out = total_latency = 0
-    escalate_forced = False
+    # Set when the turn has to end on a canned sentence: whatever the model
+    # said last is then unusable, and saying it anyway would mislead.
+    forced_text = None
     result = None
 
-    for _ in range(MAX_TOOL_ITERATIONS + 1):
+    for iteration in range(MAX_TOOL_ITERATIONS + 1):
         result = client.create_message(system_prompt, convo, tools=specs)
         total_in += result["input_tokens"]
         total_out += result["output_tokens"]
         total_latency += result["latency_ms"]
 
+        if result["stop_reason"] == "max_tokens":
+            # Ahead of the generic break below, which would otherwise take this
+            # for an ordinary end of turn. A truncated response is not an
+            # answer: the cut lands mid-block, so the text is half a sentence
+            # (the cut can fall inside a price or a URL) and a `tool_use` in it
+            # carries arguments the model never finished writing.
+            forced_text = TRUNCATED_MSG
+            break
+
         if result["stop_reason"] != "tool_use":
+            break
+
+        if iteration == MAX_TOOL_ITERATIONS:
+            # Budget spent. Stop *before* executing: these results can no
+            # longer be reported to the model, and the sends they trigger are
+            # real ones the visitor would never hear about.
+            forced_text = CAP_REACHED_MSG
             break
 
         convo.append({"role": "assistant", "content": result["content"]})
@@ -69,8 +101,6 @@ def run_agent(env, channel, client, system_prompt, messages):
             t0 = time.monotonic()
             try:
                 out = tools.run_tool(env, channel, name, args)
-                ok, payload = True, json.dumps(out, ensure_ascii=False, default=str)
-                product_ids += _collect_product_ids(name, out)
             except psycopg2.Error:
                 # The cursor is gone: Odoo's retrying layer has to see this.
                 # Swallowed, it would become a "tool failed" string handed back
@@ -88,6 +118,12 @@ def run_agent(env, channel, client, system_prompt, messages):
                 # stack-trace fragment, and the model would quote it.
                 _logger.exception("freemoov_ai: tool %s crashed", name)
                 ok, payload = False, json.dumps({"erreur": TOOL_CRASH_MSG}, ensure_ascii=False)
+            else:
+                ok, payload = True, json.dumps(out, ensure_ascii=False, default=str)
+                # Out of the `except` reach on purpose: a bug in our own
+                # collection code must not be reported to the model as a failed
+                # lookup on a lookup that succeeded.
+                product_ids += _collect_product_ids(name, out)
             tool_calls.append({
                 "name": name, "arguments": args, "ok": ok,
                 "duration_ms": int((time.monotonic() - t0) * 1000),
@@ -96,21 +132,24 @@ def run_agent(env, channel, client, system_prompt, messages):
                 "type": "tool_result", "tool_use_id": block["id"],
                 "content": payload, "is_error": not ok,
             })
+        if not tool_results:
+            # `tool_use` announced, no block to run. An empty `content` array
+            # is a 400, and looping would re-send a dangling assistant turn the
+            # API refuses too, so the turn ends here.
+            _logger.warning("freemoov_ai: tool_use stop reason with no tool_use block")
+            forced_text = CAP_REACHED_MSG
+            break
         convo.append({"role": "user", "content": tool_results})
-    else:
-        # Cap reached: the model is still asking for tools, so its last
-        # response carries no answer. Close the turn cleanly instead.
-        escalate_forced = True
 
     text, escalate = parse_response(result["text"] if result else "")
-    if escalate_forced and not text:
-        text = CAP_REACHED_MSG
+    if forced_text:
+        text = forced_text
     return {
         "text": text,
-        "escalate": escalate or escalate_forced,
+        "escalate": escalate or bool(forced_text),
         "product_ids": list(dict.fromkeys(product_ids)),
         "tool_calls": tool_calls,
         "input_tokens": total_in,
         "output_tokens": total_out,
-        "latency_ms": total_latency,
+        "api_latency_ms": total_latency,
     }
