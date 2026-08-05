@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="partner_ai_bot" model="res.partner">
+        <field name="name">Assistant Freemoov 🤖</field>
+        <field name="email">bot@freemoov.com</field>
+        <field name="is_company" eval="False"/>
+    </record>
+</odoo>

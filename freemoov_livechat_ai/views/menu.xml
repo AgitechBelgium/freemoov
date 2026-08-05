@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_livechat_ai_log"
+              name="AI Logs"
+              parent="im_livechat.menu_livechat_root"
+              action="action_livechat_ai_log"
+              sequence="90"/>
+</odoo>

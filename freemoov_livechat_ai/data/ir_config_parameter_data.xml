@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="param_enabled" model="ir.config_parameter">
+        <field name="key">freemoov_livechat_ai.enabled</field>
+        <field name="value">False</field>
+    </record>
+    <record id="param_dry_run" model="ir.config_parameter">
+        <field name="key">freemoov_livechat_ai.dry_run</field>
+        <field name="value">True</field>
+    </record>
+    <record id="param_model" model="ir.config_parameter">
+        <field name="key">freemoov_livechat_ai.model</field>
+        <field name="value">claude-haiku-4-5-20251001</field>
+    </record>
+    <record id="param_delay" model="ir.config_parameter">
+        <field name="key">freemoov_livechat_ai.delay_seconds</field>
+        <field name="value">30</field>
+    </record>
+    <record id="param_max_tokens" model="ir.config_parameter">
+        <field name="key">freemoov_livechat_ai.max_tokens</field>
+        <field name="value">400</field>
+    </record>
+    <record id="param_rate_limit" model="ir.config_parameter">
+        <field name="key">freemoov_livechat_ai.rate_limit_per_min</field>
+        <field name="value">20</field>
+    </record>
+</odoo>

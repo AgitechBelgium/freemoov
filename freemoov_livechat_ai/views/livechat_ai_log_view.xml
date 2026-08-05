@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_livechat_ai_log_tree" model="ir.ui.view">
+        <field name="name">freemoov.livechat.ai.log.tree</field>
+        <field name="model">freemoov.livechat.ai.log</field>
+        <field name="arch" type="xml">
+            <tree decoration-danger="status=='error'" decoration-warning="status in ('escalated','skipped_rate')" decoration-info="status=='dry_run'">
+                <field name="create_date"/>
+                <field name="channel_id"/>
+                <field name="status"/>
+                <field name="model"/>
+                <field name="visitor_message"/>
+                <field name="bot_response"/>
+                <field name="input_tokens"/>
+                <field name="output_tokens"/>
+                <field name="cost_eur" widget="monetary" sum="Total"/>
+                <field name="latency_ms"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_livechat_ai_log_form" model="ir.ui.view">
+        <field name="name">freemoov.livechat.ai.log.form</field>
+        <field name="model">freemoov.livechat.ai.log</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="channel_id"/>
+                        <field name="status"/>
+                        <field name="model"/>
+                        <field name="create_date"/>
+                        <field name="input_tokens"/>
+                        <field name="output_tokens"/>
+                        <field name="cost_eur"/>
+                        <field name="latency_ms"/>
+                    </group>
+                    <group string="Visitor message">
+                        <field name="visitor_message" nolabel="1"/>
+                    </group>
+                    <group string="Bot response">
+                        <field name="bot_response" nolabel="1"/>
+                    </group>
+                    <group string="Error">
+                        <field name="error_message" nolabel="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_livechat_ai_log" model="ir.actions.act_window">
+        <field name="name">Livechat AI — Logs</field>
+        <field name="res_model">freemoov.livechat.ai.log</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>

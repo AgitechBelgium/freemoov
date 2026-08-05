@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_res_config_settings_livechat_ai" model="ir.ui.view">
+        <field name="name">res.config.settings.livechat.ai</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Freemoov AI Livechat" string="Freemoov AI Livechat" name="freemoov_livechat_ai" groups="base.group_system">
+                    <block title="Fallback IA sur le livechat" name="freemoov_ai_block">
+                        <setting id="freemoov_ai_enabled_setting" string="Activer l'IA">
+                            <field name="freemoov_ai_enabled"/>
+                        </setting>
+                        <setting id="freemoov_ai_dry_run_setting" string="Dry run (log seulement, ne poste pas)">
+                            <field name="freemoov_ai_dry_run"/>
+                        </setting>
+                        <setting id="freemoov_ai_api_key_setting" string="Clé API Anthropic">
+                            <field name="freemoov_ai_api_key" password="True"/>
+                        </setting>
+                        <setting id="freemoov_ai_model_setting" string="Modèle">
+                            <field name="freemoov_ai_model"/>
+                        </setting>
+                        <setting id="freemoov_ai_delay_setting" string="Délai avant réponse bot (s)">
+                            <field name="freemoov_ai_delay_seconds"/>
+                        </setting>
+                        <setting id="freemoov_ai_max_tokens_setting" string="Max tokens réponse">
+                            <field name="freemoov_ai_max_tokens"/>
+                        </setting>
+                        <setting id="freemoov_ai_rate_setting" string="Max appels / minute">
+                            <field name="freemoov_ai_rate_limit_per_min"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

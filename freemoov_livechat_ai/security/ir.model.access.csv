@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_freemoov_livechat_ai_log_admin,freemoov.livechat.ai.log admin,model_freemoov_livechat_ai_log,base.group_system,1,1,1,1
+access_freemoov_livechat_ai_log_user,freemoov.livechat.ai.log user,model_freemoov_livechat_ai_log,base.group_user,1,0,0,0
