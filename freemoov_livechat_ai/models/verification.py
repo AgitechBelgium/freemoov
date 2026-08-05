@@ -17,6 +17,7 @@ TEST_MODE_PARAM = "freemoov_livechat_ai.verification_test_mode"
 # `%` and `_` are LIKE wildcards, `\` escapes them: any of the three turns an
 # exact lookup into a pattern search, i.e. an enumeration oracle handed to an
 # anonymous visitor ("%@%" resolves a real customer on the first try).
+# Refused outright on references, escaped on e-mails — see `_find_partner`.
 LIKE_METACHARS = ("%", "_", "\\")
 
 NOT_FOUND_MSG = (
@@ -51,14 +52,24 @@ class LivechatVerification(models.Model):
     # -- lookup -----------------------------------------------------------
     def _find_partner(self, identifier):
         ident = (identifier or "").strip()
-        if not ident or any(char in ident for char in LIKE_METACHARS):
-            # Refused before any query, and with the ordinary "not found"
-            # answer: a dedicated message would tell the probe it was spotted.
+        if not ident:
             return self.env["res.partner"]
         if "@" in ident:
+            # `_` is a perfectly ordinary character in an address — 169 of them
+            # in this base — so the e-mail branch escapes instead of refusing:
+            # a refusal would lock those customers out of the assistant for
+            # good, on an identifier they type correctly.
             return self._pick_partner(
-                self.env["res.partner"].sudo().search([("email", "=ilike", ident)])
+                self.env["res.partner"].sudo().search(
+                    [("email", "=ilike", self._escape_like(ident))]
+                )
             )
+        if any(char in ident for char in LIKE_METACHARS):
+            # Nothing legitimate carries a metacharacter in a generated
+            # reference, so those are refused before any query runs — with the
+            # ordinary "not found" answer: a dedicated message would tell the
+            # probe it was spotted.
+            return self.env["res.partner"]
         order = self.env["sale.order"].sudo().search([("name", "=ilike", ident)], limit=1)
         if order:
             return order.partner_id
@@ -111,6 +122,15 @@ class LivechatVerification(models.Model):
         if task:
             return (1, task.write_date, partner.id)
         return (0, partner.write_date, partner.id)
+
+    @staticmethod
+    def _escape_like(value):
+        """Neutralise the LIKE metacharacters in a value meant to match
+        literally. `\\` is ILIKE's default escape character in PostgreSQL and
+        the value travels as a bound parameter, so escaping it here is enough.
+        Backslashes first, or the escapes would be escaped in turn.
+        """
+        return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
 
     @staticmethod
     def _mask(value):

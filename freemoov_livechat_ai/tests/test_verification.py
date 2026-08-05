@@ -185,23 +185,49 @@ class TestVerification(FreemoovAiCase):
         with self.assertRaises(tools.ToolError):
             self._start(task.reparation_number[:-1])
 
-    def test_wildcards_are_rejected(self):
+    def test_wildcards_never_widen_the_lookup(self):
         """LIKE metacharacters turn an exact lookup into an enumeration oracle:
         "%@%" resolves a real customer, "RO00%" walks the repair references.
-        They are refused before any query runs, with the ordinary not-found
-        answer so the probe learns nothing."""
+
+        Two mechanisms, because `_` is legitimate in an e-mail and never in a
+        generated reference: the e-mail branch escapes the metacharacters, the
+        reference branches refuse the identifier before querying. Either way
+        the visitor gets the ordinary not-found answer and learns nothing.
+        """
         Task = self.env["project.task"]
-        probes = ["%@%", "%", "_", "client@test.b_", "cl%@test.be", "client@test.be\\"]
+        escaped = ["%@%", "client@test.b_", "cl%@test.be", "client@test.be\\"]
+        refused = ["%", "_", "\\"]
         if "reparation_number" in Task._fields:
             task = Task.create({
                 "name": "Remplacement batterie",
                 "project_id": self._fsm_project().id,
                 "partner_id": self.partner.id,
             })
-            probes.append(task.reparation_number[:4] + "%")
-        for probe in probes:
+            refused.append(task.reparation_number[:4] + "%")
+        for probe in escaped + refused:
             with self.subTest(probe=probe), self.assertRaises(tools.ToolError):
                 self._start(probe)
+
+    def test_email_with_an_underscore_is_a_valid_identifier(self):
+        """169 addresses in this base carry an underscore. Refusing the
+        character locked those customers out of the assistant for good, and the
+        not-found answer sent them round in circles."""
+        partner = self.env["res.partner"].create({
+            "name": "Client Underscore", "email": "jean_dupont@test.be",
+        })
+        res, code = self._start("jean_dupont@test.be")
+        self.assertEqual(res["method"], "email")
+        self.assertTrue(self.Verif._check_code(self.channel, code)["verified"])
+        self.assertEqual(self.channel._freemoov_ai_verified_partner(), partner)
+
+    def test_escaped_underscore_is_not_a_single_char_wildcard(self):
+        """The escape has to be a real escape: with `_` still live, this probe
+        resolves the neighbouring address and sends that customer a code."""
+        self.env["res.partner"].create({
+            "name": "Client Voisin", "email": "jeanXdupont@test.be",
+        })
+        with self.assertRaises(tools.ToolError):
+            self._start("jean_dupont@test.be")
 
     def test_duplicate_email_picks_the_most_active_partner(self):
         """Duplicated e-mails are the norm in this base, so the lookup must not
