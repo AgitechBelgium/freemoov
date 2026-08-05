@@ -9,6 +9,7 @@ from odoo import api, fields, models
 from ..services import agent_loop
 from ..services.anthropic_client import AnthropicClient, estimate_cost_eur
 from ..services.prompt_builder import build_messages_from_channel, build_system_prompt
+from ..services.tools import is_dry_run
 from ..services.tools.catalog import _serialize, _store_warehouses
 
 _logger = logging.getLogger(__name__)
@@ -16,6 +17,11 @@ _logger = logging.getLogger(__name__)
 BOT_PARTNER_XMLID = "freemoov_livechat_ai.partner_ai_bot"
 PRODUCT_CARDS_TEMPLATE = "freemoov_livechat_ai.assistant_product_cards"
 MAX_PRODUCT_CARDS = 3
+
+# Re-entrancy marker carried by everything this module posts, read back in
+# `_freemoov_ai_trigger_from_message`. Never read from the database: it lives
+# for the length of the `message_post` call that set it.
+BOT_POST_CONTEXT_KEY = "freemoov_ai_bot_post"
 
 FALLBACK_TEXT = "Je n'ai pas pu formuler de réponse, je transfère à un conseiller."
 
@@ -101,19 +107,19 @@ class DiscussChannel(models.Model):
         return ICP.get_param("freemoov_livechat_ai.enabled") == "True"
 
     def _freemoov_ai_is_dry_run(self):
-        ICP = self.env["ir.config_parameter"].sudo()
-        return ICP.get_param("freemoov_livechat_ai.dry_run", "True") == "True"
+        return is_dry_run(self.env)
 
     def _freemoov_ai_config(self):
         ICP = self.env["ir.config_parameter"].sudo()
         return {
             "api_key": ICP.get_param("freemoov_livechat_ai.api_key") or "",
             "model": ICP.get_param("freemoov_livechat_ai.model") or "claude-haiku-4-5-20251001",
-            "max_tokens": int(ICP.get_param("freemoov_livechat_ai.max_tokens") or 400),
-            "delay_seconds": int(ICP.get_param("freemoov_livechat_ai.delay_seconds") or 30),
-            "rate_limit_per_min": int(ICP.get_param("freemoov_livechat_ai.rate_limit_per_min") or 20),
+            "max_tokens": _int_param(ICP, "freemoov_livechat_ai.max_tokens", 400),
+            "rate_limit_per_min": _int_param(
+                ICP, "freemoov_livechat_ai.rate_limit_per_min", 20
+            ),
             # Ceiling on what one conversation may spend, both directions
-            # summed. 0 lifts it.
+            # summed. Anything below 1 lifts it.
             "conversation_token_budget": _int_param(
                 ICP, "freemoov_livechat_ai.conversation_token_budget", 50000
             ),
@@ -166,6 +172,35 @@ class DiscussChannel(models.Model):
         partner = self._freemoov_ai_verified_partner()
         return partner.id if partner else 0
 
+    def _freemoov_ai_post_as_bot(self, body):
+        """Post one message as the assistant. The only way this module posts.
+
+        Two context keys, both load-bearing:
+
+        * `guest=None`. A livechat turn runs as the public user with the
+          visitor's guest in the context, and `message_post` answers that exact
+          combination by forcing `author_id` to False and stamping the guest on
+          the message instead — the `author_id` below would be dropped on the
+          floor. The bot's own answer would then reach the browser as a message
+          from the visitor, and come back through `MailMessage.create` looking
+          like a new question: the assistant would answer itself, in a loop,
+          one real API call per round.
+        * `BOT_POST_CONTEXT_KEY`. The re-entrancy marker the trigger reads. It
+          holds whatever the framework decides to do with the author, which is
+          the whole point of having it on top of the fix above.
+        """
+        self.ensure_one()
+        post_kwargs = {
+            "body": body,
+            "message_type": "comment",
+            "subtype_xmlid": "mail.mt_comment",
+        }
+        bot = self._freemoov_ai_bot_partner()
+        if bot:
+            post_kwargs["author_id"] = bot.id
+        channel = self.sudo().with_context(**{BOT_POST_CONTEXT_KEY: True, "guest": None})
+        return channel.message_post(**post_kwargs)
+
     def _freemoov_ai_post_apology(self):
         """Tell the visitor the turn failed, best effort and nothing more.
 
@@ -178,15 +213,7 @@ class DiscussChannel(models.Model):
         a connection that no longer exists.
         """
         try:
-            post_kwargs = {
-                "body": FALLBACK_TEXT,
-                "message_type": "comment",
-                "subtype_xmlid": "mail.mt_comment",
-            }
-            bot = self._freemoov_ai_bot_partner()
-            if bot:
-                post_kwargs["author_id"] = bot.id
-            self.sudo().message_post(**post_kwargs)
+            self._freemoov_ai_post_as_bot(FALLBACK_TEXT)
         except psycopg2.Error:
             raise
         except Exception:
@@ -272,15 +299,7 @@ class DiscussChannel(models.Model):
             product["dispo_label"] = _availability_label(product)
             products.append(product)
         html = self.env["ir.qweb"].sudo()._render(PRODUCT_CARDS_TEMPLATE, {"products": products})
-        post_kwargs = {
-            "body": html,
-            "message_type": "comment",
-            "subtype_xmlid": "mail.mt_comment",
-        }
-        bot = self._freemoov_ai_bot_partner()
-        if bot:
-            post_kwargs["author_id"] = bot.id
-        self.sudo().message_post(**post_kwargs)
+        self._freemoov_ai_post_as_bot(html)
 
     def _freemoov_ai_respond(self, visitor_message_text):
         """Run the AI flow for this channel and post the response.
@@ -303,7 +322,7 @@ class DiscussChannel(models.Model):
         # cost more than a day of short ones. Checked before the prompt is even
         # built: the knowledge base is not free either.
         budget = cfg["conversation_token_budget"]
-        if budget and self._freemoov_ai_tokens_spent() >= budget:
+        if budget > 0 and self._freemoov_ai_tokens_spent() >= budget:
             return self._freemoov_ai_log("skipped_budget", visitor_message=visitor_message_text)
 
         try:
@@ -359,22 +378,14 @@ class DiscussChannel(models.Model):
                 **turn_kw,
             )
 
-        bot_partner = self._freemoov_ai_bot_partner()
         # The loop always fills `text` when it forces an escalation, so this is
         # a last net rather than a live path — but an empty bubble is the one
         # failure a visitor cannot make sense of.
-        body = text if text else "Je n'ai pas pu formuler de réponse, je transfère à un conseiller."
+        body = text if text else FALLBACK_TEXT
         if escalate:
             body += "\n\n_💬 Un conseiller humain va prendre le relais sous peu._"
 
-        post_kwargs = {
-            "body": body,
-            "message_type": "comment",
-            "subtype_xmlid": "mail.mt_comment",
-        }
-        if bot_partner:
-            post_kwargs["author_id"] = bot_partner.id
-        self.sudo().message_post(**post_kwargs)
+        self._freemoov_ai_post_as_bot(body)
 
         if out["product_ids"] and not escalate:
             # Not under an escalation: the cards would illustrate an answer the
@@ -403,21 +414,42 @@ class DiscussChannel(models.Model):
             **turn_kw,
         )
 
-    @api.model_create_multi
     def _freemoov_ai_trigger_from_message(self, message):
-        """Called after a visitor message is posted. Triggers AI if conditions met."""
+        """Called after a visitor message is posted. Triggers AI if conditions met.
+
+        Everything here answers one question: is this message the visitor's?
+        Answering our own would not merely be silly, it would recurse — the
+        answer is posted before the log row that meters the rate limit exists,
+        so nothing downstream would stop it.
+        """
         channel = self.browse(message.res_id) if message.model == "discuss.channel" else self
         if not channel or channel.channel_type != "livechat":
+            return
+        if self.env.context.get(BOT_POST_CONTEXT_KEY):
+            # Our own message, still inside the `message_post` that created it.
             return
         # Only react to visitor messages (no author_id = public website visitor)
         if message.author_id:
             return
-        if message.message_type == "notification":
+        # `comment` is what a visitor's message is; everything else on a
+        # livechat channel is machinery (notifications, joins, transfers).
+        if message.message_type != "comment":
             return
         # Strip HTML for logging
         from ..services.prompt_builder import strip_html
         text = strip_html(message.body or "")
         if not text or len(text) < 2:
+            return
+        if not channel._freemoov_ai_bot_partner():
+            # Without the bot partner nothing this module posts carries an
+            # author, and an authorless message is exactly what we take for a
+            # visitor two lines above. Staying silent is the only guard that
+            # does not depend on the framework's choice of fallback author.
+            _logger.error(
+                "freemoov_ai: %s is missing — the assistant cannot tell its own "
+                "messages apart from the visitor's and will not answer",
+                BOT_PARTNER_XMLID,
+            )
             return
         channel._freemoov_ai_respond(text)
 

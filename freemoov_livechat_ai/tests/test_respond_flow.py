@@ -10,11 +10,14 @@ import psycopg2
 
 from odoo.tests import tagged
 
+from ..models.discuss_channel import BOT_POST_CONTEXT_KEY
 from ..services import agent_loop, tools
 from ..services.anthropic_client import AnthropicClient
 from ..services.tools.catalog import _WAREHOUSE_MAP_PARAM
 from .common import FreemoovAiCase
 from .test_agent_loop import _resp
+
+CHANNEL_LOGGER = "odoo.addons.freemoov_livechat_ai.models.discuss_channel"
 
 
 @tagged("post_install", "-at_install", "freemoov_ai")
@@ -420,6 +423,96 @@ class TestRespondFlow(FreemoovAiCase):
                                                 subtype_xmlid="mail.mt_comment")
         self.assertTrue(message.exists())
 
+    # -- l'assistant ne se répond pas à lui-même --------------------------
+    def _guest_channel(self):
+        """The channel as a livechat turn really sees it: the public user, and
+        the visitor's guest in the context — the exact combination
+        `message_post` answers by dropping the author it is handed.
+        """
+        guest = self.env["mail.guest"].create({"name": "Visiteur Fictif AI"})
+        return (self.channel
+                .with_user(self.env.ref("base.public_user"))
+                .with_context(guest=guest))
+
+    def _visitor_message(self, text="bonjour", **values):
+        """A message shaped like the visitor's: no author, plain comment."""
+        return self.env["mail.message"].create(dict({
+            "model": "discuss.channel",
+            "res_id": self.channel.id,
+            "body": "<p>%s</p>" % text,
+            "message_type": "comment",
+            "subtype_id": self.env.ref("mail.mt_comment").id,
+            "author_id": False,
+            "email_from": False,
+        }, **values))
+
+    def test_the_bot_answer_is_authored_by_the_bot_not_by_the_visitor(self):
+        """`message_post` forces `author_id` to False and stamps the guest on
+        the message as soon as the current user is public and a guest sits in
+        the context — which is every livechat turn. The answer reached the
+        browser as a message from the visitor, and came back through
+        `MailMessage.create` looking exactly like a new question.
+        """
+        message = self._guest_channel()._freemoov_ai_post_as_bot("Bonjour !").sudo()
+        self.assertEqual(message.author_id,
+                         self.env.ref("freemoov_livechat_ai.partner_ai_bot"))
+        self.assertFalse(message.author_guest_id)
+
+    def test_the_assistant_does_not_answer_its_own_message(self):
+        """The recursion had nothing downstream to stop it: the answer is
+        posted before the log row the rate limit and the token budget are both
+        counted from.
+        """
+        Channel = type(self.env["discuss.channel"])
+        with patch.object(Channel, "_freemoov_ai_respond") as respond:
+            self._guest_channel()._freemoov_ai_post_as_bot("Bonjour, je suis l'assistant.")
+        self.assertFalse(respond.called)
+
+    def test_a_message_marked_as_ours_never_starts_a_turn(self):
+        """The marker holds whatever the framework decides to do with the
+        author, which is why it is worth having on top of the fix above.
+        """
+        Channel = type(self.env["discuss.channel"])
+        with patch.object(Channel, "_freemoov_ai_respond") as respond:
+            self.env["mail.message"].with_context(**{BOT_POST_CONTEXT_KEY: True}).create({
+                "model": "discuss.channel",
+                "res_id": self.channel.id,
+                "body": "<p>Bonjour, je suis l'assistant.</p>",
+                "message_type": "comment",
+                "subtype_id": self.env.ref("mail.mt_comment").id,
+                "author_id": False,
+                "email_from": False,
+            })
+        self.assertFalse(respond.called)
+
+    def test_a_visitor_message_does_start_a_turn(self):
+        """The control the three guards above are measured against."""
+        Channel = type(self.env["discuss.channel"])
+        with patch.object(Channel, "_freemoov_ai_respond") as respond:
+            self._visitor_message("bonjour")
+        self.assertEqual(respond.call_args.args, ("bonjour",))
+
+    def test_a_missing_bot_partner_silences_the_assistant(self):
+        """Without the bot partner nothing this module posts carries an author,
+        and an authorless message is exactly what the trigger takes for a
+        visitor. Not answering at all is the only guard that does not depend
+        on the framework's choice of fallback author.
+        """
+        Channel = type(self.env["discuss.channel"])
+        with patch.object(Channel, "_freemoov_ai_bot_partner", return_value=False):
+            with patch.object(Channel, "_freemoov_ai_respond") as respond:
+                with self.assertLogs(CHANNEL_LOGGER, "ERROR") as logs:
+                    self._visitor_message("bonjour")
+        self.assertFalse(respond.called)
+        self.assertIn("partner_ai_bot", logs.output[0])
+
+    def test_notifications_never_start_a_turn(self):
+        """Joins, transfers and status lines are posted on the channel too."""
+        Channel = type(self.env["discuss.channel"])
+        with patch.object(Channel, "_freemoov_ai_respond") as respond:
+            self._visitor_message("bonjour", message_type="notification")
+        self.assertFalse(respond.called)
+
     # -- frappe -----------------------------------------------------------
     def test_typing_is_notified_around_the_turn(self):
         Member = type(self.env["discuss.channel.member"])
@@ -491,6 +584,20 @@ class TestRespondFlow(FreemoovAiCase):
     def test_budget_zero_lifts_the_ceiling(self):
         self.env["ir.config_parameter"].sudo().set_param(
             "freemoov_livechat_ai.conversation_token_budget", "0")
+        self._log().create({"channel_id": self.channel.id, "status": "ok",
+                            "input_tokens": 999999, "output_tokens": 0})
+        with patch.object(AnthropicClient, "create_message",
+                          side_effect=[_resp(text="Bonjour !")]):
+            log = self.channel._freemoov_ai_respond("bonjour")
+        self.assertEqual(log.status, "ok")
+
+    def test_a_negative_budget_lifts_the_ceiling_too(self):
+        """What the settings screen writes when an administrator asks for no
+        ceiling: a 0 cannot be stored (the framework deletes the parameter and
+        the default comes straight back), so -1 is what the field offers.
+        """
+        self.env["ir.config_parameter"].sudo().set_param(
+            "freemoov_livechat_ai.conversation_token_budget", "-1")
         self._log().create({"channel_id": self.channel.id, "status": "ok",
                             "input_tokens": 999999, "output_tokens": 0})
         with patch.object(AnthropicClient, "create_message",
