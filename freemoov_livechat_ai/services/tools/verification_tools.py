@@ -49,6 +49,7 @@ VERIFICATION_HINT = (
         "properties": {"identifiant": {"type": "string"}},
         "required": ["identifiant"],
     },
+    side_effects=True,
 )
 def envoyer_code(env, channel, identifiant):
     Verification = env["freemoov.livechat.verification"].sudo()
@@ -68,6 +69,10 @@ def envoyer_code(env, channel, identifiant):
         "properties": {"code": {"type": "string"}},
         "required": ["code"],
     },
+    # No mail leaves the server here, but a success unlocks the sensitive half
+    # of the toolbox for the next 30 minutes, and a failure burns one of the
+    # three attempts: both outlive the turn, which is what dry run must not do.
+    side_effects=True,
 )
 def verifier_code(env, channel, code):
     res = env["freemoov.livechat.verification"].sudo()._check_code(channel, code)

@@ -4,13 +4,17 @@ Every assertion here is a fact a visitor can be told. A prompt that drifts
 from the shop's real policies is not a style problem: the model states what it
 reads, with the same confidence either way.
 """
-from string import Formatter
+from unittest.mock import patch
 
 from odoo.tests import tagged
 
-from ..services import tools
+from ..services import prompt_builder, tools
 from ..services.knowledge_base import STATIC_FAQ, build_knowledge_base
-from ..services.prompt_builder import SYSTEM_TEMPLATE, build_system_prompt
+from ..services.prompt_builder import (
+    KNOWLEDGE_BASE_SLOT,
+    SYSTEM_TEMPLATE,
+    build_system_prompt,
+)
 from .common import FreemoovAiCase
 
 
@@ -149,13 +153,23 @@ class TestPrompt(FreemoovAiCase):
         self.assertIn("société", self.prompt)
 
     # -- robustesse -------------------------------------------------------
-    def test_the_template_has_exactly_one_placeholder(self):
-        """`build_system_prompt` formats the template. A brace typed into the
-        prompt — a JSON example for a tool is the obvious candidate — raises
-        `KeyError` on every turn, before any API call, for every visitor.
+    def test_a_brace_in_the_template_no_longer_costs_every_turn(self):
+        """The prompt used to be `str.format`ted, so every brace in it was
+        syntax: a JSON example for a tool — the one thing a prompt about tools
+        invites — raised `KeyError` for every visitor, on every turn, before
+        any API call had been made.
         """
-        fields = {
-            name for _, name, _, _ in Formatter().parse(SYSTEM_TEMPLATE)
-            if name is not None
-        }
-        self.assertEqual(fields, {"knowledge_base"})
+        template = 'Exemple : {"ville": "namur"}\n\n%s\n\nFin : {}' % KNOWLEDGE_BASE_SLOT
+        with patch.object(prompt_builder, "SYSTEM_TEMPLATE", template):
+            prompt = build_system_prompt(self.env)
+        self.assertIn('{"ville": "namur"}', prompt)
+        self.assertIn("Fin : {}", prompt)
+        self.assertIn(build_knowledge_base(self.env), prompt)
+
+    def test_the_knowledge_base_still_lands_in_the_prompt(self):
+        """The other half of the substitution: a slot nobody matches is not an
+        error, it is a prompt shipped without a single shop policy in it.
+        """
+        self.assertEqual(SYSTEM_TEMPLATE.count(KNOWLEDGE_BASE_SLOT), 1)
+        self.assertNotIn(KNOWLEDGE_BASE_SLOT, self.prompt)
+        self.assertIn(build_knowledge_base(self.env), self.prompt)

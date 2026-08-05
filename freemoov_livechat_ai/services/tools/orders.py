@@ -83,6 +83,7 @@ def statut_commande(env, channel):
         "required": ["reference_commande"],
     },
     requires_verification=True,
+    side_effects=True,
 )
 def renvoyer_facture(env, channel, reference_commande):
     partner = verified_partner(channel)

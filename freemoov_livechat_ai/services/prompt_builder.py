@@ -4,6 +4,12 @@ import re
 
 from .knowledge_base import build_knowledge_base
 
+# The one substitution `build_system_prompt` performs. Written out as a
+# constant so the template and the code that fills it cannot drift apart: a
+# slot nobody matches is not an error, it is a prompt shipped without a single
+# policy in it.
+KNOWLEDGE_BASE_SLOT = "{knowledge_base}"
+
 SYSTEM_TEMPLATE = """Tu es l'assistant virtuel de **Freemoov**, boutique belge spécialisée en trottinettes électriques, vélos électriques et gyroroues. Tu réponds aux visiteurs du site sur le livechat.
 
 # Ton
@@ -50,8 +56,14 @@ Réponds uniquement au dernier message du visiteur. Sois utile. Si tu peux réso
 
 
 def build_system_prompt(env):
-    kb = build_knowledge_base(env)
-    return SYSTEM_TEMPLATE.format(knowledge_base=kb)
+    """The system prompt, knowledge base included.
+
+    Substituted rather than formatted: `str.format` treats every brace in the
+    template as syntax, so a JSON example typed into the prompt — the one thing
+    a prompt about tools invites — raised `KeyError` on every turn, for every
+    visitor, before any API call was even made.
+    """
+    return SYSTEM_TEMPLATE.replace(KNOWLEDGE_BASE_SLOT, build_knowledge_base(env))
 
 
 def strip_html(html):
