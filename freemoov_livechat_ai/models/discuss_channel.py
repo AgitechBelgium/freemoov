@@ -17,14 +17,63 @@ BOT_PARTNER_XMLID = "freemoov_livechat_ai.partner_ai_bot"
 PRODUCT_CARDS_TEMPLATE = "freemoov_livechat_ai.assistant_product_cards"
 MAX_PRODUCT_CARDS = 3
 
+FALLBACK_TEXT = "Je n'ai pas pu formuler de réponse, je transfère à un conseiller."
+
 # Arguments the audit log must not keep verbatim. The log is readable by every
-# internal user (`base.group_user`), and these two values are exactly what a
+# internal user (`base.group_user`), and these values are exactly what a
 # customer types to prove who they are: `identifiant` is their e-mail, phone or
-# order reference, `code` the one-time code that unlocks their orders and
-# invoices. The number is how many leading characters survive — enough to tell
-# two calls of the same turn apart, not enough to rebuild the value; 0 drops it
-# entirely, which is the only sane amount for a code.
-REDACTED_TOOL_ARGS = {"identifiant": 3, "code": 0}
+# order reference, `reference_commande` the same datum typed into another tool,
+# `code` the one-time code that unlocks their orders and invoices. The number is
+# how many leading characters survive — enough to tell two calls of the same
+# turn apart, not enough to rebuild the value; 0 drops it entirely, which is the
+# only sane amount for a code (three characters of a six-digit code is half of
+# it).
+REDACTED_TOOL_ARGS = {"identifiant": 3, "reference_commande": 3, "code": 0}
+
+
+def _int_param(ICP, key, default):
+    """Integer configuration parameter, tolerant of what an admin typed.
+
+    `_freemoov_ai_config` runs before the first `try` of the turn: a bare
+    `int("abc")` there escapes to the caller and costs the visitor their answer
+    without leaving so much as a log row.
+    """
+    raw = ICP.get_param(key)
+    if not raw:
+        return default
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        _logger.warning("freemoov_ai: invalid integer in %s (%r), falling back to %s",
+                        key, raw, default)
+        return default
+
+
+def _format_price(value):
+    """`1299.99` -> `'1299,99'`, `1300.0` -> `'1300'`.
+
+    Formatted here rather than with `formatLang`: the cards are rendered in the
+    visitor's own environment, whose language is whatever their browser
+    negotiated, and an English one would turn a Belgian price into `1,299.99`.
+    """
+    text = "%.2f" % (value or 0.0)
+    if text.endswith(".00"):
+        text = text[:-3]
+    return text.replace(".", ",")
+
+
+def _availability_label(product):
+    """One line under the price, in the vocabulary the shop uses.
+
+    Stores holding stock first (that is the question the visitor asks), then
+    the online order, then nothing but a human. Never "indisponible": a
+    product with no stock anywhere is still orderable most of the time
+    (dropshipping covers the majority of the catalogue).
+    """
+    in_store = ["%s %s" % (store, qty) for store, qty in (product.get("dispo") or {}).items() if qty]
+    if in_store:
+        return " · ".join(in_store)
+    return "Sur commande" if product.get("commandable") else "Nous contacter"
 
 
 def _redact_tool_calls(tool_calls):
@@ -65,14 +114,14 @@ class DiscussChannel(models.Model):
             "rate_limit_per_min": int(ICP.get_param("freemoov_livechat_ai.rate_limit_per_min") or 20),
             # Ceiling on what one conversation may spend, both directions
             # summed. 0 lifts it.
-            "conversation_token_budget": int(
-                ICP.get_param("freemoov_livechat_ai.conversation_token_budget") or 50000
+            "conversation_token_budget": _int_param(
+                ICP, "freemoov_livechat_ai.conversation_token_budget", 50000
             ),
             # Per-call HTTP timeout. It is what bounds the turn: the loop makes
             # up to MAX_TOOL_ITERATIONS + 1 calls, synchronously, inside the
             # visitor's own request, and the worker is killed at
             # `limit_time_real` (120s on Odoo.sh). 15 x 7 = 105s stays under it.
-            "client_timeout": int(ICP.get_param("freemoov_livechat_ai.client_timeout") or 15),
+            "client_timeout": _int_param(ICP, "freemoov_livechat_ai.client_timeout", 15),
         }
 
     def _freemoov_ai_check_rate_limit(self, limit_per_min):
@@ -106,6 +155,50 @@ class DiscussChannel(models.Model):
         except Exception:
             return False
 
+    def _freemoov_ai_verified_partner_id(self):
+        """Whose data this turn was allowed to touch — 0 when nobody proved
+        anything.
+
+        Read after the turn rather than before it: a visitor can complete their
+        verification mid-turn (`envoyer_code`, then `verifier_code`), and what
+        the audit needs is the state the tools actually ran under.
+        """
+        partner = self._freemoov_ai_verified_partner()
+        return partner.id if partner else 0
+
+    def _freemoov_ai_post_apology(self):
+        """Tell the visitor the turn failed, best effort and nothing more.
+
+        Without this the chat simply goes quiet: the bot announced it was
+        typing, and then nothing ever comes. Everything is swallowed — this is
+        the failure path, it may not fail in turn.
+        """
+        try:
+            post_kwargs = {
+                "body": FALLBACK_TEXT,
+                "message_type": "comment",
+                "subtype_xmlid": "mail.mt_comment",
+            }
+            bot = self._freemoov_ai_bot_partner()
+            if bot:
+                post_kwargs["author_id"] = bot.id
+            self.sudo().message_post(**post_kwargs)
+        except Exception:
+            _logger.exception("freemoov_ai: could not post the fallback message")
+
+    def _freemoov_ai_fail(self, visitor_message_text, error, **kw):
+        """Record the failed turn, then apologise — in that order.
+
+        The log row is the audit trail and the meter the conversation budget is
+        read from; the message to the visitor is courtesy. Courtesy does not
+        get to make us lose the audit.
+        """
+        log = self._freemoov_ai_log(
+            "error", visitor_message=visitor_message_text, error_message=str(error), **kw)
+        if not self._freemoov_ai_is_dry_run():
+            self._freemoov_ai_post_apology()
+        return log
+
     def _freemoov_ai_tokens_spent(self):
         """Tokens already billed on this conversation, both directions."""
         Log = self.env["freemoov.livechat.ai.log"].sudo()
@@ -120,19 +213,35 @@ class DiscussChannel(models.Model):
 
         The bot has to be a member for the notification to carry a persona the
         visitor's client can display, so the first turn joins the channel.
+
+        Two rules hold over the whole body rather than over one line of it:
+
+        * everything reads and writes through `sudo`. A livechat turn answers
+          in the **public visitor's** environment, where `channel_member_ids`
+          raises outright — and a non-sudo read that merely came back empty
+          would be worse, silently re-joining the channel every turn;
+        * everything is guarded. This is decoration; its failure must never
+          cost the answer that follows, nor the log row recording the tokens
+          the turn has already spent.
         """
-        bot = self._freemoov_ai_bot_partner()
-        if not bot:
+        if self._freemoov_ai_is_dry_run():
+            # Nothing will be posted, so nothing may be announced — and the
+            # join below would show the bot to the operators of a channel it
+            # is not going to answer.
             return
-        member = self.channel_member_ids.filtered(lambda m: m.partner_id == bot)
-        if not member:
-            self.sudo().add_members(partner_ids=bot.ids, post_joined_message=False)
-            member = self.channel_member_ids.filtered(lambda m: m.partner_id == bot)
         try:
-            member.sudo()._notify_typing(is_typing)
+            bot = self._freemoov_ai_bot_partner()
+            if not bot:
+                return
+            channel = self.sudo()
+            member = channel.channel_member_ids.filtered(lambda m: m.partner_id == bot)
+            if not member:
+                channel.add_members(partner_ids=bot.ids, post_joined_message=False)
+                member = channel.channel_member_ids.filtered(lambda m: m.partner_id == bot)
+            member._notify_typing(is_typing)
+        except psycopg2.Error:
+            raise
         except Exception:
-            # Cosmetic to the last degree: a failed indicator must never cost
-            # the visitor the answer that follows it.
             _logger.debug("freemoov_ai: typing notify failed", exc_info=True)
 
     def _freemoov_ai_post_product_cards(self, product_ids):
@@ -145,11 +254,18 @@ class DiscussChannel(models.Model):
         tmpls = tmpls.filtered(lambda t: t.is_published and t.active)[:MAX_PRODUCT_CARDS]
         if not tmpls:
             return
+        # Second pass through `_serialize`, after the tool's own: the card must
+        # show the price and the availability as they are now, from the one
+        # helper that knows how to read them, rather than a copy of what the
+        # model was told a few seconds ago.
         warehouse_map = _store_warehouses(self.env)
-        html = self.env["ir.qweb"].sudo()._render(
-            PRODUCT_CARDS_TEMPLATE,
-            {"products": [_serialize(self.env, tmpl, warehouse_map) for tmpl in tmpls]},
-        )
+        products = []
+        for tmpl in tmpls:
+            product = _serialize(self.env, tmpl, warehouse_map)
+            product["prix_label"] = "%s € TVAC" % _format_price(product["prix_tvac"])
+            product["dispo_label"] = _availability_label(product)
+            products.append(product)
+        html = self.env["ir.qweb"].sudo()._render(PRODUCT_CARDS_TEMPLATE, {"products": products})
         post_kwargs = {
             "body": html,
             "message_type": "comment",
@@ -189,7 +305,7 @@ class DiscussChannel(models.Model):
             messages = build_messages_from_channel(self)
         except Exception as e:
             _logger.exception("freemoov_ai: failed to build prompt")
-            return self._freemoov_ai_log("error", visitor_message=visitor_message_text, error_message=str(e))
+            return self._freemoov_ai_fail(visitor_message_text, e)
 
         client = AnthropicClient(
             api_key=cfg["api_key"],
@@ -209,16 +325,19 @@ class DiscussChannel(models.Model):
         except Exception as e:
             _logger.exception("freemoov_ai: agent loop failed")
             self._freemoov_ai_notify_typing(False)
-            return self._freemoov_ai_log("error", visitor_message=visitor_message_text, error_message=str(e))
+            return self._freemoov_ai_fail(
+                visitor_message_text, e,
+                verified_partner_id=self._freemoov_ai_verified_partner_id())
         self._freemoov_ai_notify_typing(False)
 
         text, escalate = out["text"], out["escalate"]
         cost = estimate_cost_eur(out["input_tokens"], out["output_tokens"])
-        tool_kw = {
+        turn_kw = {
             "tools_used": ", ".join(dict.fromkeys(c["name"] for c in out["tool_calls"])),
             "tool_calls_json": json.dumps(
                 _redact_tool_calls(out["tool_calls"]), ensure_ascii=False, default=str
             ),
+            "verified_partner_id": self._freemoov_ai_verified_partner_id(),
         }
 
         if self._freemoov_ai_is_dry_run():
@@ -231,7 +350,7 @@ class DiscussChannel(models.Model):
                 output_tokens=out["output_tokens"],
                 cost_eur=cost,
                 latency_ms=out["api_latency_ms"],
-                **tool_kw,
+                **turn_kw,
             )
 
         bot_partner = self._freemoov_ai_bot_partner()
@@ -275,7 +394,7 @@ class DiscussChannel(models.Model):
             output_tokens=out["output_tokens"],
             cost_eur=cost,
             latency_ms=out["api_latency_ms"],
-            **tool_kw,
+            **turn_kw,
         )
 
     @api.model_create_multi

@@ -17,6 +17,13 @@ class LivechatAILog(models.Model):
     cost_eur = fields.Float(string="Estimated cost (€)", digits=(10, 5))
     latency_ms = fields.Integer(string="Latency (ms)")
     tools_used = fields.Char(string="Outils utilisés")
+    verified_partner_id = fields.Integer(
+        string="Client vérifié (id)",
+        help="Partner the visitor had proven to be when the turn ran, 0 if "
+             "none. Deliberately a plain integer rather than a foreign key: "
+             "an audit trail must survive the deletion of what it points at, "
+             "and must not make the log a lever to read customer records.",
+    )
     tool_calls_json = fields.Text(
         string="Détail des appels d'outils",
         help="Audit trail of the turn: one entry per tool call, with its "

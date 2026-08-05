@@ -12,6 +12,7 @@ from odoo.tests import tagged
 
 from ..services import agent_loop, tools
 from ..services.anthropic_client import AnthropicClient
+from ..services.tools.catalog import _WAREHOUSE_MAP_PARAM
 from .common import FreemoovAiCase
 from .test_agent_loop import _resp
 
@@ -32,11 +33,40 @@ class TestRespondFlow(FreemoovAiCase):
     def _bodies(self):
         return [str(m.body) for m in self.channel.message_ids]
 
-    def _published_product(self, name="Carte Trott", price=999.0):
-        return self.env["product.template"].create({
+    def _published_product(self, name="Carte Trott", price=999.0, **values):
+        return self.env["product.template"].create(dict({
             "name": name, "list_price": price,
             "is_published": True, "sale_ok": True,
-        })
+        }, **values))
+
+    def _pin_warehouses(self, mapping):
+        """Freeze the store -> warehouse mapping: the cards must not depend on
+        the warehouses that happen to exist in the database."""
+        self.env["ir.config_parameter"].sudo().set_param(
+            _WAREHOUSE_MAP_PARAM, json.dumps(mapping))
+
+    def _card_body(self):
+        return next(b for b in self._bodies() if "fm-assistant-card" in b)
+
+    def _post_cards_for(self, tmpl):
+        """One full turn whose answer carries a card for `tmpl`."""
+        responses = [
+            _resp(tool_use=("fiche_produit", {"product_id": tmpl.id})),
+            _resp(text="Voici la fiche."),
+        ]
+        with patch.object(AnthropicClient, "create_message", side_effect=responses):
+            return self.channel._freemoov_ai_respond("montre %s" % tmpl.name)
+
+    def _verify_channel(self, email="cliente.fictive@example.be"):
+        """A verified visitor — fictional identity, created here and nowhere
+        else. `_send_code` is mocked: nothing is ever sent."""
+        partner = self.env["res.partner"].create({"name": "Cliente Fictive AI", "email": email})
+        Verification = self.env["freemoov.livechat.verification"]
+        with patch.object(type(Verification), "_send_code") as send:
+            Verification._start_verification(self.channel, email)
+            code = send.call_args.args[2]  # (partner, method, code)
+        self.assertTrue(Verification._check_code(self.channel, code)["verified"])
+        return partner
 
     # -- boucle nominale --------------------------------------------------
     def test_respond_logs_tools_and_posts(self):
@@ -115,6 +145,55 @@ class TestRespondFlow(FreemoovAiCase):
         with patch.object(agent_loop, "run_agent", return_value=blank):
             self.channel._freemoov_ai_respond("?")
         self.assertFalse(any("fm-assistant-card" in b for b in self._bodies()))
+
+    def test_card_price_keeps_its_cents(self):
+        """`%.0f` rounded 1299,99 up to « 1300 € » — an announced price the
+        shop does not charge, on the 59% of the catalogue that has cents.
+        """
+        tmpl = self._published_product(name="Carte Centimes", price=1299.99)
+        self._post_cards_for(tmpl)
+        body = self._card_body()
+        self.assertIn("1299,99 € TVAC", body)
+        self.assertNotIn("1300", body)
+
+    def test_card_price_drops_empty_cents(self):
+        tmpl = self._published_product(name="Carte Ronde", price=1300.0)
+        self._post_cards_for(tmpl)
+        body = self._card_body()
+        self.assertIn("1300 € TVAC", body)
+        self.assertNotIn("1300,00", body)
+
+    def test_card_lists_the_stores_holding_stock(self):
+        warehouse = self.env["stock.warehouse"].create(
+            {"name": "Entrepot Carte AI", "code": "CRDA"})
+        self._pin_warehouses({"liege": warehouse.id, "namur": None, "charleroi": None})
+        tmpl = self._published_product(name="Carte Stock", price=500.0,
+                                       detailed_type="product")
+        self.env["stock.quant"].sudo()._update_available_quantity(
+            tmpl.product_variant_ids[0], warehouse.lot_stock_id, 2)
+        self._post_cards_for(tmpl)
+        self.assertIn("Liège 2", self._card_body())
+
+    def test_card_says_on_order_when_no_store_holds_it(self):
+        self._pin_warehouses({"liege": None, "namur": None, "charleroi": None})
+        tmpl = self._published_product(name="Carte Commande", price=500.0)
+        self._post_cards_for(tmpl)
+        self.assertIn("Sur commande", self._card_body())
+
+    def test_card_falls_back_to_contact_us(self):
+        """Neither in a store nor orderable online: the card must not imply
+        the visitor can buy it in one click."""
+        warehouse = self.env["stock.warehouse"].create(
+            {"name": "Entrepot Vide AI", "code": "VIDA"})
+        self._pin_warehouses({"liege": warehouse.id, "namur": None, "charleroi": None})
+        website = self.env["website"].sudo().get_current_website()
+        website.warehouse_id = self.env["stock.warehouse"].create(
+            {"name": "Entrepot Web AI", "code": "WEBA"}).id
+        tmpl = self._published_product(name="Carte Rupture", price=500.0,
+                                       detailed_type="product",
+                                       allow_out_of_stock_order=False)
+        self._post_cards_for(tmpl)
+        self.assertIn("Nous contacter", self._card_body())
 
     def test_failed_cards_do_not_cost_the_turn_its_log(self):
         """The cards are an illustration posted after the answer. The tokens
@@ -200,6 +279,33 @@ class TestRespondFlow(FreemoovAiCase):
                     self.channel._freemoov_ai_respond("mes commandes")
         self.assertEqual(run_tool.call_args.args[3], {"identifiant": identifier})
 
+    def test_order_references_are_truncated_too(self):
+        """Same datum as `identifiant`, typed into another tool: an order
+        reference identifies a customer just as well.
+        """
+        responses = [
+            _resp(tool_use=("renvoyer_facture", {"reference_commande": "SO99999"})),
+            _resp(text="Je ne retrouve pas cette commande."),
+        ]
+        with patch.object(AnthropicClient, "create_message", side_effect=responses):
+            log = self.channel._freemoov_ai_respond("ma facture")
+        self.assertNotIn("SO99999", log.tool_calls_json)
+        self.assertEqual(json.loads(log.tool_calls_json)[0]["arguments"],
+                         {"reference_commande": "SO9…"})
+
+    def test_the_verified_customer_is_recorded(self):
+        partner = self._verify_channel()
+        with patch.object(AnthropicClient, "create_message",
+                          side_effect=[_resp(text="Bonjour !")]):
+            log = self.channel._freemoov_ai_respond("bonjour")
+        self.assertEqual(log.verified_partner_id, partner.id)
+
+    def test_an_anonymous_turn_records_no_customer(self):
+        with patch.object(AnthropicClient, "create_message",
+                          side_effect=[_resp(text="Bonjour !")]):
+            log = self.channel._freemoov_ai_respond("bonjour")
+        self.assertEqual(log.verified_partner_id, 0)
+
     def test_verification_code_never_reaches_the_log(self):
         responses = [
             _resp(tool_use=("verifier_code", {"code": "123456"})),
@@ -228,6 +334,58 @@ class TestRespondFlow(FreemoovAiCase):
             log = self.channel._freemoov_ai_respond("?")
         self.assertEqual(log.status, "error")
         self.assertIn("boom", log.error_message)
+
+    def test_a_failed_turn_still_says_something_to_the_visitor(self):
+        """A timeout used to leave the visitor in front of a silent chat: the
+        bot had said it was typing, then nothing ever came.
+        """
+        with patch.object(agent_loop, "run_agent", side_effect=RuntimeError("boom")):
+            self.channel._freemoov_ai_respond("?")
+        self.assertIn("je transfère à un conseiller", self._bodies()[0])
+        bot = self.env.ref("freemoov_livechat_ai.partner_ai_bot")
+        self.assertEqual(self.channel.message_ids[0].author_id, bot)
+
+    def test_the_apology_never_crashes_the_crash(self):
+        """Best effort and nothing more: the failure path may not fail."""
+        Channel = type(self.env["discuss.channel"])
+        with patch.object(Channel, "message_post", side_effect=RuntimeError("post down")):
+            with patch.object(agent_loop, "run_agent", side_effect=RuntimeError("boom")):
+                log = self.channel._freemoov_ai_respond("?")
+        self.assertEqual(log.status, "error")
+
+    def test_a_failed_channel_join_does_not_cost_the_answer(self):
+        """`add_members` sits on the typing path, which is decoration. Its
+        failure used to take down the answer *and* the log row that records
+        the tokens already spent.
+        """
+        Channel = type(self.env["discuss.channel"])
+        with patch.object(Channel, "add_members", side_effect=RuntimeError("no join")):
+            with patch.object(AnthropicClient, "create_message",
+                              side_effect=[_resp(text="Bonjour !")]):
+                log = self.channel._freemoov_ai_respond("bonjour")
+        self.assertEqual(log.status, "ok")
+        self.assertIn("Bonjour !", self._bodies()[0])
+
+    def test_typing_reads_its_membership_as_the_visitor(self):
+        """Livechat runs in the public visitor's environment. A non-sudo read
+        of `channel_member_ids` can come back empty there — silently, no
+        error — and the indicator would be a no-op re-joining the channel on
+        every single turn.
+        """
+        channel = self.channel.with_user(self.env.ref("base.public_user"))
+        Member = type(self.env["discuss.channel.member"])
+        with patch.object(Member, "_notify_typing") as notify:
+            channel._freemoov_ai_notify_typing(True)
+        self.assertEqual(notify.call_args_list, [call(True)])
+
+    def test_the_channel_is_joined_once_not_once_per_turn(self):
+        Channel = type(self.env["discuss.channel"])
+        with patch.object(Channel, "add_members", wraps=self.channel.sudo().add_members) as join:
+            with patch.object(AnthropicClient, "create_message",
+                              side_effect=[_resp(text="Un."), _resp(text="Deux.")]):
+                self.channel._freemoov_ai_respond("un")
+                self.channel._freemoov_ai_respond("deux")
+        self.assertEqual(join.call_count, 1)
 
     def test_trigger_relays_database_errors(self):
         Channel = type(self.env["discuss.channel"])
@@ -294,6 +452,66 @@ class TestRespondFlow(FreemoovAiCase):
                 "freemoov_livechat_ai.client_timeout", "8")
             self.channel._freemoov_ai_respond("encore")
         self.assertEqual(seen, [15, 8])
+
+    def test_a_malformed_parameter_falls_back_to_its_default(self):
+        """A typo in a config parameter must not kill the turn before the log
+        is even reachable — `_freemoov_ai_config` runs outside every `try`.
+        """
+        ICP = self.env["ir.config_parameter"].sudo()
+        ICP.set_param("freemoov_livechat_ai.client_timeout", "abc")
+        ICP.set_param("freemoov_livechat_ai.conversation_token_budget", "beaucoup")
+        seen = []
+
+        def _capture(client, system_prompt, messages, tools=None):
+            seen.append(client.timeout)
+            return _resp(text="Bonjour !")
+
+        with patch.object(AnthropicClient, "create_message", autospec=True,
+                          side_effect=_capture):
+            log = self.channel._freemoov_ai_respond("bonjour")
+        self.assertEqual(log.status, "ok")
+        self.assertEqual(seen, [15])
+
+    def test_budget_zero_lifts_the_ceiling(self):
+        self.env["ir.config_parameter"].sudo().set_param(
+            "freemoov_livechat_ai.conversation_token_budget", "0")
+        self._log().create({"channel_id": self.channel.id, "status": "ok",
+                            "input_tokens": 999999, "output_tokens": 0})
+        with patch.object(AnthropicClient, "create_message",
+                          side_effect=[_resp(text="Bonjour !")]):
+            log = self.channel._freemoov_ai_respond("bonjour")
+        self.assertEqual(log.status, "ok")
+
+    def test_dry_run_announces_nothing_to_the_visitor(self):
+        """Nothing will be posted, so nothing may be announced: neither a
+        typing indicator nor the channel join it needs.
+        """
+        self.env["ir.config_parameter"].sudo().set_param(
+            "freemoov_livechat_ai.dry_run", "True")
+        Member = type(self.env["discuss.channel.member"])
+        with patch.object(Member, "_notify_typing") as notify:
+            with patch.object(AnthropicClient, "create_message",
+                              side_effect=[_resp(text="Bonjour !")]):
+                self.channel._freemoov_ai_respond("bonjour")
+        self.assertFalse(notify.called)
+        bot = self.env.ref("freemoov_livechat_ai.partner_ai_bot")
+        self.assertNotIn(bot, self.channel.channel_member_ids.partner_id)
+
+    def test_dry_run_posts_no_cards(self):
+        self.env["ir.config_parameter"].sudo().set_param(
+            "freemoov_livechat_ai.dry_run", "True")
+        tmpl = self._published_product(name="Carte Muette")
+        log = self._post_cards_for(tmpl)
+        self.assertEqual(log.status, "dry_run")
+        self.assertFalse(self._bodies())
+
+    def test_dry_run_posts_no_apology(self):
+        self.env["ir.config_parameter"].sudo().set_param(
+            "freemoov_livechat_ai.dry_run", "True")
+        with patch.object(agent_loop, "run_agent", side_effect=RuntimeError("boom")):
+            log = self.channel._freemoov_ai_respond("?")
+        self.assertEqual(log.status, "error")
+        self.assertFalse(self._bodies())
 
     def test_dry_run_logs_the_audit_without_posting(self):
         self.env["ir.config_parameter"].sudo().set_param(
