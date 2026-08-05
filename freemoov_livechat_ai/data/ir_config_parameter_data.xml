@@ -20,6 +20,10 @@
         <field name="key">freemoov_livechat_ai.max_tokens</field>
         <field name="value">400</field>
     </record>
+    <record id="param_verification_test_mode" model="ir.config_parameter">
+        <field name="key">freemoov_livechat_ai.verification_test_mode</field>
+        <field name="value">False</field>
+    </record>
     <record id="param_rate_limit" model="ir.config_parameter">
         <field name="key">freemoov_livechat_ai.rate_limit_per_min</field>
         <field name="value">20</field>
