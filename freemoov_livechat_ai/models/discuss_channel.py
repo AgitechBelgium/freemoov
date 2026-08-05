@@ -171,7 +171,11 @@ class DiscussChannel(models.Model):
 
         Without this the chat simply goes quiet: the bot announced it was
         typing, and then nothing ever comes. Everything is swallowed — this is
-        the failure path, it may not fail in turn.
+        the failure path, it may not fail in turn — everything except a
+        `psycopg2.Error`, which is not a failed courtesy message but a dead
+        cursor: swallowed here it would never reach Odoo's retrying layer, and
+        the `error` log row the caller is about to return would be read through
+        a connection that no longer exists.
         """
         try:
             post_kwargs = {
@@ -183,6 +187,8 @@ class DiscussChannel(models.Model):
             if bot:
                 post_kwargs["author_id"] = bot.id
             self.sudo().message_post(**post_kwargs)
+        except psycopg2.Error:
+            raise
         except Exception:
             _logger.exception("freemoov_ai: could not post the fallback message")
 

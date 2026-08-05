@@ -353,6 +353,22 @@ class TestRespondFlow(FreemoovAiCase):
                 log = self.channel._freemoov_ai_respond("?")
         self.assertEqual(log.status, "error")
 
+    def test_the_apology_still_lets_database_errors_through(self):
+        """The other half of the rule, and the exception to the `except
+        Exception` above: a dead cursor is not a failed courtesy message.
+
+        Swallowed here, the `SerializationFailure` would never reach Odoo's
+        retrying layer — the turn would return an `error` log row read through
+        a cursor that no longer exists, and the request would 500 later with
+        the cause lost. Same guard as the three others in the file.
+        """
+        Channel = type(self.env["discuss.channel"])
+        with patch.object(Channel, "message_post",
+                          side_effect=psycopg2.OperationalError("cursor is closed")):
+            with patch.object(agent_loop, "run_agent", side_effect=RuntimeError("boom")):
+                with self.assertRaises(psycopg2.OperationalError):
+                    self.channel._freemoov_ai_respond("?")
+
     def test_a_failed_channel_join_does_not_cost_the_answer(self):
         """`add_members` sits on the typing path, which is decoration. Its
         failure used to take down the answer *and* the log row that records
