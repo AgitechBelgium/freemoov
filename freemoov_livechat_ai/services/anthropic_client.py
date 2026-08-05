@@ -23,7 +23,7 @@ class AnthropicClient:
         self.max_tokens = max_tokens
         self.timeout = timeout
 
-    def create_message(self, system_prompt, messages):
+    def create_message(self, system_prompt, messages, tools=None):
         if not self.api_key:
             raise ValueError("Anthropic API key is not configured")
         payload = {
@@ -32,6 +32,8 @@ class AnthropicClient:
             "system": system_prompt,
             "messages": messages,
         }
+        if tools:
+            payload["tools"] = tools
         headers = {
             "x-api-key": self.api_key,
             "anthropic-version": ANTHROPIC_VERSION,
@@ -43,10 +45,15 @@ class AnthropicClient:
         if resp.status_code != 200:
             raise RuntimeError(f"Anthropic API {resp.status_code}: {resp.text[:500]}")
         data = resp.json()
-        text = "".join(block.get("text", "") for block in data.get("content", []) if block.get("type") == "text")
+        content = data.get("content", [])
+        text = "".join(block.get("text", "") for block in content if block.get("type") == "text")
         usage = data.get("usage", {})
         return {
             "text": text.strip(),
+            # Raw blocks and stop_reason: the agent loop needs the `tool_use`
+            # blocks verbatim, both to run them and to echo them back.
+            "content": content,
+            "stop_reason": data.get("stop_reason"),
             "input_tokens": usage.get("input_tokens", 0),
             "output_tokens": usage.get("output_tokens", 0),
             "latency_ms": latency_ms,
