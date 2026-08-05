@@ -5,7 +5,7 @@
     'summary': 'Hybrid livechat bot: Odoo native chatbot + Claude fallback on open questions',
     'author': 'Freemoov',
     'website': 'https://freemoov.com',
-    'depends': ['im_livechat', 'product', 'website_sale'],
+    'depends': ['im_livechat', 'product', 'website_sale', 'website_freemoov', 'project'],
     'data': [
         'security/ir.model.access.csv',
         'data/ir_config_parameter_data.xml',

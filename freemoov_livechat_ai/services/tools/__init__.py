@@ -46,3 +46,8 @@ def run_tool(env, channel, name, arguments):
         if not verified:
             raise ToolError("verification_required")
     return tool["fn"](env, channel, **(arguments or {}))
+
+
+# Import tool modules so they self-register (order matters: after registry defs).
+from . import store_info  # noqa: E402,F401
+from . import catalog  # noqa: E402,F401
