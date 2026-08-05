@@ -46,12 +46,13 @@ class TestVerification(FreemoovAiCase):
         self.assertEqual(self.channel._freemoov_ai_verified_partner(), self.partner)
 
     def test_three_bad_codes_lock(self):
-        self._start()
+        _, code = self._start()
         for _ in range(3):
             res = self.Verif.check_code(self.channel, "000000")
         self.assertFalse(res["verified"])
         self.assertEqual(res["attempts_left"], 0)
         # même le bon code est refusé après verrouillage
+        self.assertFalse(self.Verif.check_code(self.channel, code)["verified"])
         self.assertFalse(self.channel._freemoov_ai_verified_partner())
 
     def test_unknown_identifier(self):
