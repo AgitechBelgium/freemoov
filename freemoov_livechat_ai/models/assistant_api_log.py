@@ -1,5 +1,14 @@
-from odoo import fields, models
+import logging
+from datetime import timedelta
+
+from odoo import api, fields, models
 from odoo.tools.sql import create_index
+
+_logger = logging.getLogger(__name__)
+
+# Long enough to answer "what did the voice agent do last quarter", short
+# enough that a table nothing ever reads in full does not grow for ever.
+GC_RETENTION_DAYS = 90
 
 
 class AssistantApiLog(models.Model):
@@ -29,6 +38,22 @@ class AssistantApiLog(models.Model):
         string="Status",
         required=True,
     )
+
+    @api.model
+    def _gc_api_logs(self):
+        """Daily purge (cron).
+
+        The quota only ever reads the last minute of this table, so the rest
+        of it is usage history — and history that nobody trims is a table that
+        grows at the rate of the API, for ever.
+        """
+        threshold = fields.Datetime.now() - timedelta(days=GC_RETENTION_DAYS)
+        stale = self.sudo().search([("create_date", "<", threshold)])
+        count = len(stale)
+        stale.unlink()
+        if count:
+            _logger.info("freemoov_ai: purged %s assistant API log row(s)", count)
+        return count
 
     def init(self):
         # Every call reads back the last minute of this table, which grows for

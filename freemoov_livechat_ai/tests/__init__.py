@@ -8,3 +8,4 @@ from . import test_respond_flow
 from . import test_http_api
 from . import test_assets
 from . import test_scenarios
+from . import test_settings

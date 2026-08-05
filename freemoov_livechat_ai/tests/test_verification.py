@@ -337,3 +337,45 @@ class TestVerification(FreemoovAiCase):
             self.env.registry.models.pop("sms.sms", None)
             with self.assertRaises(tools.ToolError):
                 self.Verif._start_verification(self.channel, order.name)
+
+    # -- purge quotidienne ------------------------------------------------
+    def _aged(self, hours):
+        """A verification row `hours` old. Backdated in SQL: `write` silently
+        drops `create_date`, and the purge is defined by that column alone."""
+        record = self.Verif.sudo().create({
+            "channel_id": self.channel.id, "outcome": "not_found"})
+        self.env.flush_all()
+        self.env.cr.execute(
+            "UPDATE freemoov_livechat_verification "
+            "SET create_date = now() - %s * interval '1 hour' WHERE id = %s",
+            (hours, record.id))
+        self.env.invalidate_all()
+        return record
+
+    def test_the_purge_takes_the_stale_rows_and_nothing_else(self):
+        """These rows name a customer and, in test mode, carry a code in
+        clear. What they buy in exchange — a 30-minute identity, an hourly
+        send quota — is long spent a day later.
+
+        The ages are written out rather than derived from
+        `GC_RETENTION_HOURS`: a test that reads the constant it is meant to
+        pin agrees with every value the constant could take.
+        """
+        _, code = self._start()
+        stale, recent = self._aged(25), self._aged(23)
+
+        self.Verif._gc_verifications()
+
+        self.assertFalse(stale.exists())
+        self.assertTrue(recent.exists())
+        # The live verification survives, code included: the purge must not
+        # log out a visitor who is halfway through proving who they are.
+        self.assertTrue(self.Verif._check_code(self.channel, code)["verified"])
+
+    def test_the_purge_leaves_the_hourly_quota_alone(self):
+        """The send cap is counted on these very records — three requests an
+        hour, `not_found` attempts included. A purge that reset it would hand
+        the enumeration oracle back."""
+        self._start()
+        self.Verif._gc_verifications()
+        self.assertEqual(self.Verif._requests_since(self.channel, 60), 1)

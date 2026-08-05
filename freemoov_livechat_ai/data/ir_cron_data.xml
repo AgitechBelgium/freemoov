@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <!-- Two crons rather than one: an administrator has to be able to stop
+         one purge without stopping the other, and each runs on the model it
+         empties. The AI log (`freemoov.livechat.ai.log`) is deliberately not
+         purged here — it is the audit trail of the conversations and the
+         meter the per-conversation token budget is read from. -->
+    <record id="ir_cron_gc_verifications" model="ir.cron">
+        <field name="name">Livechat AI : purge des vérifications d'identité</field>
+        <field name="model_id" ref="model_freemoov_livechat_verification"/>
+        <field name="state">code</field>
+        <field name="code">model._gc_verifications()</field>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+    </record>
+
+    <record id="ir_cron_gc_api_logs" model="ir.cron">
+        <field name="name">Livechat AI : purge du journal de l'API assistant</field>
+        <field name="model_id" ref="model_freemoov_assistant_api_log"/>
+        <field name="state">code</field>
+        <field name="code">model._gc_api_logs()</field>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="numbercall">-1</field>
+        <field name="doall" eval="False"/>
+    </record>
+</odoo>

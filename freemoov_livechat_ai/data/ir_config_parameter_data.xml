@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo noupdate="1">
+    <!-- Every parameter below has a field in Réglages -> Freemoov AI Livechat
+         (`res_config_settings.py`), and the test suite keeps it that way: a
+         knob nobody can reach from the backend is a knob nobody turns.
+
+         The switches are read as `value == "True"` everywhere in this module,
+         never as `bool(value)` — which is also why the settings screen reads
+         them by hand: the framework's own reader would show "False" as
+         ticked. -->
     <record id="param_enabled" model="ir.config_parameter">
         <field name="key">freemoov_livechat_ai.enabled</field>
         <field name="value">False</field>
@@ -11,10 +19,6 @@
     <record id="param_model" model="ir.config_parameter">
         <field name="key">freemoov_livechat_ai.model</field>
         <field name="value">claude-haiku-4-5-20251001</field>
-    </record>
-    <record id="param_delay" model="ir.config_parameter">
-        <field name="key">freemoov_livechat_ai.delay_seconds</field>
-        <field name="value">30</field>
     </record>
     <record id="param_max_tokens" model="ir.config_parameter">
         <field name="key">freemoov_livechat_ai.max_tokens</field>

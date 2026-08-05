@@ -15,6 +15,10 @@ VERIFIED_TTL_MIN = 30
 MAX_ATTEMPTS = 3
 TEST_MODE_PARAM = "freemoov_livechat_ai.verification_test_mode"
 
+# Comfortably past every window that reads these rows: a code lives 10
+# minutes, a verification 30, and the send quota counts the last hour.
+GC_RETENTION_HOURS = 24
+
 # `%` and `_` are LIKE wildcards, `\` escapes them: any of the three turns an
 # exact lookup into a pattern search, i.e. an enumeration oracle handed to an
 # anonymous visitor ("%@%" resolves a real customer on the first try).
@@ -237,6 +241,27 @@ class LivechatVerification(models.Model):
             ("channel_id", "=", channel.id),
             ("create_date", ">=", since),
         ])
+
+    # -- entretien --------------------------------------------------------
+    @api.model
+    def _gc_verifications(self):
+        """Daily purge (cron). Nothing here is worth keeping for a day.
+
+        These rows name a customer, hold the fingerprint of a code and, in
+        test mode, the code itself in clear; what they buy in exchange — the
+        30-minute identity and the hourly send quota — is spent long before
+        the retention window closes. The audit trail of the conversation is
+        the AI log, which is deliberately left alone: it meters the token
+        budget of every channel, and purging it would refund conversations
+        their ceiling.
+        """
+        threshold = fields.Datetime.now() - timedelta(hours=GC_RETENTION_HOURS)
+        stale = self.sudo().search([("create_date", "<", threshold)])
+        count = len(stale)
+        stale.unlink()
+        if count:
+            _logger.info("freemoov_ai: purged %s verification record(s)", count)
+        return count
 
     # -- envoi ------------------------------------------------------------
     def _send_code(self, partner, method, code):

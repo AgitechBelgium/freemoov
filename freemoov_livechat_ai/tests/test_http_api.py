@@ -44,6 +44,18 @@ class TestAssistantApi(HttpCase):
     def _list(self, token=TOKEN):
         return self.url_open("/api/assistant/v1/tools", headers=self._headers(token))
 
+    def _aged_log(self, days):
+        """A log row `days` old. Backdated in SQL: `write` silently drops
+        `create_date`, and both the quota and the purge read that column."""
+        row = self.Log.create({"tool_name": "infos_magasins", "status": "ok"})
+        self.env.flush_all()
+        self.env.cr.execute(
+            "UPDATE freemoov_assistant_api_log "
+            "SET create_date = now() - %s * interval '1 day' WHERE id = %s",
+            (days, row.id))
+        self.env.invalidate_all()
+        return row
+
     # --- authentication ---------------------------------------------------
 
     def test_no_token_403(self):
@@ -245,6 +257,24 @@ class TestAssistantApi(HttpCase):
         for raw in ("beaucoup", "", "0", "-5", "2.5"):
             self.ICP.set_param("freemoov_livechat_ai.api_rate_per_min", raw)
             self.assertEqual(self._call("infos_magasins").status_code, 200, raw)
+
+    # --- entretien ---------------------------------------------------------
+
+    def test_the_log_is_purged_past_the_retention_window(self):
+        """The quota only ever reads the last minute of this table. Everything
+        older is usage history, and history nobody trims grows at the rate of
+        the API — for ever, on a table every single call reads.
+
+        The ages are written out rather than derived from
+        `GC_RETENTION_DAYS`: a test that reads the constant it is meant to pin
+        agrees with every value the constant could take.
+        """
+        old, recent = self._aged_log(91), self._aged_log(89)
+
+        self.Log._gc_api_logs()
+
+        self.assertFalse(old.exists())
+        self.assertTrue(recent.exists())
 
     def test_quota_counts_only_the_last_minute(self):
         self.ICP.set_param("freemoov_livechat_ai.api_rate_per_min", "1")

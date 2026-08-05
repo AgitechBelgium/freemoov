@@ -11,7 +11,8 @@
                         <setting id="freemoov_ai_enabled_setting" string="Activer l'IA">
                             <field name="freemoov_ai_enabled"/>
                         </setting>
-                        <setting id="freemoov_ai_dry_run_setting" string="Dry run (log seulement, ne poste pas)">
+                        <setting id="freemoov_ai_dry_run_setting" string="Dry run (log seulement, ne poste pas)"
+                                 help="L'assistant réfléchit et journalise, mais ne poste rien au visiteur et refuse les outils qui envoient quelque chose.">
                             <field name="freemoov_ai_dry_run"/>
                         </setting>
                         <setting id="freemoov_ai_api_key_setting" string="Clé API Anthropic">
@@ -20,14 +21,36 @@
                         <setting id="freemoov_ai_model_setting" string="Modèle">
                             <field name="freemoov_ai_model"/>
                         </setting>
-                        <setting id="freemoov_ai_delay_setting" string="Délai avant réponse bot (s)">
-                            <field name="freemoov_ai_delay_seconds"/>
-                        </setting>
                         <setting id="freemoov_ai_max_tokens_setting" string="Max tokens réponse">
                             <field name="freemoov_ai_max_tokens"/>
                         </setting>
+                        <setting id="freemoov_ai_timeout_setting" string="Timeout par appel API (s)"
+                                 help="Un tour enchaîne jusqu'à 7 appels dans la requête du visiteur : ce délai est ce qui le borne.">
+                            <field name="freemoov_ai_client_timeout"/>
+                        </setting>
                         <setting id="freemoov_ai_rate_setting" string="Max appels / minute">
                             <field name="freemoov_ai_rate_limit_per_min"/>
+                        </setting>
+                        <setting id="freemoov_ai_budget_setting" string="Plafond de jetons par conversation"
+                                 help="Jetons envoyés et reçus cumulés sur une conversation. -1 pour lever le plafond.">
+                            <field name="freemoov_ai_conversation_token_budget"/>
+                        </setting>
+                    </block>
+                    <block title="Identité, réparations et API" name="freemoov_ai_tools_block">
+                        <setting id="freemoov_ai_verification_test_mode_setting" string="2FA en mode test"
+                                 help="Le code n'est ni envoyé par e-mail ni par SMS : il se lit sur la vérification, dans Live Chat -> AI Verifications. Recette uniquement.">
+                            <field name="freemoov_ai_verification_test_mode"/>
+                        </setting>
+                        <setting id="freemoov_ai_repair_tool_setting" string="Activer le suivi de réparation"
+                                 help="À n'activer qu'une fois la correspondance étapes FSM -> libellés client renseignée (paramètre freemoov_livechat_ai.repair_stage_map).">
+                            <field name="freemoov_ai_repair_tool_enabled"/>
+                        </setting>
+                        <setting id="freemoov_ai_api_token_setting" string="Token API assistant (vocal)"
+                                 help="Attendu dans l'en-tête X-Assistant-Token. Champ vide = API fermée (403).">
+                            <field name="freemoov_ai_api_token" password="True"/>
+                        </setting>
+                        <setting id="freemoov_ai_api_rate_setting" string="Max appels API / minute">
+                            <field name="freemoov_ai_api_rate_per_min"/>
                         </setting>
                     </block>
                 </app>
