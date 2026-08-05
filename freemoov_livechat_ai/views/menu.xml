@@ -5,4 +5,11 @@
               parent="im_livechat.menu_livechat_root"
               action="action_livechat_ai_log"
               sequence="90"/>
+
+    <menuitem id="menu_livechat_verification"
+              name="AI Verifications"
+              parent="im_livechat.menu_livechat_root"
+              action="action_livechat_verification"
+              groups="base.group_system"
+              sequence="91"/>
 </odoo>

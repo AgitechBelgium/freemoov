@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_livechat_verification_tree" model="ir.ui.view">
+        <field name="name">freemoov.livechat.verification.tree</field>
+        <field name="model">freemoov.livechat.verification</field>
+        <field name="arch" type="xml">
+            <tree decoration-success="verified_at != False" decoration-muted="attempts >= 3">
+                <field name="create_date"/>
+                <field name="channel_id"/>
+                <field name="partner_id"/>
+                <field name="method"/>
+                <field name="expires_at"/>
+                <field name="attempts"/>
+                <field name="verified_at"/>
+                <!-- Rempli uniquement en mode test : c'est là que les testeurs
+                     lisent le code, aucun envoi ni journalisation. -->
+                <field name="test_code_plain"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_livechat_verification_form" model="ir.ui.view">
+        <field name="name">freemoov.livechat.verification.form</field>
+        <field name="model">freemoov.livechat.verification</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="channel_id"/>
+                        <field name="partner_id"/>
+                        <field name="method"/>
+                        <field name="create_date"/>
+                        <field name="expires_at"/>
+                        <field name="attempts"/>
+                        <field name="verified_at"/>
+                        <field name="test_code_plain"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_livechat_verification" model="ir.actions.act_window">
+        <field name="name">Livechat AI — Vérifications</field>
+        <field name="res_model">freemoov.livechat.verification</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+</odoo>
