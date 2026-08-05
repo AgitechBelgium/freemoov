@@ -172,6 +172,11 @@ class TestPublicTools(FreemoovAiCase):
 
         res = tools.run_tool(self.env, self.channel, "fiche_produit", {"product_id": tmpl.id})
         self.assertIs(res["commandable"], True)
+        # Same per-variant reasoning for the displayed stock: the 3 units are
+        # physically on the shelf and collectible. This single value rules out
+        # both wrong implementations — no clamp would yield -2, and clamping
+        # the total instead of each variant would yield 0.
+        self.assertEqual(res["dispo"]["Liège"], 3)
 
     def test_store_warehouse_map_tolerates_garbage(self):
         """A misconfigured parameter degrades to 'untracked', never raises:

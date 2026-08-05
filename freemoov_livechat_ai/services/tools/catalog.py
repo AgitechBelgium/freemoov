@@ -108,14 +108,23 @@ def _dispo_by_store(env, tmpl, warehouse_map):
             dispo[store["locality"]] = 0
         else:
             # free_qty, not qty_available: never show a visitor a unit that is
-            # already promised to an open order. Same semantics as the sale
-            # gate in `_is_commandable`, read per store instead of on the
-            # website warehouse.
-            # Sum over every variant: a template is routinely out of stock on
-            # its first variant while a sibling colour or battery sits on the
-            # shelf.
-            qty = sum(variants.with_context(warehouse=warehouse.id).mapped("free_qty"))
-            dispo[store["locality"]] = int(qty)
+            # already promised to an open order.
+            # Then: clamp each variant at 0 and sum the positives. Summing raw
+            # values would let an oversold variant — a bookkeeping artefact,
+            # negative stock does not exist on a shelf — cancel out units
+            # physically there for a sibling ([20, -12] really means 20 units
+            # collectible, not 8). Clamping the total instead of each variant
+            # has the same flaw. Per-variant, like the sale gate in
+            # `_is_commandable`, which tests each variant on its own.
+            qtys = variants.with_context(warehouse=warehouse.id).mapped("free_qty")
+            oversold = [qty for qty in qtys if qty < 0]
+            if oversold:
+                # Hidden from the visitor, surfaced to whoever runs the shop.
+                _logger.warning(
+                    "Oversold variants on product %s in warehouse %s: %s",
+                    tmpl.id, warehouse.name, oversold,
+                )
+            dispo[store["locality"]] = int(sum(max(0.0, qty) for qty in qtys))
     return dispo
 
 
