@@ -45,3 +45,50 @@ Task 3: note for Task 4 brief: (a) resend cap per channel MANDATORY (I2); (b) to
 Task 3: fix round 2/5 (escape addressed, verified vs PostgreSQL + mutations; commits 540679d..74e7efe)
 Task 3: complete (commits e3a20be..74e7efe, review clean)
 EXECUTION PAUSED BY USER after Task 3 closure (2026-07-31). Resume at Task 4 (brief NOT yet generated). Carry-ins for Task 4 brief are the 'note for Task 4 brief' lines above.
+EXECUTION RESUMED BY USER (commit ledger + continue through Task 11).
+Task 4: implemented (d76407f), review Spec OK — 3 Important (bill-to recipient lie, lookup-free probing, invoice vs refund) -> fix round 1 dispatched
+Task 4: minor (deferred): send_mail sync PDF in chat turn; last-picking-by-id heuristic; dead _STATE_FR entries; check-then-act race on cap; cap policy only in tool (model bare); reparation_number fallback to t.name; stage False when no stage; no arg-type validation in run_tool (str casts); repair_tool_enabled not in Settings UI (Task 11 will add it)
+Task 4: note for Task 5 brief: ALL tool calls must route through run_tool (never TOOLS[name]["fn"]) — invariant holds only there; rate_limit counts responses not tool calls
+Task 4: note for Task 7 brief: prompt must tell model: expired verification -> relaunch envoyer_code; child_of=company-wide visibility is assumed
+Task 4: fix round 1/5 (3 addressed + 3 freebies, independently reproduced 63/63; commits d76407f..cc34d2e)
+Task 4: complete (commits be67860..cc34d2e, review clean; 1 Important adjudicated to Task 5 brief: psycopg2 reraise in orders.py send_mail wrap)
+Task 4: minor (deferred): empty identifier burns quota (one-line guard); FK partner_id SET NULL bypasses constrains -> add partner_id != False in _check_code domain; cap-per-channel not proven by test; renvoyer_facture description says "client vérifié" but routes to bill-to; not_found label misleading when partner resolved without contact info
+Task 5: implemented (2b67794+b76035c), review Spec OK — 3 Important in-scope (max_tokens, cap message, 7th-iteration side effects) -> fix round 1 dispatched
+Task 5: MANDATORY FOR TASK 6 BRIEF: (a) except psycopg2.Error: raise BEFORE except Exception in discuss_channel._freemoov_ai_respond AND MailMessage.create override; (b) worker timeout risk — 20s x 7 iterations synchronous in visitor request vs limit_time_real 120s: reduce client timeout and/or per-turn time budget in run_agent
+Task 5: minor (deferred): no prompt caching (check 4096-token min for Haiku cacheable); tool_calls arguments persisted raw (identifiers) — Task 6 decides; parallel-block test doesn't pin tool_use_id routing; shared dict in [_resp()]*10; latency naming ambiguity
+Task 5: fix round 1/5 (3 addressed, independently reproduced 88/88; commits b76035c..1d49cb3)
+Task 5: complete (commits cc34d2e..1d49cb3, review clean)
+Task 5: minor (deferred): report misattributes bug masking to _resp order (editorial); >= vs == on cap guard; renvoyer_facture still uncapped per channel within a turn
+Task 6: implemented (f56bf6f), review Spec KO — C1 card price rounding, C2 typing undeliverable pre-commit, I1-I6 -> fix round 1 dispatched
+Task 6: ADJUDICATED: C2 typing indicator -> MANDATORY Task 9 carry-in (client-side indicator while RPC pending; server bus emit stays but lands post-commit)
+Task 6: parked with ruling: I4 psycopg2 retrying replays side-effect sends (2 codes/2 invoices on rare serialization failures) — accepted v1 risk, documented in report; real fix = per-turn idempotency guard, out of scope
+Task 6: minor (deferred): dry_run arbitrage Task 11 (disable side-effect tools in dry_run recommended by reviewer); delay_seconds param dead — Task 11 decides; card CSS in Task 9; bot membership visibility to validate in staging; requests timeout is socket-level not total budget
+Task 6: fix round 1/5 (C1,I1-I6 addressed, independently reproduced 128/128; commits f56bf6f..84ee4ce)
+Task 6: complete (commits 1d49cb3..84ee4ce; residual 2-line psycopg2 reraise in _freemoov_ai_post_apology folded into Task 7 dispatch)
+PROCESS CHANGE BY USER: per-task reviews stopped; user will arrange review at end of development. Implementers keep TDD + self-review; controller keeps ledger.
+Task 6: minor (deferred): report inexactitudes (FALLBACK_TEXT not shared; I4 "same record" wording); assertNotIn("1300") collision risk; TVAC label assumes price_include (verify staging); bot-partner-missing self-reply loop guard (Task 11); int() nu on 3 legacy params (Task 11)
+Task 7: complete no-review (commits c16107f+d12b8f9, 144/144, 17 mutations)
+Task 7: minor (deferred): str.format brace fragility in prompt template (one-line .replace fix, Task 11); return-fees aligned on JSON-LD (customer pays) — client arbitrage if wrong; behavioral validation of prompt in staging (Task 10)
+Task 8: complete no-review (commit c980120, 168/168, 13 mutations)
+Task 8: minor (deferred): api_token/api_rate_per_min not in Settings (Task 11); no GC cron on api.log; approximate rate counter; form-encoded treated as no-args; API independent of enabled param (own kill switch = empty token) — confirm with client
+Task 9: complete no-review (commit 6f30ad9, 174/174; client-side typing indicator delivered per C2 adjudication)
+Task 9: minor (deferred): NO browser JS execution — runtime patches unverified, MANDATORY visual check before prod (Task 10/staging); channel color picker overridden by !important; suggestions shown even if assistant disabled server-side; contrast 3.9:1 AA-large only
+Task 10: complete no-review (commit 1a17492, 183/183, 10 mutations 10/10 attrapées)
+Task 10: écart brief: repair_tool_enabled est LIVRÉ à "False" (pas absent) — assertFalse(get_param) échoue, assertion sur != "True"
+Task 10: écart brief: dispo d'un magasin non cartographié vaut None, pas 0 — assertion all(q==0) du brief invalide
+Task 10: injection du brief remplacée (doublon registry+outils sensibles) par un e2e run_agent avec arguments de preuve fabriqués
+Task 10: minor (deferred): _Recorder/_resp importés de test_agent_loop (couplage inter-suites); recouvrement partiel de 3 tests avec les suites unitaires
+Task 10: RÉSERVE OUVERTE: validation comportementale du prompt + vérification visuelle du widget (Task 9) toujours à faire en staging
+Task 10: complete no-review (commit 1a17492, 183/183, 10/10 mutations caught)
+Task 11: complete no-review (commits d433540 + c1128fa + 8841d20, 212/212, 16 mutations 16/16 attrapées)
+Task 11: BUG BLOQUANT trouvé hors brief : message_post force author_id=False + guest du visiteur quand user public + guest en contexte (mail_thread.py:2183) -> le bot postait sous l'identité du visiteur ET se répondait à lui-même en récursion (quota/budget écrits après l'envoi). Corrigé en 3 couches (guest=None, marqueur de contexte, refus si partenaire bot absent)
+Task 11: hors brief : l'écran Réglages lisait les booléens avec bool("False")==True (cases cochées sur base éteinte) et dry_run ne pouvait pas être décoché (set_param supprime la ligne, absence = dry run) -> get_values/set_values à la main
+Task 11: hors brief : 0 non enregistrable sur les entiers (set_values -> False -> suppression) ; budget de jetons passe à `budget > 0`, -1 documenté dans l'aide du champ
+Task 11: migration 17.0.0.1.1 ajoutée (les enregistrements noupdate ne sont jamais nettoyés par _process_end, delay_seconds aurait survécu à son champ)
+Task 11: tests/common.py fixe dry_run=False pour toutes les suites (le registre refuse les outils à effet de bord en mode observation)
+Task 11: 2 tests faibles trouvés par mutation et corrigés (purges dérivant l'âge de leur propre constante ; test dry_run off vide de sens à cause du socle)
+Task 11: minor (deferred): purges en une passe sans lot ; crons en noupdate (modif ultérieure non propagée) ; repair_stage_map/store_warehouse_map hors UI ; test_dryrun.py toujours à la racine du module
+Task 11: RÉSERVE OUVERTE (héritée 9/10, désormais obligatoire) : vérification navigateur du widget — en particulier que les réponses du bot s'affichent côté assistant et non côté visiteur
+Task 11: complete no-review (commits d433540+c1128fa+8841d20, 212/212, 16/16 mutations)
+Task 11: CRITICAL FOUND OUT-OF-BRIEF AND FIXED: message_post under public+guest forced author_id False -> bot posted as visitor AND self-replied in recursion; fixed 3 layers, tested; browser verification mandatory before enabling
+ALL 11 TASKS COMPLETE (2026-07-31). Suite: 212 tests green. Final whole-branch review: deferred to user (their call). Remaining before prod: browser/staging visual+behavioral checks (widget, 2FA flow, settings), enable flags, staging deploy.
