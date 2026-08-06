@@ -19,9 +19,11 @@ class ProductTemplate(models.Model):
 
 	def dropship_product(self):
 		dropship_route_id = self.env['website'].sudo()._freemoov_get_dropship_route_id()
-		return bool(dropship_route_id and dropship_route_id in self.route_ids.ids)
+		# sudo: public visitors have no ACL on stock.route; only a boolean leaves here
+		return bool(dropship_route_id and dropship_route_id in self.sudo().route_ids.ids)
 
 	def get_stock_availability(self, website=None):
+		qty_avail = 0
 		if self.detailed_type == 'product' and not self.allow_out_of_stock_order:
 			product_variant_ids = self.product_variant_ids.ids
 			if website and website.warehouse_id:
@@ -36,7 +38,7 @@ class ProductTemplate(models.Model):
 			qty_avail = 1
 
 		dropship_route_id = self.env['website'].sudo()._freemoov_get_dropship_route_id()
-		is_dropship = bool(dropship_route_id and dropship_route_id in self.route_ids.ids)
+		is_dropship = bool(dropship_route_id and dropship_route_id in self.sudo().route_ids.ids)
 
 		return {'qty_avail': qty_avail, 'is_dropship': is_dropship}
 

@@ -77,6 +77,9 @@ class WebsiteSaleFreemoov(WebsiteSale):
         env = request.env
         dropship_route_id = env['website'].sudo()._freemoov_get_dropship_route_id()
 
+        # sudo: public visitors have no ACL on stock.route; only booleans leave here
+        products = products.sudo()
+
         # Single prefetch for fields touched in the loop below
         products.read(['detailed_type', 'allow_out_of_stock_order', 'route_ids', 'product_variant_ids'])
 
