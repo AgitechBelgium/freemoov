@@ -5,7 +5,7 @@ import { Thread } from "@mail/core/common/thread";
 import { Thread as ThreadModel } from "@mail/core/common/thread_model";
 import { ThreadService, threadService } from "@mail/core/common/thread_service";
 
-import { reactive } from "@odoo/owl";
+import { reactive, useState } from "@odoo/owl";
 
 import { browser } from "@web/core/browser/browser";
 import { registry } from "@web/core/registry";
