@@ -6,121 +6,371 @@
 // (`assets_embed_external`, `assets_embed_cors`).
 //
 // Literal hex values rather than `o-color(1)` and friends. Odoo's SCSS helpers
-// do reach this file (every bundle that includes `assets_embed_core` includes
-// `web._assets_helpers` first), but `o-color()` resolves through the palette the
+// do reach this file, but `o-color()` resolves through the palette the
 // *website* has selected — and the CORS embed renders on someone else's page,
-// out of reach of that setting. Hardcoding is also what
-// website_freemoov/static/src/scss/checkout.scss does with the same values, so
-// the charte lives in one form across the repo rather than two.
+// out of reach of that setting.
+//
+// Design intent: the calm of a concierge desk. Deep green anchors the frame,
+// everything inside it is warm paper and air. Green appears three times only —
+// header, the visitor's own words, and the price of a product — so that when it
+// shows up, it means something.
 
-// Charte Freemoov, same values as website_freemoov/static/src/scss/checkout.scss.
-$fm-primary: #099d5d;
+// ---------------------------------------------------------------------------
+// Tokens
+// ---------------------------------------------------------------------------
+// SCSS variables compile away; the custom properties below survive into the
+// shadow root, where `.o-livechat-root` is the only handle a future stylesheet
+// (or an operator's tweak) gets on this widget.
+$fm-primary: #099d5d; // charte, same as website_freemoov/static/src/scss/checkout.scss
 $fm-secondary: #7ac144;
-$fm-dark: #414042;
-$fm-gray: #7f7f7f;
-$fm-light-bg: #f5f6f7;
-$fm-border: #e8e9eb;
-$fm-radius-sm: 8px;
-$fm-radius-md: 12px;
-$fm-gradient: linear-gradient(135deg, $fm-primary, $fm-secondary);
 
-// --------------------------------------------------------------------------
+// White on #099d5d measures 3.55:1 — under AA for body text. Every surface that
+// carries text uses these darker steps instead; the bright charte green is kept
+// for fills, rings and the price, where it is decoration rather than reading.
+$fm-deep: #0a5c3a;
+$fm-deep-mid: #07784a; // 5.5:1 on white
+$fm-ink: #1b1f1d; // warm near-black, softer than #000 against paper
+$fm-muted: #6b7671;
+$fm-paper: #fbfbfa; // the thread background: paper, not screen-white
+$fm-line: #e7e9e7;
+
+$fm-ease: cubic-bezier(0.32, 0.72, 0, 1); // decelerate hard, settle without bounce
+
+.o-livechat-root {
+    --fm-primary: #{$fm-primary};
+    --fm-deep: #{$fm-deep};
+    --fm-deep-mid: #{$fm-deep-mid};
+    --fm-ink: #{$fm-ink};
+    --fm-muted: #{$fm-muted};
+    --fm-paper: #{$fm-paper};
+    --fm-line: #{$fm-line};
+    --fm-radius: 18px;
+    --fm-radius-sm: 10px;
+    --fm-ease: #{$fm-ease};
+
+    // Three stacked shadows rather than one: a hairline to seat the edge, a
+    // short shadow for the lift, a long diffuse one for the room. A single
+    // large blur reads as fog.
+    --fm-shadow:
+        0 0 0 1px rgba(16, 24, 20, 0.04),
+        0 2px 8px rgba(16, 24, 20, 0.06),
+        0 24px 48px -12px rgba(16, 24, 20, 0.18);
+}
+
+// ---------------------------------------------------------------------------
 // Launcher
-// --------------------------------------------------------------------------
-// `!important` is not a shortcut here: `im_livechat.LivechatButton` writes its
+// ---------------------------------------------------------------------------
+// `!important` is not a shortcut: `im_livechat.LivechatButton` writes its
 // colours in an inline `style` attribute, fed by the `button_background_color`
 // / `button_text_color` fields of the `im_livechat.channel` record, and no
-// selector outranks an inline style. The trade-off is explicit: those two
+// selector outranks an inline style. The trade-off is explicit — those two
 // colour pickers (Settings > Live Chat > channel) no longer drive the button.
-// Drop the three declarations below to hand them back.
+// Drop the declarations below to hand them back.
 .o-livechat-LivechatButton {
-    background: $fm-gradient !important;
+    background: radial-gradient(120% 120% at 30% 0%, #0fb26b 0%, #{$fm-primary} 45%, #{$fm-deep} 100%) !important;
     color: #fff !important;
-    box-shadow: 0 4px 16px rgba($fm-primary, 0.35) !important;
+    border: 0 !important;
+    box-shadow:
+        0 0 0 1px rgba(10, 92, 58, 0.15),
+        0 8px 24px -6px rgba(9, 157, 93, 0.45) !important;
+    transition: transform 0.35s var(--fm-ease), box-shadow 0.35s var(--fm-ease);
 
     &:hover {
-        filter: brightness(105%);
+        transform: translateY(-2px) scale(1.03);
+        box-shadow:
+            0 0 0 1px rgba(10, 92, 58, 0.2),
+            0 14px 32px -8px rgba(9, 157, 93, 0.55) !important;
+    }
+
+    &:active {
+        transform: translateY(0) scale(0.97);
+        transition-duration: 0.1s;
+    }
+
+    // The ring the browser draws is square on a round button; replace it.
+    &:focus-visible {
+        outline: none;
+        box-shadow:
+            0 0 0 3px #fff,
+            0 0 0 6px rgba(9, 157, 93, 0.6) !important;
     }
 }
 
 .o-livechat-LivechatButton-notification {
-    border-radius: $fm-radius-sm;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+    border-radius: var(--fm-radius-sm);
+    border: 1px solid var(--fm-line);
+    box-shadow: var(--fm-shadow);
+    animation: fm-rise 0.45s var(--fm-ease) both;
 }
 
-// --------------------------------------------------------------------------
-// Chat window header
-// --------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Window shell
+// ---------------------------------------------------------------------------
+.o-mail-ChatWindow {
+    border: 0 !important;
+    border-radius: var(--fm-radius) !important;
+    // Clips the header gradient to the rounded corner. Without it the header
+    // paints square corners over the shell's radius.
+    overflow: hidden;
+    box-shadow: var(--fm-shadow) !important;
+    background: var(--fm-paper) !important;
+    animation: fm-window-in 0.4s var(--fm-ease) both;
+}
+
+@keyframes fm-window-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+    }
+}
+
+@keyframes fm-rise {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Header
+// ---------------------------------------------------------------------------
 // `background-image` rather than `background`, and the difference matters:
-// im_livechat's own `chat_window_patch.xml` appends
+// im_livechat's `chat_window_patch.xml` appends
 // `background-color: {{ header_background_color }} !important` to the header's
-// inline style, and an inline `!important` declaration outranks everything a
-// stylesheet can say. `background-image` is a property that inline style never
-// sets, so the gradient goes on top of the configured colour and wins on
-// screen. Same trade-off as the launcher: the per-channel colour picker no
-// longer shows through — remove this declaration to hand it back.
+// inline style, and an inline `!important` outranks anything a stylesheet says.
+// `background-image` is a property that inline style never sets, so the
+// gradient paints over the configured colour and wins on screen.
 .o-mail-ChatWindow-header {
-    background-image: $fm-gradient !important;
+    background-image:
+        radial-gradient(140% 180% at 85% -40%, rgba(122, 193, 68, 0.5) 0%, rgba(122, 193, 68, 0) 55%),
+        linear-gradient(160deg, #{$fm-deep-mid} 0%, #{$fm-deep} 100%) !important;
     border-bottom: 0 !important;
+    color: #fff !important;
+    padding-block: 12px !important;
+    letter-spacing: 0.01em;
     // Beats the inline `color:` of the same patch (no `!important` there), and
     // is what the window title inherits — that element carries no class of its
     // own to target.
-    color: #fff !important;
 
     // The fold / close / restart commands are Bootstrap `.btn`, which sets its
-    // own colour instead of inheriting the header's. Deliberately not extended
-    // to `.o-mail-ChatWindow-counter`: that badge paints its own background,
-    // and white text on it is as likely to disappear as to read.
+    // own colour instead of inheriting. Deliberately not extended to
+    // `.o-mail-ChatWindow-counter`: that badge paints its own background, and
+    // white text on it is as likely to disappear as to read.
     .o-mail-ChatWindow-command {
         color: #fff !important;
-        opacity: 0.85;
+        opacity: 0.75;
+        border-radius: 8px;
+        transition: opacity 0.2s var(--fm-ease), background 0.2s var(--fm-ease);
 
         &:hover {
             opacity: 1;
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        &:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.9);
+            outline-offset: 1px;
+            opacity: 1;
+        }
+    }
+
+    img,
+    .o-mail-ChatWindow-threadAvatar img {
+        border-radius: 50%;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Thread
+// ---------------------------------------------------------------------------
+.o-mail-Thread {
+    background: var(--fm-paper);
+    scroll-behavior: smooth;
+
+    // A 14px system scrollbar inside a 340px pane is a third of a bubble's
+    // margin. Firefox reads the first two, WebKit the rest.
+    scrollbar-width: thin;
+    scrollbar-color: rgba(27, 31, 29, 0.18) transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba(27, 31, 29, 0.16);
+        border-radius: 3px;
+
+        &:hover {
+            background: rgba(27, 31, 29, 0.28);
         }
     }
 }
 
-// --------------------------------------------------------------------------
+// Bubbles. Odoo marks the visitor's own messages `.o-selfAuthored`; everything
+// else in a livechat thread is the assistant or an operator.
+.o-mail-Message-bubble {
+    border-radius: 16px !important;
+    line-height: 1.45;
+    box-shadow: none !important;
+
+    &:not(.o-selfAuthored) {
+        background: #fff !important;
+        border: 1px solid var(--fm-line) !important;
+        color: var(--fm-ink) !important;
+        // One squared corner points the bubble at its author — the detail that
+        // makes a thread read as a conversation rather than a list.
+        border-bottom-left-radius: 5px !important;
+    }
+
+    &.o-selfAuthored {
+        background: linear-gradient(160deg, #{$fm-deep-mid}, #{$fm-deep}) !important;
+        color: #fff !important;
+        border: 0 !important;
+        border-bottom-right-radius: 5px !important;
+
+        a {
+            color: #fff;
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Start suggestions
+// ---------------------------------------------------------------------------
+.fm-assistant-suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 4px 12px 14px;
+}
+
+.fm-assistant-suggestion {
+    border: 1px solid var(--fm-line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--fm-ink);
+    padding: 7px 14px;
+    // Buttons do not inherit the font: without this the chips render in the
+    // browser's default face while every bubble around them uses Odoo's.
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1.3;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(16, 24, 20, 0.04);
+    transition:
+        transform 0.25s var(--fm-ease),
+        border-color 0.25s var(--fm-ease),
+        color 0.25s var(--fm-ease),
+        box-shadow 0.25s var(--fm-ease);
+
+    // Staggered arrival. Five chips landing together read as a menu; landing in
+    // sequence they read as an offer. Indices are fixed because the list is.
+    animation: fm-rise 0.4s var(--fm-ease) both;
+    @for $i from 1 through 5 {
+        &:nth-child(#{$i}) {
+            animation-delay: #{0.04s * $i};
+        }
+    }
+
+    // "Je veux parler à un conseiller" — the way out of the bot. Last of the
+    // five and deliberately quieter: it is the fallback, not the invitation.
+    // Declared before `:hover`, which carries the same specificity and would
+    // otherwise win on source order, leaving this chip the only one without
+    // hover feedback.
+    &:last-child {
+        color: var(--fm-muted);
+        background: transparent;
+        box-shadow: none;
+    }
+
+    &:hover {
+        transform: translateY(-1px);
+        border-color: rgba(9, 157, 93, 0.45);
+        color: var(--fm-deep-mid);
+        box-shadow: 0 4px 10px -2px rgba(9, 157, 93, 0.22);
+    }
+
+    &:active {
+        transform: translateY(0);
+        transition-duration: 0.08s;
+    }
+
+    &:focus-visible {
+        outline: none;
+        border-color: var(--fm-primary);
+        box-shadow: 0 0 0 3px rgba(9, 157, 93, 0.22);
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Product cards
-// --------------------------------------------------------------------------
-// Server-rendered markup, posted as a message body — see
-// views/product_cards_template.xml. The chat window is ~340px wide, so the
-// cards are full-width rows rather than a grid of tiles: a scooter name and a
-// per-store availability line do not survive a 140px column.
+// ---------------------------------------------------------------------------
+// Server-rendered markup posted as a message body — see
+// views/product_cards_template.xml. `html_sanitize` keeps `class`, `href`,
+// `target`, `rel`, `alt` and `src` and drops everything else, so all styling
+// has to arrive through these class names; nothing can be set inline.
+//
+// The pane is ~340px wide, so cards are full-width rows rather than tiles: a
+// scooter name plus a per-store availability line does not survive a 140px
+// column.
 .fm-assistant-cards {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-top: 8px;
+    margin-top: 10px;
 
     .fm-assistant-card {
         display: flex;
         align-items: center;
-        gap: 10px;
-        padding: 8px;
-        border: 1px solid $fm-border;
-        border-radius: $fm-radius-md;
+        gap: 12px;
+        padding: 10px;
+        border: 1px solid var(--fm-line);
+        border-radius: 14px;
         background: #fff;
         text-decoration: none;
-        color: $fm-dark;
-        transition: border-color 0.2s, box-shadow 0.2s;
+        color: var(--fm-ink);
+        box-shadow: 0 1px 2px rgba(16, 24, 20, 0.04);
+        transition:
+            transform 0.25s var(--fm-ease),
+            border-color 0.25s var(--fm-ease),
+            box-shadow 0.25s var(--fm-ease);
+        animation: fm-rise 0.4s var(--fm-ease) both;
+
+        @for $i from 1 through 3 {
+            &:nth-child(#{$i}) {
+                animation-delay: #{0.05s * $i};
+            }
+        }
 
         &:hover,
-        &:focus {
-            border-color: $fm-primary;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        &:focus-visible {
+            transform: translateY(-1px);
+            border-color: rgba(9, 157, 93, 0.45);
+            box-shadow: 0 6px 16px -4px rgba(16, 24, 20, 0.14);
             text-decoration: none;
-            color: $fm-dark;
+            color: var(--fm-ink);
+        }
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(9, 157, 93, 0.25);
         }
 
         img {
-            width: 56px;
-            height: 56px;
-            flex: 0 0 56px;
+            // Fixed box, not `height: auto`: the thumbnail arrives after the
+            // card is painted, and a card that grows on load pushes the answer
+            // above it out of view mid-read. This is the layout-shift guard.
+            width: 60px;
+            height: 60px;
+            flex: 0 0 60px;
             object-fit: contain;
-            border-radius: $fm-radius-sm;
-            background: $fm-light-bg;
+            border-radius: var(--fm-radius-sm);
+            background: #f2f4f2;
         }
     }
 
@@ -132,9 +382,9 @@ $fm-gradient: linear-gradient(135deg, $fm-primary, $fm-secondary);
     .fm-assistant-card-name {
         font-size: 13px;
         font-weight: 600;
-        line-height: 1.25;
-        // Two lines, then ellipsis: product names run long and a card that
-        // grows to four lines pushes the answer above it out of view.
+        line-height: 1.3;
+        // Two lines then ellipsis: product names run long, and a card grown to
+        // four lines pushes the answer above it off screen.
         display: -webkit-box;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
@@ -142,59 +392,156 @@ $fm-gradient: linear-gradient(135deg, $fm-primary, $fm-secondary);
     }
 
     .fm-assistant-card-price {
-        font-size: 13px;
+        font-size: 13.5px;
         font-weight: 700;
-        color: $fm-primary;
-        margin-top: 2px;
+        color: var(--fm-deep-mid);
+        margin-top: 3px;
+        font-variant-numeric: tabular-nums; // prices align across stacked cards
     }
 
-    // Availability line, added in Task 6: "Charleroi 2 · Gosselies 1",
-    // "Sur commande" or "Nous contacter". Secondary to the price.
+    // Availability line: "Liège 2 · Namur 1", "Sur commande" or "Nous
+    // contacter". Secondary to the price.
     .fm-assistant-card-stock {
         font-size: 11px;
-        color: $fm-gray;
-        margin-top: 1px;
+        color: var(--fm-muted);
+        margin-top: 2px;
     }
 }
 
-// --------------------------------------------------------------------------
-// Start suggestions
-// --------------------------------------------------------------------------
-.fm-assistant-suggestions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 8px 12px 12px;
+// ---------------------------------------------------------------------------
+// Composer
+// ---------------------------------------------------------------------------
+.o-mail-Composer {
+    background: var(--fm-paper);
+    border-top: 1px solid var(--fm-line);
+    padding: 10px 12px;
+
+    textarea {
+        border-radius: 22px !important;
+        border: 1px solid var(--fm-line) !important;
+        background: #fff !important;
+        padding: 10px 14px !important;
+        font-size: 13px;
+        line-height: 1.4;
+        transition: border-color 0.2s var(--fm-ease), box-shadow 0.2s var(--fm-ease);
+
+        &:focus {
+            border-color: rgba(9, 157, 93, 0.5) !important;
+            box-shadow: 0 0 0 3px rgba(9, 157, 93, 0.15) !important;
+            outline: none !important;
+        }
+
+        &::placeholder {
+            color: var(--fm-muted);
+        }
+    }
 }
 
-.fm-assistant-suggestion {
-    border: 1px solid $fm-border;
-    border-radius: 16px;
-    background: #fff;
-    color: $fm-dark;
-    padding: 5px 12px;
-    // Buttons do not inherit the font: without this the chips render in the
-    // browser's default face while every bubble around them uses Odoo's.
-    font-family: inherit;
-    font-size: 12px;
-    line-height: 1.3;
-    text-align: left;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s, color 0.2s;
+// ---------------------------------------------------------------------------
+// Typing indicator
+// ---------------------------------------------------------------------------
+// The client-side indicator (see static/src/js/assistant_typing.js) renders a
+// Message whose body is the three dots below — the server's bus notification
+// cannot reach the visitor mid-turn, it only flushes at commit.
+.o-mail-Typing,
+.o-mail-Message-textContent .o-mail-Typing {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
 
-    // "Je veux parler à un conseiller" — the way out of the bot. Last of the
-    // five and deliberately quieter than the others: it is the fallback, not
-    // the invitation. Declared before `:hover`, which carries the same
-    // specificity and would otherwise lose to it on source order — this one
-    // chip would be the only one with no hover feedback.
-    &:last-child {
-        color: $fm-gray;
+    span,
+    &::before {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--fm-muted);
+        animation: fm-typing 1.2s infinite var(--fm-ease);
     }
 
-    &:hover,
-    &:focus {
-        border-color: $fm-primary;
-        background: rgba($fm-primary, 0.08);
-        color: $fm-primary;
+    span:nth-child(2) {
+        animation-delay: 0.15s;
+    }
+
+    span:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+}
+
+@keyframes fm-typing {
+    0%,
+    60%,
+    100% {
+        opacity: 0.3;
+        transform: translateY(0);
+    }
+    30% {
+        opacity: 1;
+        transform: translateY(-3px);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Mobile
+// ---------------------------------------------------------------------------
+// Under 500px the window takes the screen. Odoo already goes near-fullscreen;
+// what it does not do is respect the iOS home indicator or drop the rounded
+// corners that look like a mistake once the panel touches every edge.
+@media (max-width: 500px) {
+    .o-mail-ChatWindow {
+        border-radius: 0 !important;
+        // `dvh` tracks the mobile browser's collapsing address bar; `vh` does
+        // not, and the composer ends up under it.
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        width: 100vw !important;
+        animation-name: fm-window-in-mobile;
+    }
+
+    .o-mail-ChatWindow-header {
+        padding-top: max(12px, env(safe-area-inset-top)) !important;
+    }
+
+    .o-mail-Composer {
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
+    }
+
+    .fm-assistant-suggestion {
+        // Thumb targets, not mouse targets.
+        padding: 9px 15px;
+        font-size: 13.5px;
+    }
+
+    .fm-assistant-cards .fm-assistant-card img {
+        width: 68px;
+        height: 68px;
+        flex-basis: 68px;
+    }
+}
+
+@keyframes fm-window-in-mobile {
+    from {
+        opacity: 0;
+        transform: translateY(24px);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Reduced motion
+// ---------------------------------------------------------------------------
+// Everything above degrades to its end state. Kept last so it outranks the
+// animation declarations on source order.
+@media (prefers-reduced-motion: reduce) {
+    .o-livechat-root,
+    .o-livechat-root * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .o-livechat-LivechatButton:hover,
+    .fm-assistant-suggestion:hover,
+    .fm-assistant-cards .fm-assistant-card:hover {
+        transform: none;
     }
 }
