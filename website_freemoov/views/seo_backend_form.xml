@@ -43,6 +43,7 @@
                 <field name="seo_intro" widget="html"
                        placeholder="Introduction SEO de la categorie (editable aussi via le website builder)"/>
                 <field name="blog_id"/>
+                <field name="seo_noindex"/>
             </xpath>
         </field>
     </record>

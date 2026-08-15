@@ -3,15 +3,43 @@ import json
 import logging
 import re
 from datetime import timedelta
+from urllib.parse import urlparse
 
 from markupsafe import Markup
 
 from odoo import fields, models, api
+from odoo.addons.http_routing.models.ir_http import slug
 from odoo.http import request
 from odoo.tools import html2plaintext
 from odoo.tools.translate import html_translate
 
 _logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Technical hosts that must never leak into canonical tags or structured data.
+# Odoo.sh serves <db>.odoo.com with a hardcoded "Disallow: /" robots.txt, so
+# any URL we emit on that host points Google at something it may not crawl.
+# ---------------------------------------------------------------------------
+TECHNICAL_HOST_MARKERS = ('.odoo.com', '.odoo.sh', 'localhost', '127.0.0.1')
+
+
+def is_technical_host(url):
+    """Return True if `url` sits on a host that must not be published."""
+    if not url:
+        return True
+    host = urlparse(url if '://' in url else 'https://' + url).netloc.lower()
+    return any(marker in host for marker in TECHNICAL_HOST_MARKERS)
+
+
+def seo_base_url(env):
+    """Public base URL for every SEO artefact (canonical, hreflang, JSON-LD).
+
+    `website.get_base_url()` falls back to the `web.base.url` system parameter,
+    which on Odoo.sh holds the technical <db>.odoo.com host. Emitting it makes
+    the whole site declare a reference URL that is blocked by robots.txt.
+    """
+    return env['website'].get_current_website()._seo_base_url()
+
 
 # ---------------------------------------------------------------------------
 # Shipping & return constants (aligned with GMC module)
@@ -43,37 +71,43 @@ class IrHttpSeo(models.AbstractModel):
                 ).browse(product_id)
                 if product.exists() and not product.active:
                     categ = product.public_categ_ids[:1]
-                    from odoo.addons.http_routing.models.ir_http import slug
                     url = '/shop/category/%s' % slug(categ) if categ else '/shop'
                     return request.redirect(url, code=301)
         return super()._serve_fallback()
 
 
 class SeoMetadataFix(models.AbstractModel):
-    """Fix og:image domain pointing to freemoov.odoo.com instead of the
-    public website domain (www.freemoov.com)."""
+    """Rewrite Open Graph / Twitter URLs that Odoo built on the technical host."""
     _inherit = 'website.seo.metadata'
+
+    def _default_website_meta(self):
+        res = super()._default_website_meta()
+        if not request:
+            return res
+
+        # Store pages were built in the website editor and carry no meta
+        # description. Supply one as a default — anything typed in the SEO
+        # panel still wins, since website.layout reads the stored value first.
+        store_desc = request.website.get_store_meta_description(request.httprequest.path)
+        if store_desc and not res.get('default_meta_description'):
+            res['default_meta_description'] = store_desc
+            res['default_opengraph'].setdefault('og:description', store_desc)
+            res['default_twitter'].setdefault('twitter:description', store_desc)
+        return res
 
     def get_website_meta(self):
         meta = super().get_website_meta()
         if not request:
             return meta
-        website = request.website
-        domain = website.domain or ''
-        domain = domain.strip().rstrip('/')
-        if not domain:
-            domain = website.get_base_url().rstrip('/')
-        if not domain or '.odoo.com' in domain:
+        domain = request.website._seo_base_url()
+        if is_technical_host(domain):
             return meta
-        if not domain.startswith('http'):
-            domain = 'https://' + domain
 
-        from urllib.parse import urlparse
-        for bucket in ('default_opengraph', 'default_twitter', 'opengraph_meta', 'twitter_meta'):
+        for bucket in ('opengraph_meta', 'twitter_meta'):
             data = meta.get(bucket, {})
             for key in list(data.keys()):
                 val = data[key]
-                if isinstance(val, str) and '.odoo.com' in val:
+                if isinstance(val, str) and '://' in val and is_technical_host(val):
                     parsed = urlparse(val)
                     data[key] = domain + parsed.path
                     if parsed.query:
@@ -277,7 +311,7 @@ class ProductTemplateSeo(models.Model):
     def _seo_images(self):
         """Return list of all product image URLs (main + extras)."""
         website = self.env['website'].get_current_website()
-        base_url = website.get_base_url()
+        base_url = website._seo_base_url()
         images = [base_url + website.image_url(self, 'image_1920')]
         for img in self.product_template_image_ids:
             images.append('%s/web/image/product.image/%s/image_1920' % (base_url, img.id))
@@ -322,7 +356,7 @@ class ProductTemplateSeo(models.Model):
 
     def _seo_variant_offer(self, variant):
         """Return an Offer dict for a specific product variant."""
-        base_url = self.env['website'].get_current_website().get_base_url()
+        base_url = seo_base_url(self.env)
         offer = {
             '@type': 'Offer',
             'url': base_url + self.website_url,
@@ -361,7 +395,7 @@ class ProductTemplateSeo(models.Model):
     def _get_jsonld_product(self):
         """Return Markup-safe JSON-LD string for a Product/ProductGroup schema."""
         self.ensure_one()
-        base_url = self.env['website'].get_current_website().get_base_url()
+        base_url = seo_base_url(self.env)
         variants = self.product_variant_ids.filtered('active')
         is_group = len(variants) > 1
 
@@ -476,7 +510,7 @@ class ProductTemplateSeo(models.Model):
         self.ensure_one()
         if not self.video_url:
             return ''
-        base_url = self.env['website'].get_current_website().get_base_url()
+        base_url = seo_base_url(self.env)
         data = {
             '@context': 'https://schema.org',
             '@type': 'VideoObject',
@@ -512,7 +546,7 @@ class ProductTemplateSeo(models.Model):
     def _get_jsonld_breadcrumb(self, category=None):
         """Return JSON-LD BreadcrumbList for a product page."""
         self.ensure_one()
-        base_url = self.env['website'].get_current_website().get_base_url()
+        base_url = seo_base_url(self.env)
         items = [
             {'@type': 'ListItem', 'position': 1, 'name': 'Accueil', 'item': base_url + '/'},
         ]
@@ -520,7 +554,7 @@ class ProductTemplateSeo(models.Model):
             items.append({
                 '@type': 'ListItem', 'position': 2,
                 'name': category.name,
-                'item': base_url + '/shop/category/%s-%s' % (category.seo_name or category.name, category.id),
+                'item': base_url + '/shop/category/%s' % slug(category),
             })
             items.append({
                 '@type': 'ListItem', 'position': 3, 'name': self.name,
@@ -551,6 +585,14 @@ class ProductPublicCategorySeo(models.Model):
     blog_id = fields.Many2one(
         'blog.blog', string='Blog associé',
     )
+    seo_noindex = fields.Boolean(
+        string='Exclure de l\'index Google',
+        help="Pour les catégories qui ne servent qu'à la navigation "
+             "(« Nos marques de… », « Par type »…). Elles se placent sur les "
+             "mêmes requêtes que la catégorie principale et lui font "
+             "concurrence. La page reste visible et ses liens sont suivis, "
+             "elle n'apparaît simplement plus dans les résultats de recherche.",
+    )
 
     def _default_website_meta(self):
         res = super()._default_website_meta()
@@ -571,7 +613,7 @@ class ProductPublicCategorySeo(models.Model):
     def _get_jsonld_breadcrumb(self):
         """Return JSON-LD BreadcrumbList for a category page."""
         self.ensure_one()
-        base_url = self.env['website'].get_current_website().get_base_url()
+        base_url = seo_base_url(self.env)
         items = [
             {'@type': 'ListItem', 'position': 1, 'name': 'Accueil', 'item': base_url + '/'},
             {'@type': 'ListItem', 'position': 2, 'name': 'Produits', 'item': base_url + '/shop'},
@@ -581,7 +623,7 @@ class ProductPublicCategorySeo(models.Model):
             items.append({
                 '@type': 'ListItem', 'position': pos,
                 'name': parent.name,
-                'item': base_url + '/shop/category/%s-%s' % (parent.seo_name or parent.name, parent.id),
+                'item': base_url + '/shop/category/%s' % slug(parent),
             })
             pos += 1
         items.append({'@type': 'ListItem', 'position': pos, 'name': self.name})
@@ -595,7 +637,7 @@ class ProductPublicCategorySeo(models.Model):
     def _get_jsonld_collection(self, products):
         """Return JSON-LD CollectionPage + ItemList for a category listing."""
         self.ensure_one()
-        base_url = self.env['website'].get_current_website().get_base_url()
+        base_url = seo_base_url(self.env)
         website = self.env['website'].get_current_website()
         price_valid = (fields.Date.today() + timedelta(days=90)).isoformat()
         list_items = []
@@ -640,7 +682,7 @@ class ProductPublicCategorySeo(models.Model):
             '@context': 'https://schema.org',
             '@type': 'CollectionPage',
             'name': self.name,
-            'url': base_url + '/shop/category/%s-%s' % (self.seo_name or self.name, self.id),
+            'url': base_url + '/shop/category/%s' % slug(self),
             'mainEntity': {
                 '@type': 'ItemList',
                 'numberOfItems': len(list_items),
@@ -663,6 +705,9 @@ class WebsiteSeo(models.Model):
         '/livechat', '/helpdesk', '/slider_s', '/website/info',
         '/my/', '/web/login', '/web/signup', '/web/reset_password',
         '/shop/cart', '/shop/checkout', '/shop/payment', '/shop/confirm_order',
+        # Application forms duplicate the job pages, and the profile/slides
+        # routes come from modules Freemoov does not use publicly.
+        '/jobs/apply', '/profile/', '/slides',
     )
 
     def _enumerate_pages(self, query_string=None, force=False):
@@ -673,11 +718,47 @@ class WebsiteSeo(models.Model):
             yield page
 
     # ------------------------------------------------------------------
-    # Canonical: fix / vs /home
+    # Public base URL
+    # ------------------------------------------------------------------
+    def _seo_base_url(self):
+        """Return the domain we want search engines to index.
+
+        Resolution order:
+          1. the website's configured `domain` (the value an admin controls),
+          2. the host actually serving the current request,
+          3. the native `get_base_url()`, as a last resort.
+
+        Steps 1 and 2 are skipped when they resolve to a technical host, so a
+        misconfigured `web.base.url` can no longer poison canonical tags,
+        hreflang or JSON-LD. This is a safety net, not the fix: `website.domain`
+        should still be set to https://www.freemoov.com in production.
+        """
+        domain = (self.domain or '').strip().rstrip('/')
+        if domain and not is_technical_host(domain):
+            return domain if domain.startswith('http') else 'https://' + domain
+
+        if request:
+            host = request.httprequest.host_url.rstrip('/')
+            if not is_technical_host(host):
+                return host
+
+        return self.get_base_url().rstrip('/')
+
+    # ------------------------------------------------------------------
+    # Canonical: public domain + fix / vs /home
     # ------------------------------------------------------------------
     def _get_canonical_url(self, canonical_params=None):
         canonical = super()._get_canonical_url(canonical_params=canonical_params)
-        base_url = self.get_base_url()
+        base_url = self._seo_base_url()
+
+        # Native canonical is built on get_base_url(); re-anchor it on the
+        # public domain so we never advertise the technical host.
+        if is_technical_host(canonical) and not is_technical_host(base_url):
+            parsed = urlparse(canonical)
+            canonical = base_url + parsed.path
+            if parsed.query:
+                canonical += '?' + parsed.query
+
         if canonical.rstrip('/') == base_url + '/home':
             return base_url + '/'
         return canonical
@@ -686,7 +767,7 @@ class WebsiteSeo(models.Model):
     # Organization JSON-LD (homepage only)
     # ------------------------------------------------------------------
     def get_jsonld_organization(self):
-        base_url = self.get_base_url()
+        base_url = self._seo_base_url()
         data = {
             '@context': 'https://schema.org',
             '@type': 'OnlineStore',
@@ -728,70 +809,141 @@ class WebsiteSeo(models.Model):
         {'@type': 'OpeningHoursSpecification', 'dayOfWeek': 'Saturday', 'opens': '11:00', 'closes': '17:00'},
     ]
 
-    def get_jsonld_local_business_liege(self):
-        base_url = self.get_base_url()
+    # Keep in sync with the published store pages. `path` is the live URL of
+    # the page: Odoo appended a "-1" suffix to Liège and Namur when the pages
+    # were recreated, and the previous hardcoded paths never matched, so no
+    # store page ever carried its LocalBusiness markup.
+    # `rating` is omitted where we have no verified Google Business figure —
+    # never invent one, an unfounded aggregateRating is a policy violation.
+    _STORES = {
+        'liege': {
+            'name': 'Freemoov Liège',
+            'path': '/freemoov-liege-1',
+            'street': 'Boulevard de la Sauvenière 136B',
+            'locality': 'Liège',
+            'postal_code': '4000',
+            'latitude': 50.6413,
+            'longitude': 5.5718,
+            'rating': {'value': '4.9', 'count': 152},
+        },
+        'namur': {
+            'name': 'Freemoov Namur',
+            'path': '/freemoov-namur-1',
+            'street': 'Avenue du Bourgmestre Jean Materne 120',
+            'locality': 'Namur',
+            'postal_code': '5100',
+            'latitude': 50.4548,
+            'longitude': 4.8365,
+            'rating': {'value': '4.7', 'count': 196},
+        },
+        'charleroi': {
+            'name': 'Freemoov Charleroi',
+            'path': '/freemoov-charleroi',
+            'street': 'Rue de Dampremy 69',
+            'locality': 'Charleroi',
+            'postal_code': '6000',
+            'latitude': 50.4093,
+            'longitude': 4.4399,
+            'rating': None,
+        },
+    }
+
+    # Which stores to describe on a given page. The store hub lists all three.
+    _STORE_PAGES = {
+        '/magasin': ('liege', 'namur', 'charleroi'),
+        '/freemoov-liege-1': ('liege',),
+        '/freemoov-liege': ('liege',),
+        '/freemoov-namur-1': ('namur',),
+        '/freemoov-namur': ('namur',),
+        '/freemoov-charleroi': ('charleroi',),
+    }
+
+    _STORE_PHONE = '+32 81 65 91 66'
+
+    def _get_store_jsonld(self, key):
+        """Return the LocalBusiness JSON-LD of a single store."""
+        store = self._STORES[key]
+        base_url = self._seo_base_url()
         data = {
             '@context': 'https://schema.org',
             '@type': 'ElectronicsStore',
-            '@id': base_url + '/#store-liege',
-            'name': 'Freemoov Liège',
-            'description': 'Magasin de trottinettes électriques, gyroroues et vélos électriques à Liège. Conseil, vente et réparation.',
+            '@id': '%s/#store-%s' % (base_url, key),
+            'name': store['name'],
+            'description': (
+                'Magasin de trottinettes électriques, gyroroues et vélos '
+                'électriques à %s. Conseil, vente et réparation.'
+            ) % store['locality'],
             'image': base_url + '/web/image/website/1/logo',
-            'url': base_url + '/freemoov-liege',
-            'telephone': '+32 81 65 91 66',
+            'url': base_url + store['path'],
+            'telephone': self._STORE_PHONE,
             'address': {
                 '@type': 'PostalAddress',
-                'streetAddress': 'Boulevard de la Sauvenière 136B',
-                'addressLocality': 'Liège',
-                'postalCode': '4000',
+                'streetAddress': store['street'],
+                'addressLocality': store['locality'],
+                'postalCode': store['postal_code'],
                 'addressCountry': 'BE',
             },
-            'geo': {'@type': 'GeoCoordinates', 'latitude': 50.6413, 'longitude': 5.5718},
-            'openingHoursSpecification': self._STORE_HOURS,
-            'aggregateRating': {
-                '@type': 'AggregateRating',
-                'ratingValue': '4.9',
-                'reviewCount': 152,
-                'bestRating': 5,
+            'geo': {
+                '@type': 'GeoCoordinates',
+                'latitude': store['latitude'],
+                'longitude': store['longitude'],
             },
+            'openingHoursSpecification': self._STORE_HOURS,
             'priceRange': '€€',
             'parentOrganization': {'@type': 'Organization', '@id': base_url + '/#organization'},
         }
+        if store['rating']:
+            data['aggregateRating'] = {
+                '@type': 'AggregateRating',
+                'ratingValue': store['rating']['value'],
+                'reviewCount': store['rating']['count'],
+                'bestRating': 5,
+            }
         return Markup(json.dumps(data, ensure_ascii=False))
 
-    def get_jsonld_local_business_namur(self):
-        base_url = self.get_base_url()
-        data = {
-            '@context': 'https://schema.org',
-            '@type': 'ElectronicsStore',
-            '@id': base_url + '/#store-namur',
-            'name': 'Freemoov Namur',
-            'description': 'Magasin de trottinettes électriques, gyroroues et vélos électriques à Namur. Conseil, vente et réparation.',
-            'image': base_url + '/web/image/website/1/logo',
-            'url': base_url + '/freemoov-namur',
-            'telephone': '+32 81 65 91 66',
-            'address': {
-                '@type': 'PostalAddress',
-                'streetAddress': 'Avenue du Bourgmestre Jean Materne 120',
-                'addressLocality': 'Namur',
-                'postalCode': '5100',
-                'addressCountry': 'BE',
-            },
-            'geo': {'@type': 'GeoCoordinates', 'latitude': 50.4548, 'longitude': 4.8365},
-            'openingHoursSpecification': self._STORE_HOURS,
-            'aggregateRating': {
-                '@type': 'AggregateRating',
-                'ratingValue': '4.7',
-                'reviewCount': 196,
-                'bestRating': 5,
-            },
-            'priceRange': '€€',
-            'parentOrganization': {'@type': 'Organization', '@id': base_url + '/#organization'},
-        }
-        return Markup(json.dumps(data, ensure_ascii=False))
+    def get_store_jsonld_for_path(self, path):
+        """Return the list of LocalBusiness JSON-LD blocks for a page path."""
+        keys = self._STORE_PAGES.get((path or '').rstrip('/') or '/', ())
+        return [self._get_store_jsonld(key) for key in keys]
+
+    # ------------------------------------------------------------------
+    # Noindex for navigation-only categories
+    # ------------------------------------------------------------------
+    def is_noindex_category_path(self, path):
+        """True when `path` is a category page flagged `seo_noindex`."""
+        match = re.match(r'^/shop/category/.*-(\d+)$', (path or '').rstrip('/'))
+        if not match:
+            return False
+        category = self.env['product.public.category'].sudo().browse(int(match.group(1)))
+        return bool(category.exists() and category.seo_noindex)
+
+    def get_store_meta_description(self, path):
+        """Fallback meta description for the store pages.
+
+        The store pages were built in the website editor and none of them has
+        a meta description, so Google composes its own snippet. This only acts
+        as a default: anything typed in the SEO panel still wins (see the
+        `meta_description` resolution order in website.layout).
+        """
+        keys = self._STORE_PAGES.get((path or '').rstrip('/') or '/', ())
+        if not keys:
+            return ''
+        if len(keys) > 1:
+            cities = ', '.join(self._STORES[k]['locality'] for k in keys)
+            return (
+                'Nos magasins de trottinettes électriques, vélos électriques et '
+                'gyroroues à %s. Essai sur place, conseil expert, atelier de '
+                'réparation et retrait de commande.'
+            ) % cities
+        store = self._STORES[keys[0]]
+        return (
+            'Magasin de trottinettes électriques, vélos électriques et gyroroues '
+            'à %s — %s. Essai sur place, conseil expert et atelier de réparation. '
+            'Ouvert du mardi au samedi.'
+        ) % (store['locality'], store['street'])
 
     def get_jsonld_website(self):
-        base_url = self.get_base_url()
+        base_url = self._seo_base_url()
         data = {
             '@context': 'https://schema.org',
             '@type': 'WebSite',
