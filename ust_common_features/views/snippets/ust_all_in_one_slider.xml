@@ -182,11 +182,10 @@
 				<!-- Odoo 17: Simplified price display without _get_combination_info -->
 			<t t-set="combination_info" t-value="{'price': product.list_price, 'list_price': product.list_price, 'has_discounted_price': product.compare_list_price and product.compare_list_price > product.list_price, 'compare_list_price': product.compare_list_price or 0, 'prevent_zero_price_sale': False}" />
 				<form action="/shop/cart/update" method="post" class="oe_product_cart h-100 d-flex"
-		            t-att-data-publish="product.website_published and 'on' or 'off'"
-		            itemscope="itemscope" itemtype="http://schema.org/Product">
+		            t-att-data-publish="product.website_published and 'on' or 'off'">
 
 		            <div class="oe_product_image position-relative flex-grow-0 overflow-hidden">
-		                <a t-att-href="'/shop/product/%s' % slug(product)"  class="oe_product_image_link d-block h-100 position-relative pt-0" itemprop="url" contenteditable="false">
+		                <a t-att-href="product.website_url"  class="oe_product_image_link d-block h-100 position-relative pt-0" contenteditable="false">
 		                    <t t-set="image_holder" t-value="product._get_image_holder()"/>
 		                    <img t-att-src="website.image_url(product, 'image_1920')" data-lazy="" class="front img-fluid shop-prod-main-img" t-att-alt="product.name"
 									t-att-title="product.name"
@@ -201,23 +200,20 @@
 		                <div class="o_wsale_product_information_text flex-grow-1">
 		                	<p class="brand mb4" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
 		                    <h6 class="o_wsale_products_item_title mb8">
-		                        <a class="text-primary text-decoration-none" itemprop="name" t-att-href="'/shop/product/%s' % slug(product)" t-att-content="product.name" t-esc="product.name" />
-		                        <a t-if="not product.website_published" role="button" t-att-href="'/shop/product/%s' % slug(product)" class="btn btn-sm btn-danger" title="This product is unpublished.">
+		                        <a class="text-primary text-decoration-none" t-att-href="product.website_url" t-att-content="product.name" t-esc="product.name" />
+		                        <a t-if="not product.website_published" role="button" t-att-href="product.website_url" class="btn btn-sm btn-danger" title="This product is unpublished.">
 		                            Unpublished
 		                        </a>
 		                    </h6>
 		                    <div class="product_bottom d-flex align-items-end justify-content-between">
 		                    	<div class="product_price_div">
-			                    	<div itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer" t-attf-class="product_price mt-2 mb-3 {{'d-none' if combination_info['prevent_zero_price_sale'] else 'd-inline-block'}}">
+			                    	<div t-attf-class="product_price mt-2 mb-3 {{'d-none' if combination_info['prevent_zero_price_sale'] else 'd-inline-block'}}">
 										<h3 class="css_editable_mode_hidden">
 											<span class="oe_price" style="white-space: nowrap;" t-esc="combination_info['price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
-											<span itemprop="price" style="display:none;" t-esc="combination_info['price']"/>
-											<span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name"/>
 											<span t-attf-class="text-danger oe_default_price ms-1 h5 {{'' if combination_info['has_discounted_price'] and not combination_info['compare_list_price'] else 'd-none'}}"
 												style="text-decoration: line-through; white-space: nowrap;"
 												t-esc="combination_info['list_price']"
 												t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"
-												itemprop="listPrice"
 											/>
 											<t t-if="is_view_active('website_sale.tax_indication')" t-call="website_sale.tax_indication"/>
 											<del t-if="combination_info['compare_list_price'] and (combination_info['compare_list_price'] &gt; combination_info['price'])">
@@ -255,7 +251,7 @@
 									</div>
 			                    </div>
 			                    <div class="s_btn">
-			                    	<a t-att-href="'/shop/product/%s' % slug(product)" class="btn btn-outline-dark"><i class="fa fa-arrow-right"></i></a>
+			                    	<a t-att-href="product.website_url" class="btn btn-outline-dark"><i class="fa fa-arrow-right"></i></a>
 			                    </div>
 			                </div>
 		                </div>
@@ -271,11 +267,10 @@
 				<!-- Odoo 17: Simplified price display without _get_combination_info -->
 			<t t-set="combination_info" t-value="{'price': product.list_price, 'list_price': product.list_price, 'has_discounted_price': product.compare_list_price and product.compare_list_price > product.list_price, 'compare_list_price': product.compare_list_price or 0, 'prevent_zero_price_sale': False}" />
 				<form action="/shop/cart/update" method="post" class="oe_product_cart h-100 d-flex"
-		            t-att-data-publish="product.website_published and 'on' or 'off'"
-		            itemscope="itemscope" itemtype="http://schema.org/Product">
+		            t-att-data-publish="product.website_published and 'on' or 'off'">
 
 		            <div class="oe_product_image position-relative flex-grow-0 overflow-hidden">
-		                <a t-att-href="'/shop/product/%s' % slug(product)"  class="oe_product_image_link d-block h-100 position-relative pt-0" itemprop="url" contenteditable="false">
+		                <a t-att-href="product.website_url"  class="oe_product_image_link d-block h-100 position-relative pt-0" contenteditable="false">
 		                    <t t-set="image_holder" t-value="product._get_image_holder()"/>
 		                    <img t-att-src="website.image_url(product, 'image_1920')" data-lazy="" class="front img-fluid shop-prod-main-img" t-att-alt="product.name"
 									t-att-title="product.name"
@@ -290,8 +285,8 @@
 		                <div class="o_wsale_product_information_text flex-grow-1">
 		                	<p class="brand mb4" t-if="product.brand_id"><t t-esc="product.brand_id.name"/></p>
 		                    <h6 class="o_wsale_products_item_title mb8">
-		                        <a class="text-primary text-decoration-none" itemprop="name" t-att-href="'/shop/product/%s' % slug(product)" t-att-content="product.name" t-esc="product.name" />
-		                        <a t-if="not product.website_published" role="button" t-att-href="'/shop/product/%s' % slug(product)" class="btn btn-sm btn-danger" title="This product is unpublished.">
+		                        <a class="text-primary text-decoration-none" t-att-href="product.website_url" t-att-content="product.name" t-esc="product.name" />
+		                        <a t-if="not product.website_published" role="button" t-att-href="product.website_url" class="btn btn-sm btn-danger" title="This product is unpublished.">
 		                            Unpublished
 		                        </a>
 		                    </h6>
@@ -307,28 +302,22 @@
 							</t>
 		                    <div class="product_bottom d-flex align-items-end justify-content-between">
 		                    	<div class="product_price_div">
-			                    	<div itemprop="offers" itemscope="itemscope" itemtype="http://schema.org/Offer" t-attf-class="product_price mt-2 mb-3 {{'d-none' if combination_info['prevent_zero_price_sale'] else 'd-inline-block'}}">
+			                    	<div t-attf-class="product_price mt-2 mb-3 {{'d-none' if combination_info['prevent_zero_price_sale'] else 'd-inline-block'}}">
 										<h3 class="css_editable_mode_hidden">
 											<t t-if="combination_info['compare_list_price'] and (combination_info['compare_list_price'] &gt; combination_info['price'])">
 												<span class="oe_price" style="white-space: nowrap;color:#dc3545;" t-esc="combination_info['price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
-												<span itemprop="price" style="display:none;" t-esc="combination_info['price']"/>
-												<span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name"/>
 												<span t-attf-class="text-danger oe_default_price ms-1 h5 {{'' if combination_info['has_discounted_price'] and not combination_info['compare_list_price'] else 'd-none'}}"
 													style="text-decoration: line-through; white-space: nowrap;"
 													t-esc="combination_info['list_price']"
 													t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"
-													itemprop="listPrice"
 												/>
 											</t>
 											<t t-else="">
 												<span class="oe_price" style="white-space: nowrap;" t-esc="combination_info['price']" t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"/>
-												<span itemprop="price" style="display:none;" t-esc="combination_info['price']"/>
-												<span itemprop="priceCurrency" style="display:none;" t-esc="website.currency_id.name"/>
 												<span t-attf-class="text-danger oe_default_price ms-1 h5 {{'' if combination_info['has_discounted_price'] and not combination_info['compare_list_price'] else 'd-none'}}"
 													style="text-decoration: line-through; white-space: nowrap;"
 													t-esc="combination_info['list_price']"
 													t-options="{'widget': 'monetary', 'display_currency': website.currency_id}"
-													itemprop="listPrice"
 												/>
 											</t>
 											<t t-if="is_view_active('website_sale.tax_indication')" t-call="website_sale.tax_indication"/>
@@ -377,7 +366,7 @@
 									</div>
 			                    </div>
 			                    <div class="s_btn">
-			                    	<a t-att-href="'/shop/product/%s' % slug(product)" class="btn btn-outline-dark"><i class="fa fa-arrow-right"></i></a>
+			                    	<a t-att-href="product.website_url" class="btn btn-outline-dark"><i class="fa fa-arrow-right"></i></a>
 			                    </div>
 			                </div>
 		                </div>
