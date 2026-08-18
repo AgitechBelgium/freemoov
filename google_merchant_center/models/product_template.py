@@ -56,7 +56,7 @@ class ProductTemplate(models.Model):
 
     def _get_gmc_base_url(self):
         return self.env['ir.config_parameter'].sudo().get_param(
-            'google_merchant_center.base_url', 'https://freemoov.com'
+            'google_merchant_center.base_url', 'https://www.freemoov.com'
         ).rstrip('/')
 
     def _get_gmc_availability(self):

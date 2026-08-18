@@ -26,8 +26,12 @@ class ProductTemplate(models.Model):
 		qty_avail = 0
 		if self.detailed_type == 'product' and not self.allow_out_of_stock_order:
 			product_variant_ids = self.product_variant_ids.ids
-			if website and website.warehouse_id:
-				warehouse_location_id = website.warehouse_id.lot_stock_id
+			# sudo: les visiteurs publics n'ont pas d'ACL sur stock.warehouse ;
+			# seul l'id de l'emplacement sert au domaine du search sudoé. Le
+			# sudo doit couvrir le test lui-même, qui lit déjà le champ.
+			website_sudo = website.sudo() if website else website
+			if website_sudo and website_sudo.warehouse_id:
+				warehouse_location_id = website_sudo.warehouse_id.lot_stock_id
 				stock_quant_ids = self.env['stock.quant'].sudo().search([
 					('product_id', 'in', product_variant_ids),
 					('location_id', '=', warehouse_location_id.id),
