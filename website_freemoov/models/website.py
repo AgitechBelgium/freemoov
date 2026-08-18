@@ -32,8 +32,12 @@ class Website(models.Model):
 		qty_avail = 0
 		product_variant_id = self.env['product.product'].sudo().browse(product_variant)
 		website = self.get_current_website()
-		if website.warehouse_id :
-			warehouse_location_id = website.warehouse_id.lot_stock_id
+		# sudo: pas d'ACL stock.warehouse pour le public ; seul l'id de
+		# l'emplacement sert au domaine du search sudoé. Le sudo doit couvrir
+		# le test lui-même, qui lit déjà le champ.
+		website_sudo = website.sudo()
+		if website_sudo.warehouse_id :
+			warehouse_location_id = website_sudo.warehouse_id.lot_stock_id
 			stock_quant_ids = self.env['stock.quant'].sudo().search([('product_id','=',product_variant_id.id),('location_id','=',warehouse_location_id.id),('on_hand','=',True)])
 			qty_avail = sum(quant.quantity for quant in stock_quant_ids)
 		
