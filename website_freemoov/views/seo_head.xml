@@ -30,6 +30,20 @@
     </template>
 
     <!-- ================================================================
+         Noindex: navigation-only categories (anti-cannibalisation)
+         Driven by the `seo_noindex` flag on product.public.category.
+         Resolved from the path in Python so the tag lands in <head>, where
+         robots directives are honoured — a <meta robots> in <body> is ignored.
+         ================================================================ -->
+    <template id="seo_noindex_category" inherit_id="website.layout" name="SEO: Noindex navigation categories" priority="20">
+        <xpath expr="//head/link[@rel='canonical']" position="after">
+            <t t-if="request and website.is_noindex_category_path(request.httprequest.path)">
+                <meta name="robots" content="noindex, follow"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- ================================================================
          Robots.txt: optimized with Disallow for tech/filter URLs
          ================================================================ -->
     <template id="seo_robots" inherit_id="website.robots" name="SEO: Custom Robots.txt">
@@ -37,7 +51,7 @@
             <t t-name="website.robots">
 User-agent: *
 Disallow: /my/
-Allow: /web/image/website/1/favicon
+Allow: /web/image/
 Disallow: /web/
 Disallow: /shop/cart
 Disallow: /shop/checkout
@@ -48,15 +62,28 @@ Disallow: /helpdesk/
 Disallow: /website/info
 Disallow: /slider_s/
 Disallow: /*?order=
+Disallow: /*&amp;order=
 Disallow: /*?search=
 Disallow: /*?min_price=
+Disallow: /*&amp;min_price=
 Disallow: /*?max_price=
+Disallow: /*&amp;max_price=
 Disallow: /*?ppg=
+Disallow: /*&amp;ppg=
 Disallow: /*?attrib=
+Disallow: /*&amp;attrib=
+Disallow: /*?page=
+Disallow: /*&amp;page=
 
 Allow: /shop/
 Allow: /shop/category/
 Allow: /blog/
+
+# Explicit image crawler group (requested by Google Merchant Center).
+# Googlebot-Image only fetches image resources, so a blanket Allow is safe
+# and lets product images under /web/image/ be crawled for Shopping/Search.
+User-agent: Googlebot-Image
+Allow: /
 
 Sitemap: <t t-esc="url_root"/>sitemap.xml
             </t>

@@ -43,16 +43,15 @@
 
     <!-- ================================================================
          JSON-LD: Store pages — LocalBusiness (ElectronicsStore)
-         Injected on /magasin, /freemoov-liege, /freemoov-namur
+         Path-to-store mapping lives in seo.py (_STORE_PAGES) so the live
+         URLs stay in one place: /magasin lists the three stores, each store
+         page describes its own.
          ================================================================ -->
     <template id="seo_jsonld_stores" inherit_id="website.layout" name="SEO: LocalBusiness JSON-LD" priority="20">
         <xpath expr="//head/link[@rel='canonical']" position="after">
-            <t t-if="request and request.httprequest.path in ('/magasin', '/freemoov-liege', '/freemoov-namur')">
-                <t t-if="request.httprequest.path in ('/magasin', '/freemoov-liege')">
-                    <script type="application/ld+json" t-out="website.get_jsonld_local_business_liege()"/>
-                </t>
-                <t t-if="request.httprequest.path in ('/magasin', '/freemoov-namur')">
-                    <script type="application/ld+json" t-out="website.get_jsonld_local_business_namur()"/>
+            <t t-if="request">
+                <t t-foreach="website.get_store_jsonld_for_path(request.httprequest.path)" t-as="store_ld">
+                    <script type="application/ld+json" t-out="store_ld"/>
                 </t>
             </t>
         </xpath>
