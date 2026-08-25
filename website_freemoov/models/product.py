@@ -60,6 +60,11 @@ class ProductCategoryTemplate(models.Model):
 	
 	brand_ids = fields.Many2many('ust.product.brand', string="Brand")
 	category_description = fields.Text(string="Category Text Description")
+	seo_noindex = fields.Boolean(
+		string="Noindex",
+		default=False,
+		help="Exclure cette catégorie des indexations web si activé",
+	)
 	# Mêmes flags de sanitisation que website_sale.website_description :
 	# indispensable pour que l'éditeur web puisse sauvegarder les snippets
 	# (styles inline, grilles, formulaires) sans les tronquer.
