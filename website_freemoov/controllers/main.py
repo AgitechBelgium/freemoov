@@ -88,8 +88,11 @@ class WebsiteSaleFreemoov(WebsiteSale):
         )
 
         qty_per_variant = {}
-        if stockable and website and website.warehouse_id:
-            loc_id = website.warehouse_id.lot_stock_id.id
+        # sudo: les visiteurs publics n'ont pas d'ACL sur stock.warehouse ;
+        # seul l'id de l'emplacement sert au domaine du _read_group sudoé.
+        website_sudo = website.sudo() if website else website
+        if stockable and website_sudo and website_sudo.warehouse_id:
+            loc_id = website_sudo.warehouse_id.lot_stock_id.id
             variant_ids = stockable.product_variant_ids.ids
             if variant_ids:
                 groups = env['stock.quant'].sudo()._read_group(

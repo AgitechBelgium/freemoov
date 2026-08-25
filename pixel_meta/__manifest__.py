@@ -25,7 +25,7 @@
     ],
     'assets': {
         'web.assets_frontend': [
-            'pixel-meta/static/src/js/cookies_bar.js',
+            'pixel_meta/static/src/js/cookies_bar.js',
         ],
     },
     'price': 10.00,

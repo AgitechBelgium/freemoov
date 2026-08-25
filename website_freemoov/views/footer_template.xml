@@ -160,7 +160,11 @@
 					<img src="/website_freemoov/static/src/img/payment_icons.png"
 						alt="Modes de paiement" loading="lazy"/>
 				</div>
-				<span class="fm-copyright-text">
+				<!-- La classe o_footer_copyright_name doit survivre au replace :
+				     portal.footer_language_selector (entre autres vues core) s'y
+				     ancre en xpath — sans elle, son activation casse la combinaison
+				     des vues (cf. TestUi.test_website_no_dirty_lazy_image). -->
+				<span class="fm-copyright-text o_footer_copyright_name">
 					Copyright © Freemoov SRL | Tous droits réservés | Boulevard de la Sauvenière 136B, 4000 Liège, Belgique
 				</span>
 			</div>

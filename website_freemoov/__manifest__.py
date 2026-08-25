@@ -77,6 +77,7 @@
     'images': [
     ],
 
+    'post_init_hook': '_ensure_linked_cms_pages',
     'installable': True,
     'application': True,
     'auto_install': False,

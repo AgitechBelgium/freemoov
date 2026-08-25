@@ -450,7 +450,7 @@ def is_in_feed_scope(product):
 # Called by _prepare_gmc_product_input() on product.template
 # ═════════════════════════════════════════════════════════════════════
 
-def prepare_product_data(product, base_url='https://freemoov.com',
+def prepare_product_data(product, base_url='https://www.freemoov.com',
                          content_language='fr', feed_label='BE'):
     """
     Build complete GMC product data dict from an Odoo product.template record.

@@ -29,11 +29,21 @@ class TestPosPickingDedup(TransactionCase):
         cls.env["stock.quant"]._update_available_quantity(cls.product, cls.warehouse.lot_stock_id, 100.0)
         cls.env["stock.quant"]._update_available_quantity(cls.casque, cls.warehouse.lot_stock_id, 100.0)
 
+        # Sur une base neuve avec compta anglo-saxonne (plan générique des CI),
+        # le POS passe par défaut en "update stock at closing" et
+        # _create_order_picking ne crée aucun picking par commande — or c'est ce
+        # flux temps réel que le module dédoublonne. La session fige
+        # update_stock_at_closing à sa création depuis le champ company.
+        cls.env.company.point_of_sale_update_stock_quantities = "real"
+
         cls.config = cls.env["pos.config"].search([("active", "=", True)], limit=1)
         if not cls.config:
             cls.config = cls.env["pos.config"].create({"name": "Test config"})
         cls.config.open_ui()
         cls.session = cls.config.current_session_id
+        # Une session ouverte avant ce setUp (base recyclée) garderait l'ancien
+        # mode : on aligne son flag sur la config temps réel.
+        cls.session.update_stock_at_closing = False
 
     def _make_so_with_fsm_done(self, qty=1.0):
         so = self.env["sale.order"].create({
