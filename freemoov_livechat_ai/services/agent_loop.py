@@ -1,7 +1,9 @@
 """Agentic loop: model <-> tools, capped, with per-call audit trail."""
 import json
 import logging
+import re
 import time
+from urllib.parse import urlsplit
 
 import psycopg2
 
@@ -36,6 +38,29 @@ def _collect_product_ids(name, result):
     return [result["id"]] if "id" in result else []
 
 
+def _recommended_product_ids(text, product_urls):
+    """Only links in the final answer, allowlisted by successful tool results.
+
+    No name guessing or arbitrary id extraction: an unlinked result must not
+    look like a recommendation. Ignore query/fragment tracking, keep host and
+    full path checks, deduplicate in the order the visitor reads the answer.
+    """
+    def key(url):
+        parts = urlsplit(url)
+        return parts.scheme, parts.netloc, parts.path
+
+    allowed = {key(url): product_id for url, product_id in product_urls.items()}
+    ids = []
+    for url in re.findall(r'https?://[^\s<>"\[\]]+', text):
+        try:
+            product_id = allowed.get(key(url.rstrip(').,;!?:')))
+        except ValueError:
+            continue
+        if product_id and product_id not in ids:
+            ids.append(product_id)
+    return ids
+
+
 def run_agent(env, channel, client, system_prompt, messages):
     """Answer one visitor turn, running whatever tools the model asks for.
 
@@ -60,7 +85,7 @@ def run_agent(env, channel, client, system_prompt, messages):
     """
     specs = tools.anthropic_tool_specs()
     convo = list(messages)
-    tool_calls, product_ids = [], []
+    tool_calls, product_urls = [], {}
     total_in = total_out = total_latency = 0
     # Set when the turn has to end on a canned sentence: whatever the model
     # said last is then unusable, and saying it anyway would mislead.
@@ -123,7 +148,11 @@ def run_agent(env, channel, client, system_prompt, messages):
                 # Out of the `except` reach on purpose: a bug in our own
                 # collection code must not be reported to the model as a failed
                 # lookup on a lookup that succeeded.
-                product_ids += _collect_product_ids(name, out)
+                found_ids = _collect_product_ids(name, out)
+                if found_ids:
+                    for product in out.get('produits', [out]):
+                        if product.get('id') in found_ids and product.get('url'):
+                            product_urls[product['url']] = product['id']
             tool_calls.append({
                 "name": name, "arguments": args, "ok": ok,
                 "duration_ms": int((time.monotonic() - t0) * 1000),
@@ -147,7 +176,7 @@ def run_agent(env, channel, client, system_prompt, messages):
     return {
         "text": text,
         "escalate": escalate or bool(forced_text),
-        "product_ids": list(dict.fromkeys(product_ids)),
+        "product_ids": [] if escalate or forced_text else _recommended_product_ids(text, product_urls),
         "tool_calls": tool_calls,
         "input_tokens": total_in,
         "output_tokens": total_out,

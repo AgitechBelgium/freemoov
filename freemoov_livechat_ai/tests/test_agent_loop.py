@@ -399,7 +399,7 @@ class TestAgentLoop(FreemoovAiCase):
         responses = [
             _resp(tool_use=("chercher_produits", {"recherche": "Trottinette Boucle AI"})),
             _resp(tool_use=("fiche_produit", {"product_id": tmpl.id})),
-            _resp(text="Celle-ci devrait convenir."),
+            _resp(text="Celle-ci devrait convenir : https://www.freemoov.com%s" % tmpl.website_url),
         ]
         out, _ = self._run(responses, "une trottinette ?")
         self.assertEqual(out["product_ids"], [tmpl.id])

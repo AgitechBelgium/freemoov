@@ -102,6 +102,20 @@ def _redact_tool_calls(tool_calls):
 class DiscussChannel(models.Model):
     _inherit = "discuss.channel"
 
+    @api.returns('mail.message', lambda message: message.id)
+    def message_post(self, **kwargs):
+        # Finish the visitor's native post, including its bus notification,
+        # before posting any answer. mail.message.create is too early: the
+        # answer used to reach the widget before the visitor's own message.
+        message = super().message_post(**kwargs)
+        try:
+            self.sudo()._freemoov_ai_trigger_from_message(message.sudo())
+        except psycopg2.Error:
+            raise  # Preserve Odoo's transaction retry handling.
+        except Exception:
+            _logger.exception("freemoov_ai: trigger failed")
+        return message
+
     def _freemoov_ai_is_enabled(self):
         ICP = self.env["ir.config_parameter"].sudo()
         return ICP.get_param("freemoov_livechat_ai.enabled") == "True"
@@ -206,19 +220,22 @@ class DiscussChannel(models.Model):
     def _freemoov_ai_post_as_bot(self, body):
         """Post one message as the assistant. The only way this module posts.
 
-        Two context keys, both load-bearing:
+        Three context keys, all load-bearing:
 
         * `guest=None`. A livechat turn runs as the public user with the
           visitor's guest in the context, and `message_post` answers that exact
           combination by forcing `author_id` to False and stamping the guest on
           the message instead — the `author_id` below would be dropped on the
           floor. The bot's own answer would then reach the browser as a message
-          from the visitor, and come back through `MailMessage.create` looking
+          from the visitor, and come back through `message_post` looking
           like a new question: the assistant would answer itself, in a loop,
           one real API call per round.
         * `BOT_POST_CONTEXT_KEY`. The re-entrancy marker the trigger reads. It
           holds whatever the framework decides to do with the author, which is
           the whole point of having it on top of the fix above.
+        * `temporary_id=None`. Only the visitor's post may acknowledge the
+          optimistic browser message. Reusing its id on the bot response or
+          cards replaces that question in the client-side store.
         """
         self.ensure_one()
         post_kwargs = {
@@ -229,7 +246,9 @@ class DiscussChannel(models.Model):
         bot = self._freemoov_ai_bot_partner()
         if bot:
             post_kwargs["author_id"] = bot.id
-        channel = self.sudo().with_context(**{BOT_POST_CONTEXT_KEY: True, "guest": None})
+        channel = self.sudo().with_context(**{
+            BOT_POST_CONTEXT_KEY: True, "guest": None, "temporary_id": None,
+        })
         return channel.message_post(**post_kwargs)
 
     def _freemoov_ai_post_apology(self):
@@ -488,26 +507,3 @@ class DiscussChannel(models.Model):
             )
             return
         channel._freemoov_ai_respond(text)
-
-
-class MailMessage(models.Model):
-    _inherit = "mail.message"
-
-    @api.model_create_multi
-    def create(self, vals_list):
-        messages = super().create(vals_list)
-        for m in messages:
-            if m.model == "discuss.channel" and m.res_id:
-                try:
-                    self.env["discuss.channel"]._freemoov_ai_trigger_from_message(m)
-                except psycopg2.Error:
-                    # Swallowed here, a serialization failure would never reach
-                    # Odoo's retrying layer: the visitor's message would look
-                    # posted, the cursor would already be dead, and everything
-                    # downstream in the same request would 500 in cascade.
-                    raise
-                except Exception:
-                    # Anything else stays swallowed: a bug in the assistant
-                    # must not cost the visitor the message they just sent.
-                    _logger.exception("freemoov_ai: trigger failed")
-        return messages

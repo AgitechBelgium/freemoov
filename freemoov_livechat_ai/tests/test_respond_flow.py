@@ -55,7 +55,7 @@ class TestRespondFlow(FreemoovAiCase):
         """One full turn whose answer carries a card for `tmpl`."""
         responses = [
             _resp(tool_use=("fiche_produit", {"product_id": tmpl.id})),
-            _resp(text="Voici la fiche."),
+            _resp(text="Voici la fiche : https://www.freemoov.com%s" % tmpl.website_url),
         ]
         with patch.object(AnthropicClient, "create_message", side_effect=responses):
             return self.channel._freemoov_ai_respond("montre %s" % tmpl.name)
@@ -116,7 +116,7 @@ class TestRespondFlow(FreemoovAiCase):
         tmpl = self._published_product()
         responses = [
             _resp(tool_use=("fiche_produit", {"product_id": tmpl.id})),
-            _resp(text="Voici la fiche."),
+            _resp(text="Voici la fiche : https://www.freemoov.com%s" % tmpl.website_url),
         ]
         with patch.object(AnthropicClient, "create_message", side_effect=responses):
             self.channel._freemoov_ai_respond("montre la Carte Trott")
@@ -436,15 +436,11 @@ class TestRespondFlow(FreemoovAiCase):
                 .with_context(guest=guest))
 
     def _visitor_message(self, text="bonjour", **values):
-        """A message shaped like the visitor's: no author, plain comment."""
-        return self.env["mail.message"].create(dict({
-            "model": "discuss.channel",
-            "res_id": self.channel.id,
-            "body": "<p>%s</p>" % text,
+        """Use the real posting path, including the visitor notification."""
+        return self._guest_channel().sudo().message_post(**dict({
+            "body": text,
             "message_type": "comment",
             "subtype_id": self.env.ref("mail.mt_comment").id,
-            "author_id": False,
-            "email_from": False,
         }, **values))
 
     def test_the_bot_answer_is_authored_by_the_bot_not_by_the_visitor(self):
@@ -452,7 +448,7 @@ class TestRespondFlow(FreemoovAiCase):
         the message as soon as the current user is public and a guest sits in
         the context — which is every livechat turn. The answer reached the
         browser as a message from the visitor, and came back through
-        `MailMessage.create` looking exactly like a new question.
+        `message_post` looking exactly like a new question.
         """
         message = self._guest_channel()._freemoov_ai_post_as_bot("Bonjour !").sudo()
         self.assertEqual(message.author_id,
@@ -475,15 +471,9 @@ class TestRespondFlow(FreemoovAiCase):
         """
         Channel = type(self.env["discuss.channel"])
         with patch.object(Channel, "_freemoov_ai_respond") as respond:
-            self.env["mail.message"].with_context(**{BOT_POST_CONTEXT_KEY: True}).create({
-                "model": "discuss.channel",
-                "res_id": self.channel.id,
-                "body": "<p>Bonjour, je suis l'assistant.</p>",
-                "message_type": "comment",
-                "subtype_id": self.env.ref("mail.mt_comment").id,
-                "author_id": False,
-                "email_from": False,
-            })
+            self._guest_channel().sudo().with_context(**{BOT_POST_CONTEXT_KEY: True}).message_post(
+                body="Bonjour, je suis l'assistant.", message_type="comment",
+                subtype_xmlid="mail.mt_comment")
         self.assertFalse(respond.called)
 
     def test_a_visitor_message_does_start_a_turn(self):
