@@ -23,7 +23,7 @@ MAX_PRODUCT_CARDS = 3
 # for the length of the `message_post` call that set it.
 BOT_POST_CONTEXT_KEY = "freemoov_ai_bot_post"
 
-FALLBACK_TEXT = "Je n'ai pas pu formuler de réponse, je transfère à un conseiller."
+FALLBACK_TEXT = "Je n'ai pas pu formuler de réponse. Réessayez dans un instant ou contactez-nous via https://www.freemoov.com/contactus."
 
 # Arguments the audit log must not keep verbatim. The log is readable by every
 # internal user (`base.group_user`), and these values are exactly what a
@@ -146,14 +146,45 @@ class DiscussChannel(models.Model):
     def _freemoov_ai_human_active(self, look_back_seconds=120):
         """A human (non-bot, non-visitor) has posted in the last N seconds."""
         bot = self._freemoov_ai_bot_partner()
+        # The bot remains a member after a transfer; assignment is durable,
+        # unlike a time window which would let the AI interrupt later.
+        if (self.livechat_channel_id and bot and bot in self.channel_member_ids.partner_id
+                and self.livechat_operator_id and self.livechat_operator_id != bot):
+            return True
         threshold = fields.Datetime.now() - timedelta(seconds=look_back_seconds)
         recent = self.message_ids.filtered(
             lambda m: m.create_date >= threshold
             and m.author_id
             and (not bot or m.author_id.id != bot.id)
+            and not self._freemoov_ai_is_visitor_message(m)
             and m.message_type != "notification"
         )
         return bool(recent)
+
+    def _freemoov_ai_is_visitor_message(self, message):
+        if not message.author_id:
+            return True  # Guest identity/membership is enforced by mail routes.
+        partner = message.author_id.sudo()
+        if partner == self._freemoov_ai_bot_partner():
+            return False
+        users = partner.user_ids.filtered(lambda user: user.active)
+        return (partner in self.sudo().channel_member_ids.partner_id
+                and bool(users) and all(user.share and not user._is_public() for user in users))
+
+    def _freemoov_ai_handoff(self):
+        self.ensure_one()
+        if not self.livechat_channel_id:
+            return False
+        operator = self.livechat_channel_id.sudo()._get_operator(
+            lang=self.env.context.get('lang'), country_id=self.country_id.id)
+        if not operator:
+            return False
+        channel = self.sudo()
+        channel.add_members(operator.partner_id.ids, open_chat_window=True,
+                            post_joined_message=False)
+        channel.livechat_operator_id = operator.partner_id
+        channel._broadcast(operator.partner_id.ids)
+        return True
 
     def _freemoov_ai_bot_partner(self):
         try:
@@ -383,7 +414,12 @@ class DiscussChannel(models.Model):
         # failure a visitor cannot make sense of.
         body = text if text else FALLBACK_TEXT
         if escalate:
-            body += "\n\n_💬 Un conseiller humain va prendre le relais sous peu._"
+            # Never repeat an unverified availability/transfer promise from
+            # the model. The assignment result is the sole source of truth.
+            if self._freemoov_ai_handoff():
+                body = "💬 Votre conversation a été transmise à un conseiller connecté."
+            else:
+                body = "Aucun conseiller n’est connecté actuellement. Contactez-nous via https://www.freemoov.com/contactus."
 
         self._freemoov_ai_post_as_bot(body)
 
@@ -429,7 +465,7 @@ class DiscussChannel(models.Model):
             # Our own message, still inside the `message_post` that created it.
             return
         # Only react to visitor messages (no author_id = public website visitor)
-        if message.author_id:
+        if not channel._freemoov_ai_is_visitor_message(message):
             return
         # `comment` is what a visitor's message is; everything else on a
         # livechat channel is machinery (notifications, joins, transfers).

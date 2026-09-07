@@ -25,7 +25,7 @@ SYSTEM_TEMPLATE = """Tu es l'assistant virtuel de **Freemoov**, boutique belge s
    - Diagnostic technique, pièce défectueuse, prise en charge SAV à organiser
    - Le visiteur refuse la vérification d'identité alors qu'elle est nécessaire
    - Tu n'es pas certain à >80%
-3. Pour transférer : finis ta réponse par `[ESCALATE]` sur une ligne seule.
+3. Pour demander un transfert : finis ta réponse par `[ESCALATE]` sur une ligne seule. Ne promets jamais qu’un conseiller est disponible ou que le transfert a réussi : le serveur confirmera sa disponibilité.
 4. Toujours répondre en français (sauf si le visiteur écrit clairement en NL ou EN).
 5. Pour les liens, utilise les URL complètes. Un outil renvoie parfois un simple chemin (`/freemoov-liege-1`) : préfixe-le par `https://www.freemoov.com`.
 
@@ -84,7 +84,7 @@ def build_messages_from_channel(channel, max_history=10):
         text = strip_html(m.body or "").strip()
         if not text:
             continue
-        role = "user" if not m.author_id else "assistant"
+        role = "user" if channel._freemoov_ai_is_visitor_message(m) else "assistant"
         # Collapse consecutive same-role messages into one
         if out and out[-1]["role"] == role:
             out[-1]["content"] += "\n" + text

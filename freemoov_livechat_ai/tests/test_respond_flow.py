@@ -109,7 +109,7 @@ class TestRespondFlow(FreemoovAiCase):
                  "input_tokens": 1, "output_tokens": 1, "api_latency_ms": 1}
         with patch.object(agent_loop, "run_agent", return_value=blank):
             self.channel._freemoov_ai_respond("?")
-        self.assertIn("conseiller", self._bodies()[0])
+        self.assertIn("https://www.freemoov.com/contactus", self._bodies()[0])
 
     # -- cartes produit ---------------------------------------------------
     def test_product_cards_posted(self):
@@ -344,7 +344,8 @@ class TestRespondFlow(FreemoovAiCase):
         """
         with patch.object(agent_loop, "run_agent", side_effect=RuntimeError("boom")):
             self.channel._freemoov_ai_respond("?")
-        self.assertIn("je transfère à un conseiller", self._bodies()[0])
+        self.assertIn("https://www.freemoov.com/contactus", self._bodies()[0])
+        self.assertNotIn("je transfère", self._bodies()[0])
         bot = self.env.ref("freemoov_livechat_ai.partner_ai_bot")
         self.assertEqual(self.channel.message_ids[0].author_id, bot)
 
