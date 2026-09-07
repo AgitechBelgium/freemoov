@@ -498,11 +498,12 @@ $fm-ease: cubic-bezier(0.32, 0.72, 0, 1); // decelerate hard, settle without bou
     }
 
     .o-mail-ChatWindow-header {
-        padding-top: max(12px, env(safe-area-inset-top)) !important;
+        // LibSass cannot evaluate env(); leave CSS max() to the browser.
+        padding-top: unquote("max(12px, env(safe-area-inset-top))") !important;
     }
 
     .o-mail-Composer {
-        padding-bottom: max(10px, env(safe-area-inset-bottom));
+        padding-bottom: unquote("max(10px, env(safe-area-inset-bottom))");
     }
 
     .fm-assistant-suggestion {
