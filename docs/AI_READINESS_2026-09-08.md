@@ -94,3 +94,28 @@ ssh 36939736@freemoov-staging-36939736.dev.odoo.com \
 Les assertions de base et de configuration doivent rester en place. Ces sondes
 utilisent l'API Anthropic configurée et consomment des tokens. Ne pas les
 exécuter pendant une mise à jour de module.
+
+## Correctif du crash d'avatar — version 17.0.0.1.4
+
+- Erreur signalée et reproduite dans Chrome avec les modules Odoo réels :
+  `TypeError: Cannot read properties of undefined (reading 'eq')` dans
+  `ThreadService.avatarUrl`, appelée par `Message.authorAvatarUrl`.
+  L'extension native `im_livechat` appelle `persona.eq` avant le garde-fou
+  du service de base. Un auteur absent fait donc tomber le rendu.
+- Correctif limité à ce cas : renvoyer l'avatar neutre natif quand l'auteur
+  est absent. Ne pas inventer d'identité ; conserver les chemins d'avatar
+  existants pour l'opérateur et le visiteur.
+- Test rouge : `/tmp/fm-avatar-red3.log`, exception exacte reproduite.
+  Test vert et suite complète : `/tmp/fm-avatar-green-all.log`, **241 tests,
+  zéro échec, zéro erreur**, fin le 7 septembre 2026 à 22:20:56 UTC.
+  Le test navigateur exerce le getter réel avec auteurs `undefined`/`null`
+  et les routes opérateur/visiteur ; ce n'est pas une simulation complète
+  d'une perte d'auteur pendant une conversation montée.
+- Après rechargement du site de staging, le bundle
+  `/web/assets/1/dff8e26/web.assets_frontend_lazy.min.js` contient le correctif.
+  La conversation existante est restaurée et affichée ; aucune nouvelle
+  erreur OwlError observée lors de ce rechargement. Les deux erreurs du site
+  hôte déjà documentées restent présentes.
+- La cause initiale de l'absence d'auteur en mémoire et l'ancien incident
+  de session `/mail/init_messaging` restent à distinguer de ce garde-fou.
+  Aucun message supprimé, aucune modification de production.
