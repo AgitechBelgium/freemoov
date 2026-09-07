@@ -11,3 +11,5 @@ from . import test_scenarios
 from . import test_settings
 from . import test_livechat_lifecycle
 from . import test_presentation
+from . import test_catalog_search
+from . import test_verification_preflight

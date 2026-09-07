@@ -22,6 +22,7 @@ the product page; the gate that refuses a cart line lives in
 """
 import json
 import logging
+import re
 import unicodedata
 
 from . import ToolError, register
@@ -43,6 +44,38 @@ def _normalize(value):
     """Lowercase and strip accents, so 'Liege' matches 'Freemoov Liège'."""
     decomposed = unicodedata.normalize("NFKD", value or "")
     return "".join(c for c in decomposed if not unicodedata.combining(c)).lower()
+
+
+# Vocabulary only: never blindly strip a final S from model names (e.g. N15S).
+_SEARCH_WORDS = {
+    'trottinettes': 'trottinette', 'velos': 'vélo', 'velo': 'vélo',
+    'electriques': 'électrique', 'electrique': 'électrique',
+    'gyroroues': 'gyroroue', 'scooters': 'scooter', 'motos': 'moto',
+    'accessoires': 'accessoire', 'equipements': 'équipement',
+    'pieces': 'pièce', 'piece': 'pièce', 'detachees': 'détachée',
+}
+
+
+def _search_words(value):
+    return [_SEARCH_WORDS.get(_normalize(word), word)
+            for word in re.findall(r'[\w]+', value, flags=re.UNICODE)]
+
+
+def _category_tokens(value):
+    return {_normalize(word) for word in _search_words(value)}
+
+
+def _resolve_categories(env, query):
+    """Accent/plural-insensitive labels, then their descendants.
+
+    Prefer a matching root (vehicles) over incidental mentions under another
+    tree (accessories for vehicles). Unknown labels stay empty: no broad fallback.
+    """
+    tokens = _category_tokens(query)
+    categories = env['product.public.category'].sudo().search([])
+    matches = categories.filtered(lambda c: bool(tokens) and tokens <= _category_tokens(c.name))
+    roots = matches.filtered(lambda c: not c.parent_id)
+    return roots or matches
 
 
 def _brand(tmpl):
@@ -153,6 +186,16 @@ def _is_commandable(env, tmpl):
 
 def _serialize(env, tmpl, warehouse_map, with_description=False):
     dispo = _dispo_by_store(env, tmpl, warehouse_map)
+    commandable = _is_commandable(env, tmpl)
+    availability = ['Commande en ligne possible' if commandable else 'Commande en ligne indisponible']
+    for city, qty in dispo.items():
+        if qty is None:
+            label = 'stock non suivi'
+        elif qty > 0:
+            label = '%s unité(s) disponible(s)' % qty
+        else:
+            label = 'aucun stock disponible'
+        availability.append('%s : %s' % (city, label))
     data = {
         "id": tmpl.id,
         "nom": tmpl.name,
@@ -160,7 +203,8 @@ def _serialize(env, tmpl, warehouse_map, with_description=False):
         "marque": _brand(tmpl),
         "url": "https://www.freemoov.com%s" % (tmpl.website_url or ""),
         "dispo": dispo,
-        "commandable": _is_commandable(env, tmpl),
+        "commandable": commandable,
+        "disponibilite_resume": '. '.join(availability) + '. Stock indicatif à confirmer.',
     }
     if with_description:
         data["description"] = (tmpl.description_sale or tmpl.name)[:500]
@@ -190,11 +234,13 @@ def _serialize(env, tmpl, warehouse_map, with_description=False):
 def chercher_produits(env, channel, recherche=None, budget_max=None, marque=None, categorie=None):
     domain = [("is_published", "=", True), ("active", "=", True), ("sale_ok", "=", True)]
     if recherche:
-        domain.append(("name", "ilike", recherche))
-    if budget_max:
+        for word in _search_words(recherche):
+            domain.append(("name", "ilike", word.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')))
+    if budget_max is not None:
         domain.append(("list_price", "<=", budget_max))
     if categorie:
-        domain.append(("public_categ_ids.name", "ilike", categorie))
+        matches = _resolve_categories(env, categorie)
+        domain.append(("public_categ_ids", "child_of", matches.ids))
     tmpls = env["product.template"].sudo().search(domain, limit=40, order="list_price desc")
     if marque:
         tmpls = tmpls.filtered(lambda t: marque.lower() in _brand(t).lower())

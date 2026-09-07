@@ -61,7 +61,29 @@ def _recommended_product_ids(text, product_urls):
     return ids
 
 
-def run_agent(env, channel, client, system_prompt, messages):
+def _pending_typed_code(env, channel, messages, visitor_message_text=None):
+    """Only a unique six-digit value from THIS visitor turn may be checked.
+
+    Do not interpret a product reference as a code outside a pending flow, or
+    guess which of two pasted values the visitor intended. Dry run never grants
+    an identity or consumes attempts.
+    """
+    if tools.is_dry_run(env) or not messages or messages[-1].get('role') != 'user':
+        return None
+    content = visitor_message_text if visitor_message_text is not None else messages[-1].get('content')
+    if not isinstance(content, str):
+        return None
+    codes = re.findall(r'(?<!\w)[0-9]{6}(?!\w)', content)
+    if len(codes) != 1:
+        return None
+    pending = env['freemoov.livechat.verification'].sudo().search_count([
+        ('channel_id', '=', channel.id), ('outcome', '=', 'sent'),
+        ('verified_at', '=', False), ('superseded', '=', False),
+    ])
+    return codes[0] if pending else None
+
+
+def run_agent(env, channel, client, system_prompt, messages, visitor_message_text=None):
     """Answer one visitor turn, running whatever tools the model asks for.
 
     Four invariants hold below, none of them cosmetic:
@@ -91,6 +113,32 @@ def run_agent(env, channel, client, system_prompt, messages):
     # said last is then unusable, and saying it anyway would mislead.
     forced_text = None
     result = None
+
+    code = _pending_typed_code(env, channel, messages, visitor_message_text)
+    if code:
+        # Validation belongs to the server, not to the model's willingness to
+        # call a tool. Keep the SAME registry gate, attempt limits and audit.
+        started = time.monotonic()
+        verification = tools.run_tool(env, channel, 'verifier_code', {'code': code})
+        tool_calls.append({'name': 'verifier_code', 'arguments': {'code': code}, 'ok': True,
+                           'duration_ms': int((time.monotonic() - started) * 1000)})
+        if not verification['verifie']:
+            remaining = verification['essais_restants']
+            text = ('Ce code est incorrect. Il reste %s essais.' % remaining if remaining else
+                    'Ce code n’est plus valable. Demande un nouveau code de vérification.')
+            return {'text': text, 'escalate': False, 'product_ids': [], 'tool_calls': tool_calls,
+                    'input_tokens': 0, 'output_tokens': 0, 'api_latency_ms': 0}
+        # Resume the real pending request with the verified result in the
+        # protocol, as if the model had correctly requested the validation.
+        convo.extend([
+            {'role': 'assistant', 'content': [{'type': 'tool_use', 'id': 'verification_preflight',
+                                             'name': 'verifier_code', 'input': {'code': code}}]},
+            {'role': 'user', 'content': [{'type': 'tool_result', 'tool_use_id': 'verification_preflight',
+                                        'content': json.dumps(verification), 'is_error': False}]},
+        ])
+        system_prompt += ('\nLe code du dernier message vient d’être validé par le serveur. '
+                          'Ne le vérifie pas une seconde fois ; poursuis la demande du visiteur '
+                          'avec l’outil de commande ou de réparation approprié.')
 
     for iteration in range(MAX_TOOL_ITERATIONS + 1):
         result = client.create_message(system_prompt, convo, tools=specs)

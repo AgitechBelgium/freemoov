@@ -487,7 +487,9 @@ $fm-ease: cubic-bezier(0.32, 0.72, 0, 1); // decelerate hard, settle without bou
 // what it does not do is respect the iOS home indicator or drop the rounded
 // corners that look like a mistake once the panel touches every edge.
 @media (max-width: 500px) {
-    .o-mail-ChatWindow {
+    // The same native component becomes a small avatar when folded. Never
+    // override its folded dimensions with the open panel's viewport size.
+    .o-mail-ChatWindow:not(.o-folded) {
         border-radius: 0 !important;
         // `dvh` tracks the mobile browser's collapsing address bar; `vh` does
         // not, and the composer ends up under it.
@@ -497,9 +499,13 @@ $fm-ease: cubic-bezier(0.32, 0.72, 0, 1); // decelerate hard, settle without bou
         animation-name: fm-window-in-mobile;
     }
 
-    .o-mail-ChatWindow-header {
+    .o-mail-ChatWindow:not(.o-folded) .o-mail-ChatWindow-header {
         // LibSass cannot evaluate env(); leave CSS max() to the browser.
         padding-top: unquote("max(12px, env(safe-area-inset-top))") !important;
+    }
+
+    .o-mail-ChatWindow.o-isMobileFoldedForLivechatVisitor .o-mail-ChatWindow-header {
+        padding: 0 !important;
     }
 
     .o-mail-Composer {

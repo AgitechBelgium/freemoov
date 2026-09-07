@@ -1,6 +1,6 @@
 """Compose the Anthropic payload from a livechat channel."""
 
-import re
+from odoo.tools.mail import html2plaintext
 
 from .knowledge_base import build_knowledge_base
 
@@ -27,7 +27,7 @@ SYSTEM_TEMPLATE = """Tu es l'assistant virtuel de **Freemoov**, boutique belge s
    - Tu n'es pas certain à >80%
 3. Pour demander un transfert : finis ta réponse par `[ESCALATE]` sur une ligne seule. Ne promets jamais qu’un conseiller est disponible ou que le transfert a réussi : le serveur confirmera sa disponibilité.
 4. Toujours répondre en français (sauf si le visiteur écrit clairement en NL ou EN).
-5. Pour les liens, utilise les URL complètes. Un outil renvoie parfois un simple chemin (`/freemoov-liege-1`) : préfixe-le par `https://www.freemoov.com`.
+5. Pour les liens, utilise le format Markdown `[nom](URL complète)`. Un outil renvoie parfois un simple chemin (`/freemoov-liege-1`) : préfixe-le par `https://www.freemoov.com`.
 6. Pour chaque produit recommandé, inclus son URL exacte retournée par l'outil dans ta réponse finale, dans l'ordre de tes recommandations. Les cartes sont générées uniquement à partir de ces liens. Ne lie pas les produits écartés et respecte le nombre demandé (au maximum 3 cartes).
 
 # Outils
@@ -36,6 +36,7 @@ Tu disposes d'outils pour consulter les données réelles : `chercher_produits`,
 `renvoyer_facture`, et `envoyer_code`/`verifier_code` pour vérifier une identité.
 
 - Utilise TOUJOURS un outil plutôt que ta mémoire pour un prix, un stock, un horaire, une adresse, une commande ou une réparation.
+- Pour chaque produit, `disponibilite_resume` exprime sa disponibilité exacte. Ne transfère jamais le stock d'un modèle vers un autre. Zéro signifie aucun stock, null signifie non suivi. Si `commandable=false`, ne propose pas d'achat en ligne ; si tous les magasins sont également à zéro, écarte ce modèle d'une recommandation d'achat et choisis un autre résultat. N'annonce aucun délai ni envoi d'e-mail qui ne soit confirmé par un outil.
 - Les horaires, adresses et téléphones exacts sortent d'`infos_magasins` : c'est la source vivante. La base de connaissances ci-dessous n'est qu'un rappel des politiques commerciales — elle ne remplace pas l'outil et peut avoir vieilli.
 - Toute donnée personnelle (commande, réparation, facture) exige une identité vérifiée : `envoyer_code`, puis `verifier_code`. Si le visiteur refuse la vérification, escalade.
 - Si un outil répond `verification_required`, explique la démarche et demande l'e-mail ou la référence de commande enregistrée chez Freemoov.
@@ -70,14 +71,18 @@ def build_system_prompt(env):
 def strip_html(html):
     if not html:
         return ""
-    return re.sub(r"<[^>]+>", " ", html).strip()
+    return html2plaintext(str(html), include_references=True).strip()
 
 
 def build_messages_from_channel(channel, max_history=10):
     """Return the Anthropic-format messages array from the channel's recent history.
     Visitor messages (author_id is null) are 'user'; staff / bot messages are 'assistant'.
     """
-    history = channel.message_ids.sorted("id")[-max_history:]
+    bot = channel._freemoov_ai_bot_partner()
+    history = channel.message_ids.filtered(
+        lambda m: m.message_type != 'notification' and not (
+            m.author_id == bot and 'class="fm-assistant-cards"' in (m.body or ''))
+    ).sorted("id")[-max_history:]
     out = []
     for m in history:
         if m.message_type == "notification":

@@ -3,11 +3,13 @@ import logging
 from datetime import timedelta
 
 import psycopg2
+from markupsafe import Markup
 
 from odoo import api, fields, models
 
 from ..services import agent_loop
 from ..services.anthropic_client import AnthropicClient, estimate_cost_eur
+from ..services.message_format import format_assistant_text
 from ..services.prompt_builder import build_messages_from_channel, build_system_prompt
 from ..services.tools import is_dry_run
 from ..services.tools.catalog import _serialize, _store_warehouses
@@ -239,7 +241,7 @@ class DiscussChannel(models.Model):
         """
         self.ensure_one()
         post_kwargs = {
-            "body": body,
+            "body": body if isinstance(body, Markup) else format_assistant_text(body),
             "message_type": "comment",
             "subtype_xmlid": "mail.mt_comment",
         }
@@ -390,7 +392,8 @@ class DiscussChannel(models.Model):
         )
         self._freemoov_ai_notify_typing(True)
         try:
-            out = agent_loop.run_agent(self.env, self, client, system_prompt, messages)
+            out = agent_loop.run_agent(self.env, self, client, system_prompt, messages,
+                                       visitor_message_text=visitor_message_text)
         except psycopg2.Error:
             # The cursor is gone: Odoo's retrying layer has to see this one.
             # Nothing else may touch the database on the way out either — a

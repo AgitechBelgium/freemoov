@@ -1,12 +1,16 @@
 """Regressions observed in the live widget: bus ordering and unrelated cards."""
 from unittest.mock import patch
 
+from lxml import html
+from markupsafe import Markup
+
 from odoo.tests import tagged
 
 from .common import FreemoovAiCase
 from .test_agent_loop import _resp
 from ..services.agent_loop import run_agent
 from ..services.anthropic_client import AnthropicClient
+from ..services.prompt_builder import build_messages_from_channel
 
 
 @tagged('post_install', '-at_install', 'freemoov_ai')
@@ -29,6 +33,46 @@ class TestPresentation(FreemoovAiCase):
             self.channel.with_context(temporary_id=91.01)._freemoov_ai_post_as_bot('Réponse')
         self.assertEqual(len(self.sent), 1)
         self.assertFalse(self.sent[0].get('temporary_id'))
+
+    def test_markdown_is_formatted_in_persisted_message(self):
+        message = self.channel._freemoov_ai_post_as_bot(
+            '**Deux choix**\n\n- Premier\n- [Second](https://www.freemoov.com/shop)\n\n'
+            'Une ligne\nUne autre ligne')
+        doc = html.fromstring(str(message.body))
+        self.assertEqual(doc.xpath('//strong/text()'), ['Deux choix'])
+        self.assertEqual(len(doc.xpath('//li')), 2)
+        self.assertTrue(doc.xpath('//br'))
+        self.assertEqual(doc.xpath('//a/@href'), ['https://www.freemoov.com/shop'])
+
+    def test_model_markup_cannot_embed_images_or_active_content(self):
+        message = self.channel._freemoov_ai_post_as_bot(
+            '<script>alert(1)</script><img src=x onerror=alert(2)>'
+            '\n\n![track](https://example.invalid/pixel) '
+            '[bad](javascript:alert%281%29) [data](data:text/html,evil) '
+            '[relative](//example.invalid/path) '
+            '[safe](https://www.freemoov.com/contactus)')
+        doc = html.fromstring(str(message.body))
+        self.assertFalse(doc.xpath('//script|//img|//iframe|//*[@onerror]'))
+        self.assertEqual(doc.xpath('//a/@href'), ['https://www.freemoov.com/contactus'])
+
+    def test_trusted_qweb_cards_are_not_parsed_as_markdown(self):
+        message = self.channel._freemoov_ai_post_as_bot(Markup(
+            '<div class="fm-assistant-cards"><img src="/web/image/product.template/1/image_128"/></div>'))
+        doc = html.fromstring(str(message.body))
+        self.assertTrue(doc.xpath('//div[@class="fm-assistant-cards"]/img'))
+
+    def test_history_keeps_links_but_does_not_repeat_card_labels(self):
+        self.channel.with_context(freemoov_ai_bot_post=True).message_post(
+            body='Un conseil ?', author_id=False, message_type='comment', subtype_xmlid='mail.mt_comment')
+        self.channel._freemoov_ai_post_as_bot('[Choix & détails](https://www.freemoov.com/shop/choice-123)')
+        self.channel._freemoov_ai_post_as_bot(Markup(
+            '<div class="fm-assistant-cards"><a href="https://www.freemoov.com/shop/choice-123">'
+            'CARD LABEL SHOULD NOT BE IN PROMPT</a></div>'))
+        history = build_messages_from_channel(self.channel)
+        self.assertEqual(history[-1]['role'], 'assistant')
+        self.assertIn('https://www.freemoov.com/shop/choice-123', history[-1]['content'])
+        self.assertIn('Choix & détails', history[-1]['content'])
+        self.assertNotIn('CARD LABEL', history[-1]['content'])
 
     def test_question_notification_precedes_answer(self):
         guest = self.env['mail.guest'].create({'name': 'Recette ordre'})

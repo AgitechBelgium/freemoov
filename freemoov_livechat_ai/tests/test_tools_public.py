@@ -9,6 +9,14 @@ from .common import FreemoovAiCase
 
 @tagged("post_install", "-at_install", "freemoov_ai")
 class TestPublicTools(FreemoovAiCase):
+    def test_unavailable_item_has_an_unambiguous_summary(self):
+        self._pin_warehouses({'liege': None, 'namur': None, 'charleroi': None})
+        tmpl = self._storable('Indisponible AI', allow_out_of_stock_order=False)
+        res = tools.run_tool(self.env, self.channel, 'fiche_produit', {'product_id': tmpl.id})
+        self.assertFalse(res['commandable'])
+        self.assertIn('Commande en ligne indisponible', res.get('disponibilite_resume', ''))
+        self.assertIn('non suivi', res.get('disponibilite_resume', ''))
+
     def _pin_warehouses(self, mapping):
         """Freeze the store -> warehouse mapping so tests never depend on the
         warehouses that happen to exist in the database."""
