@@ -10,20 +10,73 @@
     -->
     <t t-inherit="mail.Thread" t-inherit-mode="extension">
         <xpath expr="//*[hasclass('o-mail-Thread')]" position="inside">
-            <div t-if="showAssistantSuggestions" class="fm-assistant-suggestions"
-                 role="group" aria-label="Suggestions">
+            <section t-if="showAssistantSuggestions" class="fm-assistant-welcome" aria-label="Bienvenue chez Freemoov">
+                <span class="fm-assistant-welcome-kicker">La mobilité, à vos côtés.</span>
+                <h2>Comment pouvons-nous vous aider ?</h2>
+                <p>Un modèle à choisir, une commande à suivre ? Commençons ici.</p>
+                <div class="fm-assistant-suggestions" role="group" aria-label="Suggestions">
                 <button t-foreach="assistantSuggestions" t-as="suggestion" t-key="suggestion"
                         type="button"
                         class="fm-assistant-suggestion"
-                        t-esc="suggestion"
-                        t-on-click="() => this.sendAssistantSuggestion(suggestion)"/>
-            </div>
+                        t-on-click="() => this.sendAssistantSuggestion(suggestion)">
+                    <i aria-hidden="true" t-att-class="['fa fa-bolt', 'fa fa-cube', 'fa fa-map-marker'][suggestion_index]"/>
+                    <span t-esc="suggestion"/><i class="fa fa-angle-right" aria-hidden="true"/>
+                </button>
+                </div>
+            </section>
+            <button t-if="canRequestFreemoovAdviser and !assistantTyping?.isWaitingFor(props.thread)"
+                    type="button" class="fm-assistant-human"
+                    t-on-click="() => this.sendAssistantSuggestion('Je veux parler à un conseiller')">
+                <i class="fa fa-comment-o" aria-hidden="true"/> Parler à l’équipe
+            </button>
             <Message t-if="showAssistantTyping"
                      message="props.thread.assistantTypingMessage"
                      hasActions="false"
                      isInChatWindow="env.inChatWindow"
                      isTypingMessage="true"
                      thread="props.thread"/>
+        </xpath>
+    </t>
+
+    <t t-inherit="mail.ChatWindow" t-inherit-mode="extension">
+        <xpath expr="//*[hasclass('o-mail-ChatWindow')]" position="attributes">
+            <attribute name="t-attf-class">{{ isFreemoovAssistant ? 'fm-assistant-widget' : '' }}</attribute>
+        </xpath>
+    </t>
+    <t t-inherit="mail.ChatWindow.headerContent" t-inherit-mode="extension">
+        <xpath expr="//*[hasclass('o-mail-ChatWindow-threadAvatar')]" position="replace">
+            <div t-if="isFreemoovAssistant" class="fm-assistant-brand">
+                <span t-if="isMobileFoldedForLivechatVisitor" class="fm-assistant-monogram">f.</span>
+                <t t-else="">
+                    <img src="/logo.png" alt="Freemoov"/>
+                    <span t-esc="freemoovAssistantSubtitle"/>
+                </t>
+            </div>
+            <t t-else="">$0</t>
+        </xpath>
+        <xpath expr="//*[@t-esc='props.chatWindow.displayName']" position="attributes">
+            <attribute name="t-if">!isFreemoovAssistant and !state.editingName and !isMobileFoldedForLivechatVisitor</attribute>
+        </xpath>
+    </t>
+    <t t-inherit="mail.Composer.sendButton" t-inherit-mode="extension">
+        <xpath expr="//button" position="attributes">
+            <attribute name="t-if">isFreemoovAssistant or !compact or hasTouch()</attribute>
+            <attribute name="t-att-aria-label">isFreemoovAssistant ? 'Envoyer le message' : SEND_TEXT</attribute>
+        </xpath>
+        <xpath expr="//button/t[1]" position="before">
+            <i t-if="isFreemoovAssistant" class="fa fa-arrow-up" aria-hidden="true"/>
+        </xpath>
+        <xpath expr="//button/t[1]" position="attributes">
+            <attribute name="t-if">!isFreemoovAssistant and thread and thread.type === 'chatter'</attribute>
+        </xpath>
+        <xpath expr="//button/t[2]" position="attributes">
+            <attribute name="t-elif">!isFreemoovAssistant and hasTouch()</attribute>
+        </xpath>
+        <xpath expr="//button/t[3]" position="replace"><t t-elif="!isFreemoovAssistant">Send</t></xpath>
+    </t>
+    <t t-inherit="mail.Thread" t-inherit-mode="extension">
+        <xpath expr="//*[hasclass('o-mail-Thread-newMessage')]/span" position="replace">
+            <span t-if="isFreemoovAssistant" class="px-2">Nouveaux messages</span><t t-else="">$0</t>
         </xpath>
     </t>
 

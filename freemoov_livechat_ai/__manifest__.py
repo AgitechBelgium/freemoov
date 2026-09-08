@@ -1,6 +1,6 @@
 {
     'name': 'Freemoov Livechat AI',
-    'version': '17.0.0.1.4',
+    'version': '17.0.0.1.5',
     'category': 'Website/Live Chat',
     'summary': 'Hybrid livechat bot: Odoo native chatbot + Claude fallback on open questions',
     'author': 'Freemoov',
@@ -25,6 +25,7 @@
         'im_livechat.assets_embed_core': [
             'freemoov_livechat_ai/static/src/scss/assistant_theme.scss',
             'freemoov_livechat_ai/static/src/js/assistant_avatar.js',
+            'freemoov_livechat_ai/static/src/js/assistant_presentation.js',
             'freemoov_livechat_ai/static/src/js/assistant_typing.js',
             'freemoov_livechat_ai/static/src/js/assistant_suggestions.js',
             'freemoov_livechat_ai/static/src/xml/assistant_thread.xml',

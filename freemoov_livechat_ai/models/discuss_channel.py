@@ -104,6 +104,10 @@ def _redact_tool_calls(tool_calls):
 class DiscussChannel(models.Model):
     _inherit = "discuss.channel"
 
+    freemoov_ai_visitor_partner_id = fields.Many2one(
+        'res.partner', readonly=True, copy=False, ondelete='set null',
+        help='Authenticated visitor who opened the AI widget; never proof of identity for tools.')
+
     @api.returns('mail.message', lambda message: message.id)
     def message_post(self, **kwargs):
         # Finish the visitor's native post, including its bus notification,
@@ -183,6 +187,9 @@ class DiscussChannel(models.Model):
         partner = message.author_id.sudo()
         if partner == self._freemoov_ai_bot_partner():
             return False
+        if (partner == self.sudo().freemoov_ai_visitor_partner_id
+                and partner in self.sudo().channel_member_ids.partner_id):
+            return True
         users = partner.user_ids.filtered(lambda user: user.active)
         return (partner in self.sudo().channel_member_ids.partner_id
                 and bool(users) and all(user.share and not user._is_public() for user in users))
@@ -191,7 +198,8 @@ class DiscussChannel(models.Model):
         self.ensure_one()
         if not self.livechat_channel_id:
             return False
-        operator = self.livechat_channel_id.sudo()._get_operator(
+        operator = self.livechat_channel_id.sudo().with_context(
+            freemoov_ai_exclude_partner_id=self.freemoov_ai_visitor_partner_id.id)._get_operator(
             lang=self.env.context.get('lang'), country_id=self.country_id.id)
         if not operator:
             return False
@@ -200,6 +208,16 @@ class DiscussChannel(models.Model):
                             post_joined_message=False)
         channel.livechat_operator_id = operator.partner_id
         channel._broadcast(operator.partner_id.ids)
+        # The adviser broadcast does not reach the visitor (especially guests).
+        # Send only the public operator identity, not privileged channel info.
+        partner = operator.partner_id
+        public_name = partner.user_livechat_username or partner.display_name
+        payload = {'Thread': {
+            'id': channel.id, 'model': 'discuss.channel',
+            'operator_pid': [partner.id, public_name.replace(',', '')],
+        }}
+        self.env['bus.bus']._sendone(channel.uuid, 'mail.record/insert', payload)
+        self.env['bus.bus']._sendone(channel, 'mail.record/insert', payload)
         return True
 
     def _freemoov_ai_bot_partner(self):

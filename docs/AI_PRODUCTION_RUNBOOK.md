@@ -31,6 +31,12 @@ Git seul n'installe pas les modèles SQL.** Installer explicitement
 `freemoov_livechat_ai` par le mécanisme Odoo.sh/Odoo adapté au build courant.
 Ne jamais lancer deux processus de mise à jour simultanés.
 
+Le candidat `17.0.0.1.5` ajoute la colonne
+`discuss_channel.freemoov_ai_visitor_partner_id`. Pour un environnement où
+le module est déjà installé, effectuer sa mise à jour contrôlée avant de
+servir le nouveau code, puis vérifier la colonne et redémarrer les workers.
+Un simple redémarrage après push n'est pas une migration de schéma.
+
 Les données initiales imposent `enabled=False`, `dry_run=True`,
 `verification_test_mode=False`, `repair_tool_enabled=False`. Relire les valeurs
 effectives après installation : `noupdate` préserve une configuration existante.

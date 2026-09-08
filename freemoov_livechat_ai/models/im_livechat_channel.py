@@ -5,6 +5,18 @@ from odoo.addons.bus.websocket import WebsocketConnectionHandler
 class ImLivechatChannel(models.Model):
     _inherit = 'im_livechat.channel'
 
+    def _get_less_active_operator(self, operator_statuses, operators):
+        excluded = self.env.context.get('freemoov_ai_exclude_partner_id')
+        if excluded:
+            operators = operators.filtered(lambda user: user.partner_id.id != excluded)
+        return super()._get_less_active_operator(operator_statuses, operators)
+
+    def _get_channel_infos(self):
+        info = super()._get_channel_infos()
+        if self._freemoov_ai_available():
+            info['freemoov_ai_bot_partner_id'] = self.env.ref('freemoov_livechat_ai.partner_ai_bot').id
+        return info
+
     def _freemoov_ai_available(self):
         params = self.env['ir.config_parameter'].sudo()
         return (params.get_param('freemoov_livechat_ai.enabled') == 'True'
@@ -34,6 +46,7 @@ class ImLivechatChannel(models.Model):
         bot = self.env.ref('freemoov_livechat_ai.partner_ai_bot')
         members = [Command.create({'partner_id': bot.id, 'is_pinned': False})]
         visitor = self.env['res.users'].browse(user_id).exists() if user_id else self.env['res.users']
+        visitor = visitor.filtered(lambda user: user.active and not user._is_public() and user.partner_id != bot)
         if visitor and visitor.active and visitor.partner_id != bot:
             members.append(Command.create({'partner_id': visitor.partner_id.id}))
         return {
@@ -41,5 +54,6 @@ class ImLivechatChannel(models.Model):
             'channel_type': 'livechat', 'livechat_active': True,
             'livechat_channel_id': self.id, 'livechat_operator_id': bot.id,
             'channel_member_ids': members, 'chatbot_current_step_id': False,
+            'freemoov_ai_visitor_partner_id': visitor.partner_id.id if visitor else False,
             'anonymous_name': False if visitor else anonymous_name, 'country_id': country_id,
         }

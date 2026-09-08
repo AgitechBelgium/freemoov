@@ -1,554 +1,152 @@
-// Freemoov livechat assistant — widget theme.
-//
-// Loaded in `im_livechat.assets_embed_core`, the bundle every flavour of the
-// widget is built from: the one served on freemoov.com (through
-// `web.assets_frontend`) and the ones embedded on a third-party page
-// (`assets_embed_external`, `assets_embed_cors`).
-//
-// Literal hex values rather than `o-color(1)` and friends. Odoo's SCSS helpers
-// do reach this file, but `o-color()` resolves through the palette the
-// *website* has selected — and the CORS embed renders on someone else's page,
-// out of reach of that setting.
-//
-// Design intent: the calm of a concierge desk. Deep green anchors the frame,
-// everything inside it is warm paper and air. Green appears three times only —
-// header, the visitor's own words, and the price of a product — so that when it
-// shows up, it means something.
-
-// ---------------------------------------------------------------------------
-// Tokens
-// ---------------------------------------------------------------------------
-// SCSS variables compile away; the custom properties below survive into the
-// shadow root, where `.o-livechat-root` is the only handle a future stylesheet
-// (or an operator's tweak) gets on this widget.
-$fm-primary: #099d5d; // charte, same as website_freemoov/static/src/scss/checkout.scss
-$fm-secondary: #7ac144;
-
-// White on #099d5d measures 3.55:1 — under AA for body text. Every surface that
-// carries text uses these darker steps instead; the bright charte green is kept
-// for fills, rings and the price, where it is decoration rather than reading.
-$fm-deep: #0a5c3a;
-$fm-deep-mid: #07784a; // 5.5:1 on white
-$fm-ink: #1b1f1d; // warm near-black, softer than #000 against paper
-$fm-muted: #6b7671;
-$fm-paper: #fbfbfa; // the thread background: paper, not screen-white
-$fm-line: #e7e9e7;
-
-$fm-ease: cubic-bezier(0.32, 0.72, 0, 1); // decelerate hard, settle without bounce
-
+// Retail presentation scoped to our widget, never the Discuss back office.
 .o-livechat-root {
-    --fm-primary: #{$fm-primary};
-    --fm-deep: #{$fm-deep};
-    --fm-deep-mid: #{$fm-deep-mid};
-    --fm-ink: #{$fm-ink};
-    --fm-muted: #{$fm-muted};
-    --fm-paper: #{$fm-paper};
-    --fm-line: #{$fm-line};
-    --fm-radius: 18px;
-    --fm-radius-sm: 10px;
-    --fm-ease: #{$fm-ease};
-
-    // Three stacked shadows rather than one: a hairline to seat the edge, a
-    // short shadow for the lift, a long diffuse one for the room. A single
-    // large blur reads as fog.
-    --fm-shadow:
-        0 0 0 1px rgba(16, 24, 20, 0.04),
-        0 2px 8px rgba(16, 24, 20, 0.06),
-        0 24px 48px -12px rgba(16, 24, 20, 0.18);
+    --fm-deep: #0a5c3a;
+    --fm-lime: #b8e56a;
+    --fm-ink: #20352c;
+    --fm-muted: #607168;
+    --fm-line: #e3eae5;
+    --fm-paper: #f3f6f4;
 }
-
-// ---------------------------------------------------------------------------
-// Launcher
-// ---------------------------------------------------------------------------
-// `!important` is not a shortcut: `im_livechat.LivechatButton` writes its
-// colours in an inline `style` attribute, fed by the `button_background_color`
-// / `button_text_color` fields of the `im_livechat.channel` record, and no
-// selector outranks an inline style. The trade-off is explicit — those two
-// colour pickers (Settings > Live Chat > channel) no longer drive the button.
-// Drop the declarations below to hand them back.
 .o-livechat-LivechatButton {
-    background: radial-gradient(120% 120% at 30% 0%, #0fb26b 0%, #{$fm-primary} 45%, #{$fm-deep} 100%) !important;
-    color: #fff !important;
-    border: 0 !important;
-    box-shadow:
-        0 0 0 1px rgba(10, 92, 58, 0.15),
-        0 8px 24px -6px rgba(9, 157, 93, 0.45) !important;
-    transition: transform 0.35s var(--fm-ease), box-shadow 0.35s var(--fm-ease);
-
-    &:hover {
-        transform: translateY(-2px) scale(1.03);
-        box-shadow:
-            0 0 0 1px rgba(10, 92, 58, 0.2),
-            0 14px 32px -8px rgba(9, 157, 93, 0.55) !important;
-    }
-
-    &:active {
-        transform: translateY(0) scale(0.97);
-        transition-duration: 0.1s;
-    }
-
-    // The ring the browser draws is square on a round button; replace it.
-    &:focus-visible {
-        outline: none;
-        box-shadow:
-            0 0 0 3px #fff,
-            0 0 0 6px rgba(9, 157, 93, 0.6) !important;
-    }
+    background: #0a5c3a !important; color: white !important;
+    box-shadow: 0 6px 24px rgba(10, 92, 58, .22) !important;
+    &:focus-visible { outline: 3px solid #b8e56a; outline-offset: 3px; }
 }
-
-.o-livechat-LivechatButton-notification {
-    border-radius: var(--fm-radius-sm);
-    border: 1px solid var(--fm-line);
-    box-shadow: var(--fm-shadow);
-    animation: fm-rise 0.45s var(--fm-ease) both;
-}
-
-// ---------------------------------------------------------------------------
-// Window shell
-// ---------------------------------------------------------------------------
-.o-mail-ChatWindow {
-    border: 0 !important;
-    border-radius: var(--fm-radius) !important;
-    // Clips the header gradient to the rounded corner. Without it the header
-    // paints square corners over the shell's radius.
-    overflow: hidden;
-    box-shadow: var(--fm-shadow) !important;
-    background: var(--fm-paper) !important;
-    animation: fm-window-in 0.4s var(--fm-ease) both;
-}
-
-@keyframes fm-window-in {
-    from {
-        opacity: 0;
-        transform: translateY(12px) scale(0.98);
+.fm-assistant-widget {
+    font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 14px; color: var(--fm-ink); background: white !important;
+    border: 1px solid var(--fm-line) !important; border-radius: 22px !important;
+    box-shadow: 0 12px 50px rgba(22, 48, 33, .17) !important; overflow: hidden;
+    &:not(.o-folded):not(.o-mobile) {
+        width: 390px !important; max-width: calc(100vw - 32px);
+        height: 650px !important; max-height: calc(100dvh - 32px);
     }
-}
-
-@keyframes fm-rise {
-    from {
-        opacity: 0;
-        transform: translateY(6px);
+    .o-mail-ChatWindow-header {
+        // Native Odoo writes an inline !important background-color.
+        background-image: linear-gradient(white, white) !important;
+        color: var(--fm-ink) !important; border-bottom: 1px solid var(--fm-line) !important;
+        padding: 16px 14px 16px 22px; min-height: 84px;
     }
-}
-
-// ---------------------------------------------------------------------------
-// Header
-// ---------------------------------------------------------------------------
-// `background-image` rather than `background`, and the difference matters:
-// im_livechat's `chat_window_patch.xml` appends
-// `background-color: {{ header_background_color }} !important` to the header's
-// inline style, and an inline `!important` outranks anything a stylesheet says.
-// `background-image` is a property that inline style never sets, so the
-// gradient paints over the configured colour and wins on screen.
-.o-mail-ChatWindow-header {
-    background-image:
-        radial-gradient(140% 180% at 85% -40%, rgba(122, 193, 68, 0.5) 0%, rgba(122, 193, 68, 0) 55%),
-        linear-gradient(160deg, #{$fm-deep-mid} 0%, #{$fm-deep} 100%) !important;
-    border-bottom: 0 !important;
-    color: #fff !important;
-    padding-block: 12px !important;
-    letter-spacing: 0.01em;
-    // Beats the inline `color:` of the same patch (no `!important` there), and
-    // is what the window title inherits — that element carries no class of its
-    // own to target.
-
-    // The fold / close / restart commands are Bootstrap `.btn`, which sets its
-    // own colour instead of inheriting. Deliberately not extended to
-    // `.o-mail-ChatWindow-counter`: that badge paints its own background, and
-    // white text on it is as likely to disappear as to read.
     .o-mail-ChatWindow-command {
-        color: #fff !important;
-        opacity: 0.75;
-        border-radius: 8px;
-        transition: opacity 0.2s var(--fm-ease), background 0.2s var(--fm-ease);
-
-        &:hover {
-            opacity: 1;
-            background: rgba(255, 255, 255, 0.14);
-        }
-
-        &:focus-visible {
-            outline: 2px solid rgba(255, 255, 255, 0.9);
-            outline-offset: 1px;
-            opacity: 1;
-        }
+        color: var(--fm-muted) !important; min-width: 40px; min-height: 40px;
+        justify-content: center; align-items: center; border-radius: 12px;
+        &:hover { background: var(--fm-paper); color: var(--fm-deep) !important; }
     }
-
-    img,
-    .o-mail-ChatWindow-threadAvatar img {
-        border-radius: 50%;
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35);
+    .o-mail-ChatWindow-counter { background: var(--fm-deep); color: white; }
+    button:focus-visible, a:focus-visible { outline: 2px solid var(--fm-deep); outline-offset: 3px; }
+    .fm-assistant-brand {
+        display: flex; flex-direction: column; align-items: flex-start; gap: 5px; min-width: 0;
+        img { width: 108px; height: 28px; object-fit: contain; object-position: left center; }
+        span { color: var(--fm-muted); font-size: 12px; line-height: 1.3; }
     }
-}
-
-// ---------------------------------------------------------------------------
-// Thread
-// ---------------------------------------------------------------------------
-.o-mail-Thread {
-    background: var(--fm-paper);
-    scroll-behavior: smooth;
-
-    // A 14px system scrollbar inside a 340px pane is a third of a bubble's
-    // margin. Firefox reads the first two, WebKit the rest.
-    scrollbar-width: thin;
-    scrollbar-color: rgba(27, 31, 29, 0.18) transparent;
-
-    &::-webkit-scrollbar {
-        width: 6px;
+    .o-mail-Thread { background: white; padding: 12px 8px 6px; scrollbar-width: thin; scrollbar-color: #c7d3ca transparent; }
+    .o-mail-Thread:has(.fm-assistant-welcome) {
+        padding: 0;
+        // Replace only the initial generic greeting, not an active conversation.
+        > .flex-grow-1, > .o-mail-Thread-empty { display: none !important; }
+        .o-mail-Message { display: none !important; }
     }
-
-    &::-webkit-scrollbar-thumb {
-        background: rgba(27, 31, 29, 0.16);
-        border-radius: 3px;
-
-        &:hover {
-            background: rgba(27, 31, 29, 0.28);
-        }
+    .fm-assistant-welcome {
+        padding: 26px 24px 18px; background: linear-gradient(155deg, #f1f7ed 0%, white 65%);
+        .fm-assistant-welcome-kicker { display: inline-block; color: var(--fm-deep); font-size: 12px; font-weight: 600; margin-bottom: 14px; }
+        h2 { font: 650 29px/1.17 'Noto Sans', sans-serif; letter-spacing: -.9px; margin: 0 0 12px; max-width: 290px; color: var(--fm-ink); }
+        p { font-size: 14px; line-height: 1.6; color: var(--fm-muted); margin: 0 0 24px; }
     }
-}
-
-// Bubbles. Odoo marks the visitor's own messages `.o-selfAuthored`; everything
-// else in a livechat thread is the assistant or an operator.
-.o-mail-Message-bubble {
-    border-radius: 16px !important;
-    line-height: 1.45;
-    box-shadow: none !important;
-
-    &:not(.o-selfAuthored) {
-        background: #fff !important;
-        border: 1px solid var(--fm-line) !important;
-        color: var(--fm-ink) !important;
-        // One squared corner points the bubble at its author — the detail that
-        // makes a thread read as a conversation rather than a list.
-        border-bottom-left-radius: 5px !important;
-    }
-
-    &.o-selfAuthored {
-        background: linear-gradient(160deg, #{$fm-deep-mid}, #{$fm-deep}) !important;
-        color: #fff !important;
-        border: 0 !important;
-        border-bottom-right-radius: 5px !important;
-
-        a {
-            color: #fff;
-            text-decoration: underline;
-            text-underline-offset: 2px;
-        }
-    }
-}
-
-// ---------------------------------------------------------------------------
-// Start suggestions
-// ---------------------------------------------------------------------------
-.fm-assistant-suggestions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 4px 12px 14px;
-}
-
-.fm-assistant-suggestion {
-    border: 1px solid var(--fm-line);
-    border-radius: 999px;
-    background: #fff;
-    color: var(--fm-ink);
-    padding: 7px 14px;
-    // Buttons do not inherit the font: without this the chips render in the
-    // browser's default face while every bubble around them uses Odoo's.
-    font-family: inherit;
-    font-size: 12.5px;
-    font-weight: 500;
-    line-height: 1.3;
-    text-align: left;
-    cursor: pointer;
-    box-shadow: 0 1px 2px rgba(16, 24, 20, 0.04);
-    transition:
-        transform 0.25s var(--fm-ease),
-        border-color 0.25s var(--fm-ease),
-        color 0.25s var(--fm-ease),
-        box-shadow 0.25s var(--fm-ease);
-
-    // Staggered arrival. Five chips landing together read as a menu; landing in
-    // sequence they read as an offer. Indices are fixed because the list is.
-    animation: fm-rise 0.4s var(--fm-ease) both;
-    @for $i from 1 through 5 {
-        &:nth-child(#{$i}) {
-            animation-delay: #{0.04s * $i};
-        }
-    }
-
-    // "Je veux parler à un conseiller" — the way out of the bot. Last of the
-    // five and deliberately quieter: it is the fallback, not the invitation.
-    // Declared before `:hover`, which carries the same specificity and would
-    // otherwise win on source order, leaving this chip the only one without
-    // hover feedback.
-    &:last-child {
-        color: var(--fm-muted);
-        background: transparent;
-        box-shadow: none;
-    }
-
-    &:hover {
-        transform: translateY(-1px);
-        border-color: rgba(9, 157, 93, 0.45);
-        color: var(--fm-deep-mid);
-        box-shadow: 0 4px 10px -2px rgba(9, 157, 93, 0.22);
-    }
-
-    &:active {
-        transform: translateY(0);
-        transition-duration: 0.08s;
-    }
-
-    &:focus-visible {
-        outline: none;
-        border-color: var(--fm-primary);
-        box-shadow: 0 0 0 3px rgba(9, 157, 93, 0.22);
-    }
-}
-
-// ---------------------------------------------------------------------------
-// Product cards
-// ---------------------------------------------------------------------------
-// Server-rendered markup posted as a message body — see
-// views/product_cards_template.xml. `html_sanitize` keeps `class`, `href`,
-// `target`, `rel`, `alt` and `src` and drops everything else, so all styling
-// has to arrive through these class names; nothing can be set inline.
-//
-// The pane is ~340px wide, so cards are full-width rows rather than tiles: a
-// scooter name plus a per-store availability line does not survive a 140px
-// column.
-.fm-assistant-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-top: 10px;
-
-    .fm-assistant-card {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px;
-        border: 1px solid var(--fm-line);
-        border-radius: 14px;
-        background: #fff;
-        text-decoration: none;
-        color: var(--fm-ink);
-        box-shadow: 0 1px 2px rgba(16, 24, 20, 0.04);
-        transition:
-            transform 0.25s var(--fm-ease),
-            border-color 0.25s var(--fm-ease),
-            box-shadow 0.25s var(--fm-ease);
-        animation: fm-rise 0.4s var(--fm-ease) both;
-
-        @for $i from 1 through 3 {
-            &:nth-child(#{$i}) {
-                animation-delay: #{0.05s * $i};
-            }
-        }
-
-        &:hover,
-        &:focus-visible {
-            transform: translateY(-1px);
-            border-color: rgba(9, 157, 93, 0.45);
-            box-shadow: 0 6px 16px -4px rgba(16, 24, 20, 0.14);
-            text-decoration: none;
-            color: var(--fm-ink);
-        }
-
-        &:focus-visible {
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(9, 157, 93, 0.25);
-        }
-
-        img {
-            // Fixed box, not `height: auto`: the thumbnail arrives after the
-            // card is painted, and a card that grows on load pushes the answer
-            // above it out of view mid-read. This is the layout-shift guard.
-            width: 60px;
-            height: 60px;
-            flex: 0 0 60px;
-            object-fit: contain;
-            border-radius: var(--fm-radius-sm);
-            background: #f2f4f2;
-        }
-    }
-
-    .fm-assistant-card-body {
-        min-width: 0; // lets the name ellipsize instead of stretching the row
-        flex: 1 1 auto;
-    }
-
-    .fm-assistant-card-name {
-        font-size: 13px;
-        font-weight: 600;
-        line-height: 1.3;
-        // Two lines then ellipsis: product names run long, and a card grown to
-        // four lines pushes the answer above it off screen.
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .fm-assistant-card-price {
-        font-size: 13.5px;
-        font-weight: 700;
-        color: var(--fm-deep-mid);
-        margin-top: 3px;
-        font-variant-numeric: tabular-nums; // prices align across stacked cards
-    }
-
-    // Availability line: "Liège 2 · Namur 1", "Sur commande" or "Nous
-    // contacter". Secondary to the price.
-    .fm-assistant-card-stock {
-        font-size: 11px;
-        color: var(--fm-muted);
-        margin-top: 2px;
-    }
-}
-
-// ---------------------------------------------------------------------------
-// Composer
-// ---------------------------------------------------------------------------
-.o-mail-Composer {
-    background: var(--fm-paper);
-    border-top: 1px solid var(--fm-line);
-    padding: 10px 12px;
-
-    textarea {
-        border-radius: 22px !important;
-        border: 1px solid var(--fm-line) !important;
-        background: #fff !important;
-        padding: 10px 14px !important;
-        font-size: 13px;
-        line-height: 1.4;
-        transition: border-color 0.2s var(--fm-ease), box-shadow 0.2s var(--fm-ease);
-
-        &:focus {
-            border-color: rgba(9, 157, 93, 0.5) !important;
-            box-shadow: 0 0 0 3px rgba(9, 157, 93, 0.15) !important;
-            outline: none !important;
-        }
-
-        &::placeholder {
-            color: var(--fm-muted);
-        }
-    }
-}
-
-// ---------------------------------------------------------------------------
-// Typing indicator
-// ---------------------------------------------------------------------------
-// The client-side indicator (see static/src/js/assistant_typing.js) renders a
-// Message whose body is the three dots below — the server's bus notification
-// cannot reach the visitor mid-turn, it only flushes at commit.
-.o-mail-Typing,
-.o-mail-Message-textContent .o-mail-Typing {
-    display: inline-flex;
-    gap: 4px;
-    align-items: center;
-
-    span,
-    &::before {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: var(--fm-muted);
-        animation: fm-typing 1.2s infinite var(--fm-ease);
-    }
-
-    span:nth-child(2) {
-        animation-delay: 0.15s;
-    }
-
-    span:nth-child(3) {
-        animation-delay: 0.3s;
-    }
-}
-
-@keyframes fm-typing {
-    0%,
-    60%,
-    100% {
-        opacity: 0.3;
-        transform: translateY(0);
-    }
-    30% {
-        opacity: 1;
-        transform: translateY(-3px);
-    }
-}
-
-// ---------------------------------------------------------------------------
-// Mobile
-// ---------------------------------------------------------------------------
-// Under 500px the window takes the screen. Odoo already goes near-fullscreen;
-// what it does not do is respect the iOS home indicator or drop the rounded
-// corners that look like a mistake once the panel touches every edge.
-@media (max-width: 500px) {
-    // The same native component becomes a small avatar when folded. Never
-    // override its folded dimensions with the open panel's viewport size.
-    .o-mail-ChatWindow:not(.o-folded) {
-        border-radius: 0 !important;
-        // `dvh` tracks the mobile browser's collapsing address bar; `vh` does
-        // not, and the composer ends up under it.
-        height: 100dvh !important;
-        max-height: 100dvh !important;
-        width: 100vw !important;
-        animation-name: fm-window-in-mobile;
-    }
-
-    .o-mail-ChatWindow:not(.o-folded) .o-mail-ChatWindow-header {
-        // LibSass cannot evaluate env(); leave CSS max() to the browser.
-        padding-top: unquote("max(12px, env(safe-area-inset-top))") !important;
-    }
-
-    .o-mail-ChatWindow.o-isMobileFoldedForLivechatVisitor .o-mail-ChatWindow-header {
-        padding: 0 !important;
-    }
-
-    .o-mail-Composer {
-        padding-bottom: unquote("max(10px, env(safe-area-inset-bottom))");
-    }
-
+    .fm-assistant-suggestions { display: flex; flex-direction: column; gap: 10px; }
     .fm-assistant-suggestion {
-        // Thumb targets, not mouse targets.
-        padding: 9px 15px;
-        font-size: 13.5px;
+        display: flex; align-items: center; gap: 12px; min-height: 58px; width: 100%; padding: 12px 14px;
+        border: 1px solid var(--fm-line); border-radius: 14px; background: white; color: var(--fm-ink);
+        font-family: inherit; font-size: 13px; font-weight: 600; line-height: 1.4; text-align: left;
+        transition: border-color .18s, background .18s;
+        span { flex: 1; }
+        i:first-child { display: grid; place-items: center; width: 30px; height: 30px; background: var(--fm-paper); border-radius: 9px; color: var(--fm-deep); font-size: 17px; }
+        i:last-child { color: var(--fm-muted); }
+        &:first-child i:first-child { background: var(--fm-lime); }
+        &:hover { border-color: #9dbca9; background: #f8fbf8; }
     }
-
-    .fm-assistant-cards .fm-assistant-card img {
-        width: 68px;
-        height: 68px;
-        flex-basis: 68px;
+    .fm-assistant-human {
+        align-self: center; flex-shrink: 0; min-height: 44px; border: 0; background: transparent;
+        color: var(--fm-deep); font-size: 12px; padding: 10px 16px; margin: 4px 0;
+        i { margin-right: 6px; }
+        &:hover { text-decoration: underline; }
+    }
+    .o-mail-Message { padding: 6px 10px !important; margin-top: 0 !important; }
+    .o-mail-Message-sidebar { display: none !important; }
+    .o-mail-Message-header {
+        font-size: 10px; line-height: 1.4 !important; color: var(--fm-muted); margin-bottom: 5px !important;
+        .o-mail-Message-author { font-size: 11px; }
+    }
+    .o-mail-Message.o-selfAuthored .o-mail-Message-header { display: none !important; }
+    .o-mail-Message-core > div > .position-relative.d-flex { padding-inline: 0 !important; }
+    .o-mail-Message-content { max-width: 94%; }
+    .o-mail-Message-bubble { opacity: 1 !important; border: 0 !important; background: var(--fm-paper) !important; border-radius: 4px 16px 16px 16px !important; }
+    .o-mail-Message-body {
+        font-size: 14px; line-height: 1.6; color: var(--fm-ink); padding: 11px 14px !important;
+        p:last-child { margin-bottom: 0; }
+        a { color: var(--fm-deep); text-underline-offset: 3px; }
+    }
+    .o-mail-Message.o-selfAuthored {
+        .o-mail-Message-bubble { background: var(--fm-deep) !important; border-radius: 16px 4px 16px 16px !important; }
+        .o-mail-Message-body, .o-mail-Message-body a { color: white; }
+    }
+    .o-mail-Message:has(.fm-assistant-cards) {
+        .o-mail-Message-header { display: none !important; }
+        .o-mail-Message-content { width: 100%; max-width: 100%; }
+        .o-mail-Message-textContent > div { width: 100%; }
+        .o-mail-Message-bubble { background: transparent !important; }
+        .o-mail-Message-body { padding: 0 !important; }
+    }
+    .o-mail-DateSection { padding-top: 12px !important; padding-bottom: 8px; font-size: 10px; opacity: .75; }
+    .o-mail-Thread-newMessage { font-size: 10px; font-weight: 500 !important; color: var(--fm-muted); padding-block: 5px; }
+    .o-mail-Thread-newMessage hr { border-color: var(--fm-line) !important; }
+    .fm-assistant-cards { display: flex; flex-direction: column; gap: 10px; }
+    .fm-assistant-card {
+        display: flex; align-items: center; gap: 14px; padding: 14px;
+        border: 1px solid var(--fm-line); border-radius: 16px; text-decoration: none; color: var(--fm-ink); background: white;
+        &:hover { border-color: #98b5a3; text-decoration: none; }
+        img { width: 82px; height: 96px; flex: 0 0 82px; object-fit: contain; background: white; }
+    }
+    .fm-assistant-card-body { min-width: 0; }
+    .fm-assistant-card-name { font-size: 13px; line-height: 1.4; font-weight: 600; }
+    .fm-assistant-card-price { font-size: 16px; font-weight: 700; color: var(--fm-deep); margin: 6px 0 4px; }
+    .fm-assistant-card-stock { color: var(--fm-muted); font-size: 11px; line-height: 1.5; }
+    .fm-assistant-card-cta { display: inline-block; font-size: 11px; font-weight: 600; color: var(--fm-deep); margin-top: 8px; text-decoration: underline; text-underline-offset: 3px; }
+    .o-mail-Composer {
+        flex-shrink: 0; background: white; border-top: 1px solid var(--fm-line); padding: 12px 14px;
+        .o-mail-Composer-coreMain > .d-flex {
+            border: 1px solid var(--fm-line) !important; border-radius: 16px; padding: 4px; align-items: center;
+            &:focus-within { border-color: #669c7d !important; box-shadow: 0 0 0 2px #edf5ed; }
+        }
+        textarea { font-family: inherit; font-size: 16px !important; line-height: 1.5; padding: 8px 10px !important; border: 0 !important; box-shadow: none !important; background: transparent !important; }
+        textarea::placeholder { font-size: 13px; color: var(--fm-muted); }
+        .o-mail-Composer-actions { margin: 0 !important; }
+        .o-mail-Composer-actions .btn { width: 32px; padding-inline: 4px; color: var(--fm-muted); }
+        .o-mail-Composer-send { flex: 0 0 36px; width: 36px; min-height: 36px; align-self: center !important; padding: 0; margin: 0; border-radius: 11px !important; background: var(--fm-deep); color: white; }
+        .o-mail-Composer-send:disabled { background: #e9eeeb; color: #8c9b92; opacity: 1; }
+    }
+    .o-mail-Typing { display: inline-flex; align-items: center; gap: 5px; }
+    .o-mail-Typing span { width: 6px; height: 6px; background: var(--fm-muted); border-radius: 50%; animation: fm-typing 1.2s ease-in-out infinite; }
+    .o-mail-Typing span:nth-child(2) { animation-delay: .15s; }
+    .o-mail-Typing span:nth-child(3) { animation-delay: .3s; }
+    &.o-isMobileFoldedForLivechatVisitor {
+        border-radius: 50% !important;
+        .o-mail-ChatWindow-header { min-height: 0; padding: 0; border: 0 !important; background-image: linear-gradient(#0a5c3a, #0a5c3a) !important; }
+        .fm-assistant-brand { width: 48px; height: 48px; align-items: center; justify-content: center; }
+        .fm-assistant-monogram { font-size: 32px; font-weight: 800; font-style: italic; color: #b8e56a; }
     }
 }
-
-@keyframes fm-window-in-mobile {
-    from {
-        opacity: 0;
-        transform: translateY(24px);
+@keyframes fm-typing { 0%, 60%, 100% { opacity: .35; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+@media (max-width: 767px) {
+    .fm-assistant-widget:not(.o-folded) {
+        width: 100vw !important; height: 100dvh !important; max-height: 100dvh !important; border: 0 !important; border-radius: 0 !important;
+        .o-mail-ChatWindow-header { padding-top: unquote('max(16px, env(safe-area-inset-top))'); }
+        .o-mail-Composer { padding-bottom: unquote('max(12px, env(safe-area-inset-bottom))'); }
     }
 }
-
-// ---------------------------------------------------------------------------
-// Reduced motion
-// ---------------------------------------------------------------------------
-// Everything above degrades to its end state. Kept last so it outranks the
-// animation declarations on source order.
+@media (max-width: 350px) {
+    .fm-assistant-widget .fm-assistant-welcome { padding: 20px 18px 10px; h2 { font-size: 26px; } }
+    .fm-assistant-widget .fm-assistant-card { padding: 10px; gap: 10px; img { width: 62px; height: 84px; flex-basis: 62px; } }
+}
 @media (prefers-reduced-motion: reduce) {
-    .o-livechat-root,
-    .o-livechat-root * {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-    }
-
-    .o-livechat-LivechatButton:hover,
-    .fm-assistant-suggestion:hover,
-    .fm-assistant-cards .fm-assistant-card:hover {
-        transform: none;
-    }
+    .fm-assistant-widget *, .o-livechat-LivechatButton { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }

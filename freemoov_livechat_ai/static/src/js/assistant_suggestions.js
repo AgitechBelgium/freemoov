@@ -3,37 +3,40 @@
 import { Thread } from "@mail/core/common/thread";
 
 import { patch } from "@web/core/utils/patch";
+import { isFreemoovThread } from "./assistant_presentation";
 
 /**
- * The five openings offered before the visitor has typed anything.
+ * The three public openings offered before the visitor has typed anything.
  *
  * Not translated on purpose: the shop is Belgian and French-speaking, the
  * system prompt is written in French, and a suggestion is not a label but the
  * literal text posted to the channel — a translated button would send the
  * assistant a sentence its prompt never anticipated.
  *
- * The last one is the way out. It posts the exact sentence the system prompt
- * (Task 7) recognises as a request for a human, which makes the model answer
- * with `[ESCALATE]`; the agent loop then flags the turn and the conversation
- * goes to an operator. It is that literal sentence that carries the behaviour,
- * so it may not be reworded here alone.
+ * Repair tracking is intentionally not advertised while its business rollout
+ * remains disabled. Human contact is a separate persistent action.
  */
 export const ASSISTANT_SUGGESTIONS = [
     "Trouver une trottinette",
     "Suivre ma commande",
-    "Suivre ma réparation",
     "Horaires et magasins",
-    "Je veux parler à un conseiller",
 ];
 
 patch(Thread.prototype, {
+    get isFreemoovAssistant() {
+        return isFreemoovThread(this.env, this.props.thread);
+    },
     get assistantSuggestions() {
         return ASSISTANT_SUGGESTIONS;
+    },
+    get canRequestFreemoovAdviser() {
+        return this.isFreemoovAssistant && this.props.thread.operator?.id ===
+            this.env.services["im_livechat.livechat"].options.freemoov_ai_bot_partner_id;
     },
 
     get showAssistantSuggestions() {
         const thread = this.props.thread;
-        if (thread?.type !== "livechat") {
+        if (!this.isFreemoovAssistant) {
             return false;
         }
         // An Odoo chatbot script drives its own conversation, with its own

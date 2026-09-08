@@ -10,6 +10,7 @@
                         <div class="fm-assistant-card-name" t-esc="p['nom']"/>
                         <div class="fm-assistant-card-price" t-esc="p['prix_label']"/>
                         <div class="fm-assistant-card-stock" t-esc="p['dispo_label']"/>
+                        <span class="fm-assistant-card-cta">Voir le produit</span>
                     </div>
                 </a>
             </t>

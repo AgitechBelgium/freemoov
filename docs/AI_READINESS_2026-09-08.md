@@ -119,3 +119,64 @@ exécuter pendant une mise à jour de module.
 - La cause initiale de l'absence d'auteur en mémoire et l'ancien incident
   de session `/mail/init_messaging` restent à distinguer de ce garde-fou.
   Aucun message supprimé, aucune modification de production.
+
+## Recette du 8 septembre — version 17.0.0.1.5
+
+### Silence pour un visiteur authentifié interne
+
+Les conversations staging 2379, 2380 et 2381 avaient bien reçu les messages
+de l'utilisateur interne 6, mais le garde visiteur ne reconnaissait que les
+invités et utilisateurs portail. Aucun appel IA n'était donc déclenché.
+Le widget mémorise désormais son visiteur authentifié dans
+`freemoov_ai_visitor_partner_id` et vérifie toujours son appartenance au canal.
+Ce marqueur ne vérifie PAS son identité pour les outils privés : l'OTP reste
+obligatoire. L'utilisateur visiteur est aussi exclu du choix du conseiller.
+
+Un backfill SQL strictement limité à ces trois conversations a été effectué,
+avec contrôles du créateur, des deux membres et de l'opérateur robot.
+Aucun ancien message n'a été rejoué ni supprimé.
+La sonde `docs/probe_ai_internal_visitor.py`, réservée à cette base staging,
+a obtenu deux vraies réponses Anthropic (horaires et demande de conseiller),
+puis annulé sa transaction. Aucune identité n'a été vérifiée implicitement.
+Tests rouges avec un utilisateur interne actif, puis verts dans la suite.
+
+### Présentation et transfert
+
+Direction visuelle approuvée : logo Freemoov, interface claire vert profond/
+citron, trois actions d'accueil, bulles distinctes, cartes produits cliquables,
+envoi explicite et accès humain. Le style est limité au widget Freemoov,
+sans modifier Discuss. Le prompt demande le vouvoiement professionnel.
+
+Chrome réel : accueil et absence de message générique en double vérifiés ;
+capture mobile 390 × 844, conversation/cartes à 320 × 667 sans débordement.
+Une recherche réelle « deux trottinettes à moins de 600 euros » a renvoyé
+deux références et leurs cartes. Ce n'est pas une preuve de tous les parcours.
+
+Le transfert natif ne diffusait le nouvel opérateur qu'au conseiller.
+Une notification minimale `mail.record/insert` est maintenant envoyée au
+canal invité et aux membres authentifiés (id et nom public seulement).
+Le test bus a échoué avant le correctif. Le bouton de transfert disparaît
+lorsqu'un humain prend la main. Un test navigateur supplémentaire couvre
+la persistance du tuple `operator_pid`, utilisé par Odoo au rechargement,
+et empêche une autre conversation d'écraser la session active.
+
+Suite après notification : `/tmp/fm-retail-handoff-final.log`, 246 tests,
+0 échec, 0 erreur, 8 septembre 2026 16:57:51 UTC.
+Le test de persistance a ensuite échoué avant son correctif dans
+`/tmp/fm-persist-red.log`. Suite finale avec persistance :
+`/tmp/fm-retail-persist-final.log`, **246 tests, 0 échec, 0 erreur**,
+8 septembre 2026 à 17:01:23 UTC.
+
+Vérification finale sur le vrai widget : nouvelle demande de conseiller,
+accusé de transfert reçu, nom du conseiller affiché et bouton de transfert
+retiré. Après rechargement, le nom du conseiller reste correctement affiché
+(l'ancien code revenait à « Assistant IA »). Dimensions temporaires du
+navigateur réinitialisées après la recette.
+
+### Limites inchangées avant production
+
+Pas de validation d'une réponse humaine dans deux navigateurs distincts,
+de livraison d'OTP vers une boîte réelle ni du clavier virtuel sur téléphone.
+Le suivi réparation reste désactivé. Les sujets de session obsolète,
+conservation des données/OTP et erreurs du site hôte déjà listés plus haut
+restent à traiter. Aucun déploiement production pendant cette recette.

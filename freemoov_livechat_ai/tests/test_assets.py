@@ -21,6 +21,7 @@ MODULE_PREFIX = "/freemoov_livechat_ai/"
 
 DECLARED_PATHS = [
     "/freemoov_livechat_ai/static/src/js/assistant_avatar.js",
+    "/freemoov_livechat_ai/static/src/js/assistant_presentation.js",
     "/freemoov_livechat_ai/static/src/js/assistant_suggestions.js",
     "/freemoov_livechat_ai/static/src/js/assistant_typing.js",
     "/freemoov_livechat_ai/static/src/scss/assistant_theme.scss",
