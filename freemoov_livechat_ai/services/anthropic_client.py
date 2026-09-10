@@ -17,7 +17,7 @@ PRICE_OUT_PER_MTOK_EUR = 0.92 * 5.00
 class AnthropicClient:
     """Thin HTTP client for Anthropic Messages API — no external SDK needed."""
 
-    def __init__(self, api_key, model, max_tokens=400, timeout=20):
+    def __init__(self, api_key, model, max_tokens=1200, timeout=20):
         self.api_key = api_key
         self.model = model
         self.max_tokens = max_tokens

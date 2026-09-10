@@ -20,8 +20,16 @@ CAP_REACHED_MSG = (
     "Je n'arrive pas à aboutir sur cette demande, je préfère vous passer un conseiller."
 )
 TRUNCATED_MSG = (
-    "Ma réponse a été coupée avant la fin, je préfère vous passer un conseiller "
-    "plutôt que de vous laisser une information incomplète."
+    "Je n’ai pas réussi à terminer ma réponse. Vous pouvez me demander de "
+    "réessayer ou préciser le point à traiter en priorité ; nous continuons ici."
+)
+RECOVERY_INSTRUCTION = (
+    "\nUne génération a été interrompue et n’a pas été montrée au visiteur. "
+    "Rédige maintenant une réponse complète et concise (150 mots maximum), "
+    "uniquement à partir des informations déjà obtenues. Aucun nouvel outil "
+    "ne peut être exécuté. Ne prétends pas avoir effectué une action absente "
+    "des résultats. Si une information manque, demande une précision. "
+    "Cette interruption technique ne justifie pas un transfert à un conseiller."
 )
 
 
@@ -113,6 +121,7 @@ def run_agent(env, channel, client, system_prompt, messages, visitor_message_tex
     # Set when the turn has to end on a canned sentence: whatever the model
     # said last is then unusable, and saying it anyway would mislead.
     forced_text = None
+    recovery_failed = False
     result = None
 
     code = _pending_typed_code(env, channel, messages, visitor_message_text)
@@ -174,7 +183,24 @@ def run_agent(env, channel, client, system_prompt, messages, visitor_message_tex
             # answer: the cut lands mid-block, so the text is half a sentence
             # (the cut can fall inside a price or a URL) and a `tool_use` in it
             # carries arguments the model never finished writing.
-            forced_text = TRUNCATED_MSG
+            # Retry from the last COMPLETE protocol state. Never append the
+            # partial blocks, rerun tools, or execute tools during recovery.
+            try:
+                result = client.create_message(system_prompt + RECOVERY_INSTRUCTION, convo)
+            except psycopg2.Error:
+                raise
+            except Exception:
+                _logger.warning("freemoov_ai: text recovery unavailable")
+                result = None
+            if result:
+                total_in += result["input_tokens"]
+                total_out += result["output_tokens"]
+                total_latency += result["latency_ms"]
+            if (not result or result["stop_reason"] != "end_turn"
+                    or not result["text"].strip()
+                    or any(b.get("type") == "tool_use" for b in result["content"])):
+                forced_text = TRUNCATED_MSG
+                recovery_failed = True
             break
 
         if result["stop_reason"] != "tool_use":
@@ -250,6 +276,7 @@ def run_agent(env, channel, client, system_prompt, messages, visitor_message_tex
     text, escalate = parse_response(result["text"] if result else "")
     if forced_text:
         text = forced_text
+        escalate = not recovery_failed
     if knowledge_sources:
         # Never turn an invented documentary citation into a clickable source.
         # Product URLs returned by the native tools remain permitted.
@@ -258,7 +285,7 @@ def run_agent(env, channel, client, system_prompt, messages, visitor_message_tex
                       lambda m: m.group(0) if m.group(2) in allowed_urls else m.group(1), text)
     return {
         "text": text,
-        "escalate": escalate or bool(forced_text),
+        "escalate": escalate,
         "product_ids": [] if escalate or forced_text else _recommended_product_ids(text, product_urls),
         "tool_calls": tool_calls,
         "knowledge_sources": knowledge_sources,

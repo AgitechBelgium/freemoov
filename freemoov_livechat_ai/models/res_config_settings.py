@@ -47,7 +47,7 @@ class ResConfigSettings(models.TransientModel):
     freemoov_ai_max_tokens = fields.Integer(
         string="Max response tokens",
         config_parameter="freemoov_livechat_ai.max_tokens",
-        default=400,
+        default=1200,
         help="Une réponse coupée à ce plafond n'est pas relayée au visiteur : "
              "le tour bascule sur un conseiller.",
     )

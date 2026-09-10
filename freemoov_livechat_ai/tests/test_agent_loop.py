@@ -335,15 +335,46 @@ class TestAgentLoop(FreemoovAiCase):
         self.assertEqual(out["text"], agent_loop.CAP_REACHED_MSG)
 
     # -- troncature -------------------------------------------------------
-    def test_truncated_answer_escalates(self):
+    def test_truncated_answer_recovers_without_handoff(self):
         """`max_tokens` cuts mid-sentence, and the cut can land inside a price
         or a URL. The half sentence is dropped, not shown."""
         truncated = _resp(text="Le prix de ce modèle est de 1")
         truncated["stop_reason"] = "max_tokens"
-        out, _ = self._run([truncated], "combien ?")
-        self.assertTrue(out["escalate"])
-        self.assertEqual(out["text"], agent_loop.TRUNCATED_MSG)
+        out, cm = self._run([truncated, _resp(text="Quel modèle souhaitez-vous comparer ?")], "combien ?")
+        self.assertFalse(out["escalate"])
+        self.assertEqual(cm.call_count, 2)
+        self.assertFalse(cm.call_args.kwargs.get("tools"))
+        self.assertEqual(out["text"], "Quel modèle souhaitez-vous comparer ?")
+        self.assertEqual(out["output_tokens"], 10)
+        self.assertEqual(out["api_latency_ms"], 100)
         self.assertNotIn("est de 1", out["text"])
+
+    def test_failed_recovery_does_not_handoff(self):
+        truncated = _resp(text="[ESCALATE] phrase coupée")
+        truncated["stop_reason"] = "max_tokens"
+        for recovery in (truncated, RuntimeError("API unavailable"),
+                         _resp(tool_use=("renvoyer_facture", {"reference_commande": "S0"})),
+                         _resp(text="")):
+            with self.subTest(recovery=recovery):
+                out, cm = self._run([truncated, recovery])
+                self.assertFalse(out["escalate"])
+                self.assertEqual(out["text"], agent_loop.TRUNCATED_MSG)
+                self.assertEqual(cm.call_count, 2)
+                self.assertEqual(out["tool_calls"], [])
+
+    def test_recovery_does_not_resend_invoice(self):
+        self._verified_channel_with_invoice()
+        truncated = _resp(text="Votre facture a été")
+        truncated["stop_reason"] = "max_tokens"
+        with patch("odoo.addons.mail.models.mail_template.MailTemplate.send_mail") as send_mail:
+            out, cm = self._run([
+                _resp(tool_use=("renvoyer_facture", {"reference_commande": self.order.name})),
+                truncated, _resp(text="Votre facture a été envoyée."),
+            ])
+        self.assertEqual(send_mail.call_count, 1)
+        self.assertEqual(len(out["tool_calls"]), 1)
+        self.assertFalse(out["escalate"])
+        self.assertEqual(cm.call_args.args[1][-1]["content"][0]["type"], "tool_result")
 
     def test_truncated_tool_use_is_never_executed(self):
         """The cut can also land inside a `tool_use` block, leaving an `input`
@@ -357,8 +388,8 @@ class TestAgentLoop(FreemoovAiCase):
         with patch.object(tools, "run_tool", wraps=tools.run_tool) as run:
             out, cm = self._run([truncated, _resp(text="jamais atteint")], "ma facture ?")
         self.assertFalse(run.called)
-        self.assertEqual(cm.call_count, 1)
-        self.assertTrue(out["escalate"])
+        self.assertEqual(cm.call_count, 2)
+        self.assertFalse(out["escalate"])
         self.assertEqual(out["tool_calls"], [])
 
     def test_tool_use_stop_reason_without_a_block(self):

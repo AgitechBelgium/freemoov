@@ -134,7 +134,7 @@ class DiscussChannel(models.Model):
         return {
             "api_key": ICP.get_param("freemoov_livechat_ai.api_key") or "",
             "model": ICP.get_param("freemoov_livechat_ai.model") or "claude-haiku-4-5-20251001",
-            "max_tokens": _int_param(ICP, "freemoov_livechat_ai.max_tokens", 400),
+            "max_tokens": _int_param(ICP, "freemoov_livechat_ai.max_tokens", 1200),
             "rate_limit_per_min": _int_param(
                 ICP, "freemoov_livechat_ai.rate_limit_per_min", 20
             ),
