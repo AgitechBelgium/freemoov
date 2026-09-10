@@ -4,3 +4,4 @@ from . import livechat_ai_log
 from . import verification
 from . import assistant_api_log
 from . import im_livechat_channel
+from . import knowledge_article

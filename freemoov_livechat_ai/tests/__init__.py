@@ -15,3 +15,4 @@ from . import test_catalog_search
 from . import test_verification_preflight
 from . import test_browser_avatar
 from . import test_browser_widget
+from . import test_knowledge

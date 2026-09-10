@@ -103,3 +103,4 @@ from . import catalog  # noqa: E402,F401
 from . import verification_tools  # noqa: E402,F401
 from . import orders  # noqa: E402,F401
 from . import repairs  # noqa: E402,F401
+from . import knowledge  # noqa: E402,F401

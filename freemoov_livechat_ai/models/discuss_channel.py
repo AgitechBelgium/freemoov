@@ -36,7 +36,7 @@ FALLBACK_TEXT = "Je n'ai pas pu formuler de réponse. Réessayez dans un instant
 # turn apart, not enough to rebuild the value; 0 drops it entirely, which is the
 # only sane amount for a code (three characters of a six-digit code is half of
 # it).
-REDACTED_TOOL_ARGS = {"identifiant": 3, "reference_commande": 3, "code": 0}
+REDACTED_TOOL_ARGS = {"identifiant": 3, "reference_commande": 3, "code": 0, "question": 0}
 
 
 def _int_param(ICP, key, default):
@@ -430,6 +430,7 @@ class DiscussChannel(models.Model):
         cost = estimate_cost_eur(out["input_tokens"], out["output_tokens"])
         turn_kw = {
             "tools_used": ", ".join(dict.fromkeys(c["name"] for c in out["tool_calls"])),
+            "knowledge_sources": out.get('knowledge_sources', []),
             "tool_calls_json": json.dumps(
                 _redact_tool_calls(out["tool_calls"]), ensure_ascii=False, default=str
             ),

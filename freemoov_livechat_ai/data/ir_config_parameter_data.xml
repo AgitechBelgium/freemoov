@@ -16,6 +16,10 @@
         <field name="key">freemoov_livechat_ai.dry_run</field>
         <field name="value">True</field>
     </record>
+    <record id="param_knowledge_enabled" model="ir.config_parameter">
+        <field name="key">freemoov_livechat_ai.knowledge_enabled</field>
+        <field name="value">False</field>
+    </record>
     <record id="param_model" model="ir.config_parameter">
         <field name="key">freemoov_livechat_ai.model</field>
         <field name="value">claude-haiku-4-5-20251001</field>

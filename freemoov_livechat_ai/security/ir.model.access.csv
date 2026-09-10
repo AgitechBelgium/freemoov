@@ -3,3 +3,5 @@ access_freemoov_livechat_ai_log_admin,freemoov.livechat.ai.log admin,model_freem
 access_freemoov_livechat_ai_log_user,freemoov.livechat.ai.log user,model_freemoov_livechat_ai_log,base.group_user,1,0,0,0
 access_livechat_verification_system,freemoov.livechat.verification.system,model_freemoov_livechat_verification,base.group_system,1,1,1,1
 access_freemoov_assistant_api_log_system,freemoov.assistant.api.log system,model_freemoov_assistant_api_log,base.group_system,1,1,1,1
+access_knowledge_admin,knowledge admin,model_freemoov_ai_knowledge_article,base.group_system,1,1,1,1
+access_knowledge_manager,knowledge manager,model_freemoov_ai_knowledge_article,group_knowledge_manager,1,1,1,1

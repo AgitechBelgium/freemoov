@@ -1,14 +1,16 @@
 {
     'name': 'Freemoov Livechat AI',
-    'version': '17.0.0.1.5',
+    'version': '17.0.0.1.6',
     'category': 'Website/Live Chat',
     'summary': 'Hybrid livechat bot: Odoo native chatbot + Claude fallback on open questions',
     'author': 'Freemoov',
     'website': 'https://freemoov.com',
-    'depends': ['im_livechat', 'product', 'website_sale', 'website_freemoov', 'project', 'sms'],
+    'depends': ['im_livechat', 'website_livechat', 'product', 'website_sale', 'website_freemoov', 'project', 'sms'],
     'external_dependencies': {'python': ['markdown']},
     'data': [
+        'security/knowledge_security.xml',
         'security/ir.model.access.csv',
+        'views/knowledge_article_views.xml',
         'data/ir_config_parameter_data.xml',
         'data/ir_cron_data.xml',
         'data/res_partner_data.xml',

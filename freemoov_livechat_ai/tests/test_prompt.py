@@ -9,7 +9,7 @@ from unittest.mock import patch
 from odoo.tests import tagged
 
 from ..services import prompt_builder, tools
-from ..services.knowledge_base import STATIC_FAQ, build_knowledge_base
+from ..services.knowledge_base import KNOWLEDGE_RULES, build_knowledge_base
 from ..services.prompt_builder import (
     KNOWLEDGE_BASE_SLOT,
     SYSTEM_TEMPLATE,
@@ -26,10 +26,9 @@ class TestPrompt(FreemoovAiCase):
 
     # -- faits corrigés ---------------------------------------------------
     def test_prompt_content(self):
-        self.assertIn("Charleroi", self.prompt)
-        self.assertNotIn("Bruxelles", self.prompt)
-        self.assertIn("14 jours", self.prompt)
-        self.assertNotIn("30 jours", self.prompt)
+        self.assertIn("chercher_connaissances", self.prompt)
+        self.assertNotIn("reste toujours accessible", self.prompt)
+        self.assertNotIn("14 jours", self.prompt)
         # le catalogue ne doit plus être injecté : il passe par les outils
         self.assertNotIn("Catalogue produits", self.prompt)
         self.assertIn("chercher_produits", self.prompt)
@@ -43,24 +42,22 @@ class TestPrompt(FreemoovAiCase):
         Website = self.env["website"]
         self.assertEqual(set(Website._STORES), {"liege", "namur", "charleroi"})
         for store in Website._STORES.values():
-            self.assertIn(store["street"], self.prompt)
-            self.assertIn(store["postal_code"], self.prompt)
-            self.assertIn(store["locality"], self.prompt)
-        self.assertIn(Website._STORE_PHONE, self.prompt)
+            self.assertNotIn(store["street"], self.prompt)
+        self.assertNotIn(Website._STORE_PHONE, self.prompt)
+        self.assertIn('infos_magasins', self.prompt)
 
     def test_the_opening_hours_are_the_real_ones(self):
-        self.assertIn("mardi-vendredi 11:00-19:00", self.prompt)
-        self.assertIn("samedi 11:00-17:00", self.prompt)
+        self.assertNotIn("mardi-vendredi 11:00-19:00", self.prompt)
+        self.assertNotIn("samedi 11:00-17:00", self.prompt)
 
     def test_free_delivery_and_belgian_law_survive_the_rewrite(self):
         """The rewrite corrects the wrong facts; it may not lose the right
         ones — these four are what most visitors actually ask about.
         """
-        self.assertIn("190", self.prompt)
-        self.assertIn("1 à 5 jours ouvrés", self.prompt)
-        self.assertIn("Garantie 2 ans", self.prompt)
-        self.assertIn("25 km/h", self.prompt)
-        self.assertIn("16 ans", self.prompt)
+        self.assertNotIn("1 à 5 jours ouvrés", self.prompt)
+        self.assertNotIn("Garantie 2 ans", self.prompt)
+        self.assertNotIn("25 km/h", self.prompt)
+        self.assertNotIn("16 ans", self.prompt)
 
     # -- plus de catalogue dans le prompt ---------------------------------
     def test_the_catalogue_never_reaches_the_prompt(self):
@@ -84,7 +81,7 @@ class TestPrompt(FreemoovAiCase):
         self.assertNotIn("987654", prompt)
 
     def test_the_knowledge_base_is_only_the_static_policies(self):
-        self.assertEqual(build_knowledge_base(self.env), STATIC_FAQ)
+        self.assertEqual(build_knowledge_base(self.env), KNOWLEDGE_RULES)
 
     # -- outils -----------------------------------------------------------
     def test_every_registered_tool_is_named_in_the_prompt(self):

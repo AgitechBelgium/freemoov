@@ -36,6 +36,7 @@
                         <field name="cost_eur"/>
                         <field name="latency_ms"/>
                         <field name="tools_used"/>
+                        <field name="knowledge_sources"/>
                         <field name="verified_partner_id"/>
                     </group>
                     <group string="Visitor message">

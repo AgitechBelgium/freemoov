@@ -1,0 +1,37 @@
+<odoo>
+    <record id="knowledge_tree" model="ir.ui.view">
+        <field name="name">freemoov.ai.knowledge.article.tree</field>
+        <field name="model">freemoov.ai.knowledge.article</field>
+        <field name="arch" type="xml"><tree decoration-muted="state == 'archived'">
+            <field name="title"/><field name="key"/><field name="revision"/><field name="website_id"/><field name="state"/><field name="validated_at"/>
+        </tree></field>
+    </record>
+    <record id="knowledge_form" model="ir.ui.view">
+        <field name="name">freemoov.ai.knowledge.article.form</field>
+        <field name="model">freemoov.ai.knowledge.article</field>
+        <field name="arch" type="xml"><form>
+            <header>
+                <button name="action_publish" type="object" string="Publier" class="oe_highlight" invisible="state != 'draft'"/>
+                <button name="action_new_revision" type="object" string="Nouvelle révision"/>
+                <button name="action_archive" type="object" string="Archiver" invisible="state == 'archived'"/>
+                <field name="state" widget="statusbar"/>
+            </header>
+            <sheet><group>
+                <field name="title" readonly="state != 'draft'"/><field name="key" readonly="state != 'draft'"/>
+                <field name="revision" readonly="state != 'draft'"/><field name="website_id" readonly="state != 'draft'"/>
+                <field name="lang" readonly="state != 'draft'"/><field name="topic" readonly="state != 'draft'"/>
+                <field name="aliases" readonly="state != 'draft'"/><field name="answer" readonly="state != 'draft'"/>
+                <field name="source_kind" readonly="state != 'draft'"/><field name="source_ref" readonly="state != 'draft'"/>
+                <field name="source_revision" readonly="state != 'draft'"/><field name="public_url" readonly="state != 'draft'"/>
+                <field name="effective_from" readonly="state != 'draft'"/><field name="effective_until" readonly="state != 'draft'"/>
+                <field name="validated_by"/><field name="validated_at"/><field name="internal_note" readonly="state != 'draft'"/>
+            </group>
+            <button name="action_import_seed" type="object" string="Importer le corpus initial en brouillon pour ce site"/>
+            </sheet>
+        </form></field>
+    </record>
+    <record id="action_knowledge" model="ir.actions.act_window">
+        <field name="name">Connaissances IA</field><field name="res_model">freemoov.ai.knowledge.article</field><field name="view_mode">tree,form</field>
+    </record>
+    <menuitem id="menu_knowledge" name="Connaissances IA" parent="im_livechat.menu_livechat_root" action="action_knowledge" groups="group_knowledge_manager,base.group_system" sequence="89"/>
+</odoo>

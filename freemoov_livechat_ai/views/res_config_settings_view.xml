@@ -8,6 +8,9 @@
             <xpath expr="//form" position="inside">
                 <app data-string="Freemoov AI Livechat" string="Freemoov AI Livechat" name="freemoov_livechat_ai" groups="base.group_system">
                     <block title="Fallback IA sur le livechat" name="freemoov_ai_block">
+                        <setting string="Recherche documentaire validée" help="Seules les connaissances publiées du site sont consultables.">
+                            <field name="freemoov_ai_knowledge_enabled"/>
+                        </setting>
                         <setting id="freemoov_ai_enabled_setting" string="Activer l'IA">
                             <field name="freemoov_ai_enabled"/>
                         </setting>

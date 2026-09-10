@@ -108,6 +108,7 @@ def run_agent(env, channel, client, system_prompt, messages, visitor_message_tex
     specs = tools.anthropic_tool_specs()
     convo = list(messages)
     tool_calls, product_urls = [], {}
+    knowledge_sources, knowledge_urls = [], set()
     total_in = total_out = total_latency = 0
     # Set when the turn has to end on a canned sentence: whatever the model
     # said last is then unusable, and saying it anyway would mislead.
@@ -139,6 +140,27 @@ def run_agent(env, channel, client, system_prompt, messages, visitor_message_tex
         system_prompt += ('\nLe code du dernier message vient d’être validé par le serveur. '
                           'Ne le vérifie pas une seconde fois ; poursuis la demande du visiteur '
                           'avec l’outil de commande ou de réparation approprié.')
+
+    question = visitor_message_text if visitor_message_text is not None else (messages[-1].get('content') if messages else None)
+    if (not code and isinstance(question, str) and question.strip() and
+            env['ir.config_parameter'].sudo().get_param('freemoov_livechat_ai.knowledge_enabled') == 'True'):
+        # Read-only retrieval is deterministic; factual grounding must not depend
+        # on whether the model decides to request a tool on this particular turn.
+        started = time.monotonic()
+        args = {'question': question[:500]}
+        knowledge = tools.run_tool(env, channel, 'chercher_connaissances', args)
+        tool_calls.append({'name': 'chercher_connaissances', 'arguments': args, 'ok': True,
+                           'duration_ms': int((time.monotonic() - started) * 1000)})
+        for article in knowledge.get('articles', []):
+            knowledge_sources.append({'key': article['key'], 'revision': article['revision']})
+            if article.get('public_url'):
+                knowledge_urls.add(article['public_url'])
+        convo.extend([
+            {'role': 'assistant', 'content': [{'type': 'tool_use', 'id': 'knowledge_preflight',
+                                             'name': 'chercher_connaissances', 'input': args}]},
+            {'role': 'user', 'content': [{'type': 'tool_result', 'tool_use_id': 'knowledge_preflight',
+                                        'content': json.dumps(knowledge, ensure_ascii=False), 'is_error': False}]},
+        ])
 
     for iteration in range(MAX_TOOL_ITERATIONS + 1):
         result = client.create_message(system_prompt, convo, tools=specs)
@@ -193,6 +215,13 @@ def run_agent(env, channel, client, system_prompt, messages, visitor_message_tex
                 ok, payload = False, json.dumps({"erreur": TOOL_CRASH_MSG}, ensure_ascii=False)
             else:
                 ok, payload = True, json.dumps(out, ensure_ascii=False, default=str)
+                if name == 'chercher_connaissances':
+                    for article in out.get('articles', []):
+                        source = {'key': article['key'], 'revision': article['revision']}
+                        if source not in knowledge_sources:
+                            knowledge_sources.append(source)
+                        if article.get('public_url'):
+                            knowledge_urls.add(article['public_url'])
                 # Out of the `except` reach on purpose: a bug in our own
                 # collection code must not be reported to the model as a failed
                 # lookup on a lookup that succeeded.
@@ -221,11 +250,18 @@ def run_agent(env, channel, client, system_prompt, messages, visitor_message_tex
     text, escalate = parse_response(result["text"] if result else "")
     if forced_text:
         text = forced_text
+    if knowledge_sources:
+        # Never turn an invented documentary citation into a clickable source.
+        # Product URLs returned by the native tools remain permitted.
+        allowed_urls = knowledge_urls | set(product_urls)
+        text = re.sub(r'\[([^\]]+)\]\((https?://[^\s)]+)\)',
+                      lambda m: m.group(0) if m.group(2) in allowed_urls else m.group(1), text)
     return {
         "text": text,
         "escalate": escalate or bool(forced_text),
         "product_ids": [] if escalate or forced_text else _recommended_product_ids(text, product_urls),
         "tool_calls": tool_calls,
+        "knowledge_sources": knowledge_sources,
         "input_tokens": total_in,
         "output_tokens": total_out,
         "api_latency_ms": total_latency,

@@ -7,6 +7,7 @@ from ..services.tools import DRY_RUN_PARAM, is_dry_run
 # `bool(value)` instead, so it shows the shipped "False" as ticked: every
 # switch below is therefore read back by hand in `get_values`.
 SWITCH_FIELDS = {
+    "freemoov_ai_knowledge_enabled": "freemoov_livechat_ai.knowledge_enabled",
     "freemoov_ai_enabled": "freemoov_livechat_ai.enabled",
     "freemoov_ai_verification_test_mode": "freemoov_livechat_ai.verification_test_mode",
     "freemoov_ai_repair_tool_enabled": "freemoov_livechat_ai.repair_tool_enabled",
@@ -15,6 +16,10 @@ SWITCH_FIELDS = {
 
 class ResConfigSettings(models.TransientModel):
     _inherit = "res.config.settings"
+
+    freemoov_ai_knowledge_enabled = fields.Boolean(
+        string="Activer la recherche documentaire validée",
+        config_parameter="freemoov_livechat_ai.knowledge_enabled")
 
     freemoov_ai_enabled = fields.Boolean(
         string="Enable AI livechat assistant",

@@ -11,6 +11,8 @@ class FreemoovAiCase(TransactionCase):
         # from whatever the database happens to hold.
         cls.env["ir.config_parameter"].sudo().set_param(
             "freemoov_livechat_ai.dry_run", "False")
+        cls.env["ir.config_parameter"].sudo().set_param(
+            "freemoov_livechat_ai.knowledge_enabled", "False")
         cls.channel = cls.env["discuss.channel"].create({
             "name": "Test visiteur",
             "channel_type": "livechat",

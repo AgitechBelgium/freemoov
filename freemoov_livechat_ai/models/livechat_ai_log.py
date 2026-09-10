@@ -17,6 +17,7 @@ class LivechatAILog(models.Model):
     cost_eur = fields.Float(string="Estimated cost (€)", digits=(10, 5))
     latency_ms = fields.Integer(string="Latency (ms)")
     tools_used = fields.Char(string="Outils utilisés")
+    knowledge_sources = fields.Json(string="Révisions documentaires consultées")
     verified_partner_id = fields.Integer(
         string="Client vérifié (id)",
         help="Partner the visitor had proven to be when the turn ran, 0 if "
